@@ -1,0 +1,4880 @@
+
+'Generated with PluriBASIC 6.0.237326.0
+
+$ filename "C:\Users\Diamante\Documents\PluriBASIC\projects\drmario\drmario.exe"
+
+uses rtl64
+
+DIM STRING ¤SYSTEM_UDT_OFFSETS(0)
+' dimension offsets. 
+#DEF ¤DIM1 (d1-bnd[1])
+#DEF ¤DIM2 (d2-bnd[3])
+#DEF ¤DIM3 (d3-bnd[5])
+' dimension sizes (in elements)
+#DEF ¤DSZ1 dsz[1]
+#DEF ¤DSZ2 dsz[2]
+#DEF ¤DSZ3 dsz[3]
+#DEF ¤ARR_NAME_DEF class ¤ARR_%1
+STRING ¤TMPS = "" ' a temporary string.
+DECLARE FUNCTION ¤GetLastError        Lib "Kernel32.dll" Alias "GetLastError" () AS LONG
+DECLARE FUNCTION ¤GetAsyncKeyState    Lib "User32.dll"   Alias "GetAsyncKeyState" (ByVal vKey AS LONG) AS short
+DECLARE SUB ¤Sleep                    lib "Kernel32.dll" alias "Sleep" (dword mSec)
+
+function ¤INI_QUAD(dword v1, v2) as quad
+    quad v = 0
+    copy(@v+0, @v2, 4)
+    copy(@v+4, @v1, 4)
+    return v
+end function
+
+DECLARE FUNCTION ¤OpenProcess         Lib "KERNEL32.DLL"  Alias "OpenProcess" (ByVal dwDesiredAccess AS DWORD, ByVal bInheritHandle AS LONG, ByVal dwProcessId AS SYS) AS SYS
+DECLARE FUNCTION ¤TerminateProcess    Lib "KERNEL32.DLL"  Alias "TerminateProcess" ( ByVal hProcess AS SYS, ByVal uExitCode AS DWORD) AS LONG
+DECLARE FUNCTION ¤CloseHandle         Lib "KERNEL32.DLL"  Alias "CloseHandle" (ByVal hObject AS SYS) AS LONG
+DECLARE FUNCTION ¤GetCurrentProcessId Lib "KERNEL32.DLL"  Alias "GetCurrentProcessId" () AS SYS
+
+MACRO ¤SET_ERR(n)
+    Err.err = n
+    Err.erl = Err.erp
+END MACRO
+
+MACRO ¤ONERR(l, e)
+   Err.err = e
+   IF (Err.err>0) THEN
+      Err.ers = Err.erp
+      Err.erl = l   
+      IF Err.Oe1 THEN
+         JMP Err.Oe1
+      ELSEIF Err.Oe2 THEN
+         CALL Err.Oe2
+      END IF
+   else
+      Err.ers = ""
+      Err.erl = 0   
+   END IF
+END MACRO
+
+MACRO ERRCLEAR
+    Err.err = 0 
+    Err.erl = 0 
+    Err.ers = ""
+END MACRO
+
+CLASS ¤SYSERR
+    public sys Oe1 = 0
+    public sys Oe2 = 0
+    public int err = 0
+    public int erl = 0
+    public string erp = ""
+    public string ers = ""
+END CLASS
+
+TYPE ¤RECT
+    long left
+    long top
+    long right
+    long bottom
+END TYPE
+
+DECLARE FUNCTION ¤GetParent             LIB "USER32.DLL"   ALIAS "GetParent" (BYVAL hWnd AS SYS) AS SYS
+DECLARE FUNCTION ¤GetDC                 LIB "USER32.DLL"   ALIAS "GetDC" (BYVAL hWnd AS SYS) AS SYS
+DECLARE function ¤GetStockObject        lib "GDI32.DLL"    alias "GetStockObject"
+DECLARE function ¤GetSystemMetrics      lib "USER32.DLL"   ALIAS "GetSystemMetrics"(byval nIndex int) as int
+DECLARE function ¤GetDeviceCaps         lib "GDI32.DLL"    alias "GetDeviceCaps" (byval hdc as sys, byval nIndex as int) as int
+DECLARE function ¤ReleaseDC             lib "USER32.DLL"   alias "ReleaseDC" (byval hWnd as sys, byval hDC as sys) as INT
+Declare Function ¤CreateWindowEx        Lib "user32.dll"   Alias "CreateWindowExA" (byval dwExStyle AS INT,byval lpClassName AS STRING,byval lpWindowName AS STRING,byval dwStyle AS INT,byval x AS INT,byval y AS INT,byval nWidth AS INT,byval nHeight AS INT,byval hWndParent AS INT,byval hMenu AS INT,byval hInstance AS INT,byval lpParam AS INT) as INT
+Declare Function ¤CreateSolidBrush      Lib "gdi32.dll"    Alias "CreateSolidBrush"(ByVal crColor As INT) As INT
+Declare Function ¤GetSysColor           Lib "user32.dll"   Alias "GetSysColor" (ByVal nIndex As INT) As INT
+Declare Function ¤LoadIcon              Lib "user32.dll"   Alias "LoadIconA" (ByVal hInstance As INT, ByVal lpIconName As Any) As INT
+Declare Function ¤LoadCursor            Lib "user32.dll"   Alias "LoadCursorA" (ByVal hInstance As INT, ByVal lpCursorName As Any) As INT
+Declare Function ¤GetModuleHandle       Lib "kernel32.dll" Alias "GetModuleHandleA" (int lpModuleName) as SYS
+Declare Function ¤GetWindowRect         Lib "user32.dll"   Alias "GetWindowRect" (BYVAL hWnd AS sys, lpRect AS ¤RECT) AS INT
+Declare Function ¤CallWindowProc        Lib "user32.dll"   Alias "CallWindowProcA" (byval hProc as sys, ByVal hWnd As INT, ByVal wMsg As INT, ByVal wParam As INT, ByVal lParam As INT) As INT
+Declare Function ¤DefWindowProc         Lib "user32.dll"   Alias "DefWindowProcA" (ByVal hWnd As INT, ByVal wMsg As INT, ByVal wParam As INT, ByVal lParam As INT) As INT
+Declare Function ¤DefWindowProcCallBack Lib "user32.dll"   Alias "DefWindowProcA" (ByVal hWnd As INT, ByVal wMsg As INT, ByVal wParam As INT, ByVal lParam As INT) As INT
+Declare Function ¤GetSysColor           Lib "user32.dll"   Alias "GetSysColor" (ByVal nIndex As INT) As INT
+Declare Function ¤GetDialogBaseUnits    LIB "User32.dll"   ALIAS "GetDialogBaseUnits" () AS INT
+Declare Function ¤MulDiv                LIB "KERNEL32.DLL" ALIAS "MulDiv" (BYVAL nNumber AS INT, BYVAL nNumerator AS INT, BYVAL nDenominator AS INT) AS INT
+Declare Function ¤MapDialogRect         LIB "user32.DLL"   ALIAS "MapDialogRect" (ByVal hWnd As SYS, Byref RC AS ¤RECT) AS SYS 
+Declare Function ¤GetDesktopWindow      LIB "user32.DLL"   ALIAS "GetDesktopWindow" () AS SYS
+Declare Function ¤GetLastError          LIB "Kernel32.DLL" ALIAS "GetLastError" () AS SYS
+Declare Function ¤FormatMessage         LIB "Kernel32.dll" ALIAS "FormatMessageA" (BYVAL dwFlags AS DWORD, BYVAL lpSource AS DWORD, BYVAL dwMessageId AS DWORD, BYVAL dwLanguageId AS DWORD, lpBuffer AS ASCIIZ, BYVAL nSize AS DWORD, BYVAL Arguments AS DWORD) AS DWORD
+DECLARE FUNCTION ¤CreateDialogIParam    LIB "user32.dll"   ALIAS "CreateDialogIndirectParamA" (sys hInstance, lpTemplate, hWndParent, lpDialogFunc, lParamInit) as sys
+DECLARE SUB ¤PostQuitMessage            LIB "User32.dll"   ALIAS "PostQuitMessage"
+DECLARE SUB ¤DestroyWindow              LIB "User32.dll"   ALIAS "DestroyWindow"
+DECLARE FUNCTION ¤GetDlgItem            LIB "User32.dll"   ALIAS "GetDlgItem" (BYVAL hDlg AS SYS, BYVAL nIDDlgItem AS sys) AS SYS
+DECLARE FUNCTION ¤RedrawWindow          LIB "User32.dll" ALIAS "RedrawWindow"
+DECLARE FUNCTION ¤SetProp               Lib "user32.dll"   Alias "SetPropA" (ByVal hWnd As SYS, BYVAL lpString As DWORD, BYVAL hAddr AS DWORD) AS SYS
+DECLARE FUNCTION ¤GetProp               Lib "user32.dll"   Alias "GetPropA" (ByVal hWnd As SYS, BYVAL lpString As DWORD) AS SYS
+DECLARE FUNCTION ¤SetWindowText         Lib "user32.dll"   Alias "SetWindowTextA" (ByVal hWnd As SYS, BYVAL lpString As DWORD) AS SYS
+DECLARE FUNCTION ¤RemoveProp            Lib "user32.dll"   Alias "RemovePropA" (ByVal hWnd As SYS, BYVAL lpString As DWORD) AS SYS
+DECLARE FUNCTION ¤SetWindowPos          LIB "User32.dll" ALIAS "SetWindowPos" (BYVAL hWnd AS SYS, BYVAL hWndInsertAfter AS DWORD, BYVAL x AS INT, BYVAL y AS INT, BYVAL cx AS INT, BYVAL cy AS INT, BYVAL wFlags AS DWORD) AS INT
+DECLARE FUNCTION ¤GetWindowTextLength   LIB "User32.dll" ALIAS "GetWindowTextLengthA" (BYVAL hWnd AS SYS) AS INT
+DECLARE FUNCTION ¤GetWindowText         LIB "User32.dll" ALIAS "GetWindowTextA" (BYVAL hWnd AS SYS, BYVAL lpString AS DWORD, BYVAL cch AS INT) AS INT
+
+   
+'DECLARE FUNCTION ¤GetProcessHeap        Lib "kernel32.dll" Alias "GetProcessHeap" () As SYS
+'DECLARE FUNCTION ¤HeapAlloc             Lib "kernel32.dll" Alias "HeapAlloc" (ByVal hProc As DWORD, ByVal mMode As dword, byval mSize as DWORD) AS SYS
+'DECLARE FUNCTION ¤HeapFree              Lib "kernel32.dll" Alias "HeapFree" (ByVal hProc As DWORD, ByVal mMode As dword, byval hObj as DWORD) AS SYS
+
+TYPE ¤DLGTEMPLATE
+   dword style 
+   dword eStyle 
+   word  cdit
+   short x
+   short y
+   short cx
+   short cy
+END TYPE
+
+¤RECT ¤RC
+
+CHAR ¤DTT[6] = "DATA" + chr(0)
+sys  ¤LPPI = 0
+SYS  ¤HPPA = 0
+¤DLGTEMPLATE ¤LPDT
+
+¤LPDT.style  = 2155872320
+¤LPDT.eStyle = 1
+¤LPDT.cdit   = 0
+¤LPDT.x      = 1
+¤LPDT.y      = 1
+¤LPDT.cx     = 2
+¤LPDT.cy     = 2
+
+' Create a dummy dialog to retrieve dialog units.
+sys ¤TODL = ¤CreateDialogIParam(¤GetModuleHandle(0), @¤LPDT, ¤HPPA, @¤DEFAULT_CALLBACK_PROC, ¤LPPI)
+
+¤RC.right  = 1 
+¤RC.bottom = 1        
+
+¤MapDialogRect(¤TODL, ¤RC) 
+    
+ 
+TYPE ¤WNDCLASSEX ' 64 bit headers for use with DIALOG NEW
+    int cbSize
+    int style
+    sys lpfnwndproc
+    int cbClsextra
+    int cbWndExtra
+    sys hInstance
+    sys hIcon
+    sys hCursor
+    sys hbrBackground
+    sys lpszMenuName
+    sys lpszClassName
+    sys hIconSm
+END TYPE
+
+Declare Function ¤RegisterClassEx     Lib "user32.dll"   Alias "RegisterClassExA" (byref lpwcx as ¤WNDCLASSEX) as INT
+    
+    ¤WNDCLASSEX ¤WClass
+
+    ¤WClass.cbSize        = SizeOf(¤WNDCLASSEX)
+    ¤WClass.style         = 40
+    ¤WClass.lpfnWndProc   = &¤DefWindowProcCallBack
+    ¤WClass.hInstance     = ¤GetModuleHandle(0)  
+    ¤WClass.hIcon         = ¤LoadIcon(0, ByVal 32512)         'loads an icon for use by the program
+    ¤WClass.hCursor       = ¤LoadCursor(0, ByVal 32512)       'loads a mouse cursor for use by the program
+    ¤WClass.hbrBackground = ¤CreateSolidBrush(¤GetSysColor(15))
+    ¤WClass.lpszMenuName  = STRPTR("")
+    ¤WClass.lpszClassName = STRPTR("DDTDialog")
+    ¤WClass.hIConSm       = ¤LoadIcon(0, ByVal 32512) 'loads an icon for use by the program
+
+    Call ¤RegisterClassEx(¤WClass)       'registers a window class for the program window    
+    
+    'print ¤RC.right " - " ¤RC.bottom
+ 
+TYPE ¤MSG
+   hwnd    as int
+   message as int
+   wParam  as int
+   lParam  as int
+   time    as dword
+   'part of pointapi.
+   X       as INT
+   Y       as INT
+END TYPE
+
+Declare Function ¤ShowWindow       Lib "user32.dll" Alias "ShowWindow" (ByVal hWnd As INT, ByVal nCmdShow As INT) As INT
+Declare Function ¤TranslateMessage Lib "user32.dll" Alias "TranslateMessage" (byref lpMsg as ¤MSG) as INT
+Declare Function ¤DispatchMessage  Lib "user32.dll" Alias "DispatchMessageA" (byref lpMsg as ¤MSG) as INT
+Declare Function ¤GetMessage       Lib "user32.dll" Alias "GetMessageA" (lpMsg As ¤MSG, ByVal hWnd As INT, ByVal wMsgFilterMin As INT, ByVal wMsgFilterMax As INT) As INT
+DECLARE FUNCTION ¤IsWindow         LIB "USER32.DLL" ALIAS "IsWindow" (BYVAL hWnd AS DWORD) AS int
+DECLARE FUNCTION ¤SetWindowLong    LIB "USER32.DLL" ALIAS "SetWindowLongA" (BYVAL hWnd AS DWORD, BYVAL nIndex AS INT, BYVAL lNewLong AS QUAD) AS INT
+DECLARE FUNCTION ¤SendMessage      LIB "USER32.DLL" ALIAS "SendMessageA" (BYVAL hWnd AS DWORD, BYVAL dwMsg AS DWORD, BYVAL wParam AS DWORD, BYVAL lParam AS INT) AS INT
+DECLARE FUNCTION ¤SetWindowLongPtr LIB "USER32.DLL" ALIAS "SetWindowLongPtrA" (BYVAL hWnd AS sys, BYVAL nIndex AS INT, BYVAL lNewLong AS sys) AS SYS
+DECLARE FUNCTION ¤GetWindowLongPtr LIB "USER32.DLL" ALIAS "GetWindowLongPtrA" (BYVAL hWnd AS sys, BYVAL nIndex AS INT) AS SYS
+                        
+declare FUNCTION ¤CloseHandle LIB "KERNEL32.DLL" ALIAS "CloseHandle" (byval fHandle AS SYS) AS DWORD
+DECLARE FUNCTION ¤CreateFileA LIB "KERNEL32.DLL" ALIAS "CreateFileA" ( _
+                     ByVal lpFileName AS DWORD, _
+                     ByVal dwDesiredAccess AS DWORD, _
+                     ByVal dwShareMode AS DWORD, _
+                     ByVal lpSecurityAttributes AS DWORD, _
+                     ByVal dwCreationDisposition AS DWORD, _
+                     ByVal dwFlagsAndAttributes AS DWORD, _
+                     BYVAL hTemplateFile AS DWORD) AS DWORD
+DECLARE FUNCTION ¤CreateFileW LIB "KERNEL32.DLL" ALIAS "CreateFileW" ( _
+                     ByVal lpFileName AS DWORD, _
+                     ByVal dwDesiredAccess AS DWORD, _
+                     ByVal dwShareMode AS DWORD, _
+                     ByVal lpSecurityAttributes AS DWORD, _
+                     ByVal dwCreationDisposition AS DWORD, _
+                     ByVal dwFlagsAndAttributes AS DWORD, _
+                     BYVAL hTemplateFile AS DWORD) AS DWORD
+DECLARE FUNCTION ¤SetFilePointer LIB "KERNEL32.DLL" ALIAS "SetFilePointer" ( _                    
+                     BYVAL hFile AS SYS, _
+                     BYVAL lDistanceToMove AS LONG, _
+                     BYval lpDistanceToMoveHigh AS LONG, _
+                     BYVAL dwMoveMethod AS DWORD) AS DWORD
+DECLARE FUNCTION ¤SetFilePointerEx LIB "KERNEL32.DLL" ALIAS "SetFilePointerEx" ( _                    
+                     BYVAL hFile AS SYS, _
+                     BYVAL lDistanceToMove AS SYS, _
+                     BYREF lpNewFilePointer AS SYS, _
+                     BYVAL dwMoveMethod AS DWORD) AS INT                     
+DECLARE FUNCTION ¤WriteFile LIB "Kernel32.dll" ALIAS "WriteFile" ( _
+                     BYVAL hFile AS SYS, BYVAL lpBuffer AS SYS, _
+                     BYVAL nNumberOfBytesToWrite AS DWORD, lpNumberOfBytesWritten AS DWORD, _
+                     lpOverlapped AS DWORD) AS DWORD
+DECLARE FUNCTION ¤ReadFile LIB "Kernel32.dll" ALIAS "ReadFile" ( _
+                     BYVAL hFile AS SYS, BYVAL lpBuffer AS SYS, _
+                     BYVAL nNumberOfBytesToRead AS DWORD, lpNumberOfBytesRead AS DWORD, _
+                     lpOverlapped AS DWORD) AS DWORD
+DECLARE FUNCTION ¤SetConsoleMode Lib "Kernel32.dll" ALIAS "SetConsoleMode" ( _
+                     ByVal hConsoleOutput As SYS, _
+                     dwMode As Long) As Long
+DECLARE FUNCTION ¤GetConsoleMode Lib "Kernel32.dll" ALIAS "GetConsoleMode" ( _
+                     ByVal hConsoleOutput As SYS, _
+                     BYREF dwMode As SYS) As Long
+DECLARE FUNCTION ¤GetFileSizeEx Lib "Kernel32.dll" ALIAS "GetFileSizeEx" ( 
+                     BYVAL hFile AS SYS, lpFileSize AS SYS) AS LONG
+DECLARE FUNCTION ¤SetEndOfFile Lib "Kernel32.dll" ALIAS "SetEndOfFile" (
+                     BYVAL hFile AS SYS) AS LONG
+
+declare function PluriBASICGetTickCntTimer lib "kernel32.dll" alias "GetTickCount" () as dword
+declare function ¤srand        lib "msvcrt.dll" alias "srand" (int seed)
+declare function ¤rand         lib "msvcrt.dll" alias "rand" () as INT
+declare function ¤GetTickCount lib "kernel32.dll" alias "GetTickCount" () as dword
+DOUBLE ¤LRNGN = 0
+INT ¤LRNLB = 0
+INT ¤LRNUB = 0
+DECLARE FUNCTION ¤LoadStringA    LIB "User32.dll"   ALIAS "LoadStringA" (BYVAL hInstance AS DWORD, BYVAL uID AS DWORD, lpBuffer AS ASCIIZ, BYVAL nBufferMax AS LONG) AS LONG
+DECLARE FUNCTION ¤LoadStringW    LIB "User32.dll"   ALIAS "LoadStringW" (BYVAL hInstance AS DWORD, BYVAL uID AS DWORD, lpBuffer AS WZSTRING, BYVAL nBufferMax AS LONG) AS LONG
+DECLARE FUNCTION ¤FindResourceA  LIB "Kernel32.dll" ALIAS "FindResourceA" (BYVAL hInstance AS SYS, lpName AS ASCIIZ, lpType AS ASCIIZ) AS LONG
+DECLARE FUNCTION ¤LoadResource   LIB "Kernel32.dll" ALIAS "LoadResource" (BYVAL hInstance AS SYS, BYVAL hResInfo AS sys) AS SYS
+DECLARE FUNCTION ¤FreeResource   LIB "Kernel32.dll" ALIAS "FreeResource" (BYVAL hResData AS SYS) AS LONG
+DECLARE FUNCTION ¤LockResource   LIB "Kernel32.dll" ALIAS "LockResource" (BYVAL hResData AS SYS) AS SYS
+DECLARE FUNCTION ¤SizeofResource LIB "Kernel32.dll" ALIAS "SizeofResource" (BYVAL hInstance AS SYS, BYVAL hResInfo AS SYS) AS SYS
+Declare Function ¤MessageBoxa  Lib "user32.dll" Alias "MessageBoxA"
+Declare Function ¤MessageBoxw  Lib "user32.dll" Alias "MessageBoxW"
+declare function ¤FindFirstFile alias "FindFirstFileA" lib "kernel32.dll"                    (lpFileName AS ASCIIZ, BYVAL lpFindFileData AS SYS) AS SYS
+declare function ¤FindNextFile  alias "FindNextFileA" lib "kernel32.dll"                     (BYVAL hFindFile AS SYS, BYVAL lpFindFileData AS SYS) AS SYS
+declare function ¤FindClose     alias "FindClose" lib "kernel32.dll"                         '(BYVAL hFindFile AS SYS) AS SYS
+declare function ¤DisableRdr    alias "Wow64DisableWow64FsRedirection" lib "kernel32.dll"    '(BYVAL hFindFile AS SYS) AS SYS
+
+TYPE ¤HPROP
+    long elem
+    long dmode
+    sys oldProc
+    sys curProc
+    'long user1
+    'long user2    
+END TYPE
+
+Function ¤DEFAULT_CALLBACK_PROC(sys hwnd, wMsg, wParam, lParam) as sys callback
+    sys retval = 0
+    ¤HPROP *hdata
+    ¤HPROP *hdat2    
+    sys hWnd2  = 0
+    
+    @hData = ¤GetProp(hwnd, byval @¤DTT)
+    
+    If @hData Then
+        if hData.curProc then
+            if hData.elem = 2 then
+                Select case wMsg 
+                    case 273, 78
+                        
+                        sys hControl = ¤GetDlgItem(hwnd, loword(wParam))                    
+                        @hdat2 = ¤GetProp(hControl, byval @¤DTT)
+                        if @hDat2 then
+                            if hDat2.curProc then
+                                retval = ¤CallWindowProc(hDat2.curProc, hWnd, wMsg, wParam, lParam)
+                                goto DoneWithNotifications
+                            end if
+                        end if                
+                end select
+            end if                
+            retval = ¤CallWindowProc(hData.curProc, hWnd, wMsg, wParam, lParam)
+            DoneWithNotifications:                                
+        end if
+
+    end if
+    
+    if retval=0 then 
+        if @hData then
+            if hData.elem = 2 then            
+                IF hData.curProc=0 then
+                    hWnd2 = ¤GetParent(hWnd)                
+                    @hdat2 = ¤GetProp(hWnd2, byval @¤DTT)                
+                    if @hdat2 then                   
+                        if hdat2.curProc then
+                            retval = ¤CallWindowProc(hDat2.curProc, hWnd, wMsg, wParam, lParam)
+                        end if
+                    END IF
+                END IF    
+                
+                if retval=0 then
+                    retval = ¤CallWindowProc(hData.oldProc, hWnd, wMsg, wParam, lParam)
+                end if
+                
+            else
+                retval = ¤DefWindowProc(hwnd,wMsg,wParam,lParam)             
+            end if
+                    
+            if wMsg=2 then ' WM_DESTROY     
+                If hData.oldProc Then 
+                    ¤SetWindowLongPtr(hWnd, -4, hData.oldProc)
+                end if
+                freememory(@hData)               
+                ¤RemoveProp(hWnd, byval @¤DTT)
+                
+            end if
+        else
+            retval = ¤DefWindowProc(hwnd, wMsg, wParam, lParam)
+        end if
+    end if
+    
+    return retval
+    
+End Function
+
+
+' STARTS PLURIBASIC_PREPARE.BIN
+' This code is executed before anything else, if you want to do something after defining other things, see PLURIBASIC_INIT
+
+int ¤i = 0
+' STARTS SYSTEM_OPERATORS.BIN
+
+FUNCTION ¤BytOvf(byte b) AS byte
+    return b
+END FUNCTION
+
+FUNCTION ¤NOT(byval quad v1) AS QUAD
+    dword w1
+    dword w2
+    quad r    
+    copy @w1, @v1, 4
+    copy @w2, @v1+4, 4    
+    w1 = not(w1)
+    w2 = not(w2)    
+    copy @r,   @w1, 4
+    copy @r+4, @w2, 4
+    return r
+END FUNCTION
+
+FUNCTION ¤AND(byval quad v1, v2) as quad
+    dword w1
+    dword w2
+    quad r
+    copy @w1, @v1, 4
+    copy @w2, @v2, 4    
+    w1 = (w1 and w2)    
+    copy @r, @w1, 4    
+    copy @w1, @v1+4, 4
+    copy @w2, @v2+4, 4
+    w1 = (w1 and w2)    
+    copy @r+4, @w1, 4    
+    return r    
+end function
+
+FUNCTION ¤OR(byval int v1, v2) as int
+    return v1 or v2
+end function
+
+'FUNCTION ¤OR(byval quad v1, v2) as quad
+'    dword w1
+'    dword w2
+'    quad r
+'    copy @w1, @v1, 4
+'    copy @w2, @v2, 4    
+'    w1 = (w1 or w2)    
+'    copy @r, @w1, 4    
+'    copy @w1, @v1+4, 4
+'    copy @w2, @v2+4, 4
+'    w1 = (w1 or w2)    
+'    copy @r+4, @w1, 4    
+'    return r    
+'end function
+
+FUNCTION ¤IMP(byval quad v1, v2) as quad
+    if v1 then return -1 
+    if v2 then return -1
+end function
+
+FUNCTION ¤EQV(byval quad v1, v2) as quad
+    if v1=0 then return 0 
+    if v2=0 then return 0
+    return -1
+end function
+
+FUNCTION ¤MOD(quad v1, v2) as quad
+    return MOD(v1, v2)
+end function
+' END OF SYSTEM_OPERATORS.BIN
+' CONTINUES (17) PLURIBASIC_PREPARE.BIN
+
+
+
+#DEF HANDLE SYS
+
+
+
+
+
+
+' Tested, OK.
+MACRO ¤UDT_RESET(s, u)
+    copy(u, news(s), s)
+END MACRO
+
+' Tested, OK.
+MACRO ¤UDT_COPY(s, u, n)
+    copy(u, n, s)
+END MACRO
+
+' Tested, OK.
+macro ¤UDT_SETV(vu, ai, of, dt, nv, ln      a, c)    
+    sys a = vu.hBuffer + (ai + of)
+    dt c = nv
+    copy(a, @c, ln)
+end macro
+
+' Tested, OK.
+macro ¤UDT_SETA(vu, ai, of, nv, ln         a, c)
+    sys a = ai + of    
+    string c = left(nv, ln)
+    c = (c + news(ln-len(c)))    
+    copy(a, strptr(c), ln)
+end macro
+
+'Tested, OK.
+macro ¤UDT_SETW(vu, ai, of, nv, ln  a, c)
+    sys a = ai + of
+    wstring c = left(nv, ln)
+    c = (c + news(ln-len(c)))    
+    copy(a, strptr(c), ln*2)
+end macro
+
+' Tested, OK.
+macro ¤MEM_SETV(vu, of, dt, nv, ln  c)
+    dt c = nv
+    copy((@vu + of), @c, ln)
+end macro
+
+' Tested, OK.
+macro ¤MEM_MODV(vu, of, dt, op, nv, ln  c, e)
+    dt e 
+    copy(@e, (@vu + of), ln)
+    dt c = e op nv    
+    copy((@vu + of), @c, ln)
+end macro
+
+' Tested, OK.
+macro ¤MEM_SUBV(vu, of, dt, nv, ln  c, e)
+    dt e 
+    copy(@e, @vu + of, ln)
+    dt c = e - nv    
+    copy(@vu + of, @c, ln)
+end macro
+
+' Tested, OK.
+macro ¤MEM_SETA(vu, of, nv, ln  c)
+    string c = left(nv, ln)
+    c = (c + news(ln-len(c)))    
+    copy(@vu + of, strptr(c), ln)
+end macro
+
+' Tested, OK.
+macro ¤MEM_SETW(vu, of, nv, ln  c)
+    wstring c = left(nv, ln)
+    c = (c + news(ln-len(c)))
+    copy(@vu + of, strptr(c), ln*2)
+end macro
+
+' Tested, OK.
+macro ¤UDT_INCR(vu, ai, of, dt, nv     a, c)    
+    sys a = (vu.hBuffer + ai + of)
+    dt c = 0
+    copy(@c, a, sizeof(c))
+    c = (c + nv)
+    copy(a, @c, sizeof(c))    
+end macro
+
+' Tested, OK.
+macro ¤UDT_DECR(vu, ai, of, dt, nv     a, c)    
+    sys a = (vu.hBuffer + ai + of)
+    dt c = 0
+    copy(@c, a, sizeof(c))
+    c = (c - nv)
+    copy(a, @c, sizeof(c))    
+end macro
+
+' Tested, OK.
+macro ¤MEM_INCR(vu, of, dt, nv    a)
+    dt a = 0
+    copy(@a, (@vu + of), sizeof(a))
+    a = (a + nv)
+    copy((@vu + of), @a, sizeof(a))   
+end macro
+
+' Tested, OK.
+macro ¤MEM_DECR(vu, of, dt, nv    a)
+    dt a = 0
+    copy(@a, @vu + of, sizeof(a))
+    a = (a - nv) 
+    copy((@vu + of), @a, sizeof(a))
+end macro
+
+' Tested, OK.
+macro ¤SDT_VAL(nm, dt)
+    function nm(sys hBuffer, of) as dt
+        sys a = hBuffer + of                
+        dt r
+        copy(@r, a, sizeof(dt))        
+        return r
+    end function
+end macro
+
+function ¤TRIMNUL(string bb) as string
+    byte c at strptr(bb)
+    int i = 0
+    for i = 1 to len(bb)
+        if c[i] = 0 then
+            return left(bb, i-1)
+        end if
+    next i
+    return bb         
+end function
+
+macro ¤SDT_STR(nm)
+    function nm(sys hBuffer, offset, byval int ln) as string
+        sys addr = (hBuffer + offset)
+        if ln = 0 then ln = 255
+        string bb = space(ln+1)
+        copy(strptr(bb), addr, ln)
+        return ¤TRIMNUL(bb)
+    end function
+end macro
+
+macro ¤SDT_WST(nm)
+    function nm(sys hBuffer, of, byval int ln) as wstring
+        sys addr = (hBuffer + of)
+        if ln = 0 then ln = 255
+        wstring bb = news(ln)  
+        copy(strptr(bb), addr, ln*2)
+        return bb
+    end function
+end macro
+
+
+TYPE ¤SYSNMHDR
+    hwndFrom AS SYS
+    idFrom   AS SYS
+    Code     AS DWORD
+END TYPE
+
+
+' flags for internal file system.
+% ·SYSFILE          = 1
+% ·SYSTCP           = 2
+% ·SYSUDP           = 4
+% ·SYSCOMM          = 8
+'% ·SYS??            = 16 ' RESERVED
+
+% ·ASSIGN           = 32 
+% ·ASSIGNED         = 64
+% ·HANDLE           = 128
+'% ·?????            = 512 ' RESERVED
+
+% ·BINARY           = 1024
+% ·RANDOM           = 2048
+% ·INPUT            = 4096
+% ·OUTPUT           = 8192
+% ·APPEND           = 16384
+% ·ANSI             = 32768
+% ·WIDE             = 65536
+
+% ·LOCK_WRITE       = 131072
+% ·LOCK_READ        = 262144
+% ·BASE_ZERO        = 524288 
+% ·BASE_ONE         = 1048576 
+
+
+class ¤SYSF
+
+    public int   CURHN
+    public int   FHNDL[32767] ' File handle.
+    public int   FFLAG[32767] ' Socket flags. 
+    public int   FRLEN[32767] ' Record length
+    ' Default UDT member bounds...
+    function m(int d1) as long {return d1}
+    function m(int d1, d2) as long {return (d1 * d2)}
+    function m(int d1, d2, d3) as long {return ((d1 * d2) + d3)}    
+   
+    ' Custom UDT member bounds...
+
+    ' Some ddt functions.
+    function nmcode(sys cbMsg, byval lParam) as long
+        if cbMsg = 78 then    
+            ¤SYSNMHDR nh at lParam
+            return nh.code
+        end if        
+    end function
+    
+    function nmhwnd(sys cbMsg, lParam) as long
+        if cbMsg = 78 then    
+            ¤SYSNMHDR nh at lParam
+            return nh.hwndFrom
+        end if        
+    end function    
+    
+    function nmid(sys cbMsg, lParam) as long
+        if cbMsg = 78 then
+            ¤SYSNMHDR nh at lParam
+            return nh.idFrom
+        end if    
+    end function        
+    
+    function nmhdr(sys cbMsg, lParam) as sys
+        if cbMsg = 78 then
+            return lparam
+        end if            
+    end function  
+    
+    function nmhdrs(sys cbMsg, lParam) as string
+        if cbMsg = 78 then
+            string bs = news(12)
+            copy(strptr(bs), lparam, 12)
+            return bs
+        end if        
+    end function
+    
+    function nm(sys cbMsg, lParam) as sys ' WITHOUT THIS, THE EXE IS CORRUPTED.    
+    end function
+                              
+    ' UDT member readers.
+    ¤SDT_VAL(byt, byte)    
+    ¤SDT_VAL(wrd, word)
+    ¤SDT_VAL(int, int)
+    ¤SDT_VAL(lng, long)
+    ¤SDT_VAL(sys, sys)
+    ¤SDT_VAL(dwd, dword)
+    ¤SDT_VAL(qud, quad)    
+    ¤SDT_VAL(ext, extended)    
+    ¤SDT_VAL(cur, extended)    
+    ¤SDT_VAL(cux, extended) 
+    ¤SDT_VAL(sng, single)
+    ¤SDT_VAL(dbl, double)
+    ¤SDT_STR(asz)  
+    ¤SDT_STR(chr)
+    ¤SDT_STR(str)
+    ¤SDT_WST(wsz)
+    FUNCTION CONSTRUCTOR()
+        this.CURHN = 1
+    END FUNCTION       
+            
+END CLASS
+
+new ¤SYSF EXE()
+
+FUNCTION ¤InvalidFHandle(SYS fn) AS LONG
+    IF fn < 1 THEN
+        FUNCTION = -1
+        EXIT FUNCTION    
+    END IF
+    IF fn > 32767 THEN
+        FUNCTION = -1
+        EXIT FUNCTION    
+    END IF     
+    IF ((EXE.FFLAG[fn] and ·ASSIGNED) <> ·ASSIGNED) THEN
+        FUNCTION = -1
+        EXIT FUNCTION
+    END IF        
+END FUNCTION
+
+def true -1
+' END OF PLURIBASIC_PREPARE.BIN
+' STARTS ARRAY_DIM_UDT.BIN
+
+' STARTS VARIANT_INIT.BIN
+' END OF VARIANT_INIT.BIN
+' CONTINUES (2) ARRAY_DIM_UDT.BIN
+
+macro ¤URFN(nm, dt)
+    function nm(int addr, of) as dt            
+        sys a = hBuffer + (addr + of)
+        dt r
+        copy @r, a, sizeof(r)               
+        return r      
+    end function
+end macro
+
+macro ¤URFL(nm, dt)
+    function nm(int addr, of) as dt*
+        sys a = hBuffer + addr + of        
+        return a
+    end function
+end macro
+
+macro ¤URFS(nm)
+    function nm(sys addr, of, ln) as string
+        sys a = hBuffer + addr + of
+        string bb = news(ln)        
+        copy strptr(bb), a, ln
+        return bb
+    end function
+end macro
+
+macro ¤URFW(nm)
+    function nm(sys addr, of, ln) as wstring
+        sys a = hBuffer + addr + of
+        wstring bb = news(ln)  
+        copy strptr(bb), a, ln*2
+        return bb
+    end function
+end macro
+
+macro ¤URFT(nm)
+    function nm(sys addr, of) as sys
+        sys a = addr + of        
+        return a
+    end function
+    function nm(sys of) as sys
+        sys a = this.hBuffer + of        
+        return a
+    end function    
+end macro
+
+' Class for User-defined types.
+macro ¤TYPE_UDT_UDT(dtype)
+    ¤ARR_NAME_DEF(dtype)
+
+        public dtype t ' for use with typeof on this array.
+        int dims       ' Number of dimensions
+        int elems      ' Number of elements.
+        int elemsize   ' Number of elements.
+        int slength    ' length of strings.
+        int ispointer  ' is pointer flag.
+        sys hBuffer    ' Address of the buffer
+        sys hCustAddr  ' Address provided by the inline code.
+        int BuffLen    ' length of the buffer in bytes
+        string dtType  ' Data type for the array.
+        int iType      ' Data type ID for the array.
+        int elemsize   ' Data type size.
+        int dimensioned' -1 if dimensioned.  
+        int bnd[10]    ' bounds.
+        int dsz[10]    ' dimension size.
+        public sys h 
+      
+        function redim(int pr, int * d, n)
+            int i
+            dimensioned = -1
+            int ne = 1 
+            int dn = 1
+            for i = 1 to n step 2
+                bnd[i+0]  = d[i+0]
+                bnd[i+1]  = d[i+1]
+                ne       *= ((d[i+1]+1)-d[i+0])
+                dsz[dn]   = (d[i+1]-d[i+0])+1
+                dn += 1
+            next
+            elems = ne
+            int nBufLen 
+            nBufLen = (elems * elemsize)
+            sys nBuffer = getmemory(nBufLen + elemsize)
+            int eBfCopy = BuffLen
+            if BuffLen then
+              if BuffLen>nBufLen then 
+                  eBfCopy = nBufLen
+              end if
+              copy nBuffer, hBuffer, eBfCopy
+              freememory hBuffer
+            end if
+            hBuffer = nBuffer
+            BuffLen = nBufLen
+            h = hBuffer        
+        end function  
+      
+        method constructor(int s, int * d, n, isptr, slen, string dtyp, int dtID, int dtSize, sys hAddr)
+            if s then
+                if this.dims then return -1
+            end if
+            ispointer = isptr
+            dtType    = dtyp
+            slength   = slen
+            hCustAddr = hAddr
+            iType     = dtID
+            elemsize  = dtSize
+            dims = n / 2
+            if n > -1 then
+                this.redim(0, d, n)
+            end if        
+        end method
+        
+        function destructor()
+            freememory(hBuffer)
+            hBuffer = 0
+            BuffLen = 0
+        end function
+        
+        function b() as string
+            return ""
+        end function    
+
+         '======================================================================
+        function m(int d1) as long        
+            return (¤DIM1 * elemsize)
+        end function
+
+        function m(int d1, d2) as long
+            return ((¤DSZ1 * ¤DIM2) * elemsize) + (¤DIM1 * elemsize)
+        end function
+
+         function m(int d1, d2, d3) as long
+            return ((¤DSZ2 * ¤DIM3) * elemsize) + ((¤DSZ1 * ¤DIM2) * elemsize) + (¤DIM1 * elemsize)
+        end function         
+         '======================================================================
+'        function s(int d1, dtype * v)
+'            sys r = (hBuffer + this.m(d1))
+'            copy r, @v, sizeof(dtype)
+'        end function
+        
+        function c(int d1) as dtype*
+            sys r = (hBuffer + this.m(d1))
+            return r
+        end function
+        
+'        function s(int d1, d2, dtype * v)
+'            sys r = (hBuffer + this.m(d1, d2))
+'            copy r, @v, sizeof(dtype)
+'        end function
+        
+        function c(int d1, d2) as dtype*
+            sys r = (hBuffer + this.m(d1, d2))
+            return r
+        end function    
+
+'         function s(int d1, d2, d3, dtype * v)
+'            sys r = (hBuffer + this.m(d1, d2, d3))
+'            copy r, @v, sizeof(dtype)
+'        end function
+        
+        function c(int d1, d2, d3) as dtype*
+            sys r = (hBuffer + this.m(d1, d2, d3))
+            return r
+        end function
+        '======================================================================            
+            
+        function p(int d1) as sys
+            sys r = (hBuffer + this.m(d1))
+            return r
+        end function
+        
+        function p(int d1, d2) as sys
+            sys r = (hBuffer + this.m(d1, d2))
+            return r        
+        end function
+
+         function p(int d1, d2, d3) as sys
+            sys r = (hBuffer + this.m(d1, d2, d3))
+            return r
+        end function
+        
+        function ptr(int d1, of) as sys
+            sys a = (hBuffer + this.m(d1)) + of
+            return a
+        end function        
+
+         '======================================all different data types.
+        ¤URFN(byt,  byte)    
+        ¤URFN(wrd,  word)
+        ¤URFN(int,  int)
+        ¤URFN(lng,  long)
+        ¤URFN(dwd,  dword)
+        ¤URFN(qud,  quad)    
+        ¤URFN(ext,  extended)    
+        ¤URFN(cur,  extended)    
+        ¤URFN(cux,  extended)
+        ¤URFN(sng,  single)
+        ¤URFN(dbl,  double)
+        ¤URFS(asz)
+        ¤URFS(str)
+        ¤URFW(wst)
+        ¤URFT(udt)
+        '======================================all different data types.            
+          
+        function lbound(int d) as int
+          return bnd[(d*2)-1]
+        end function
+        
+        function ubound(int d) as int 
+          return bnd[d*2]
+        end function
+
+        method reset()  ' everything.            
+            string s = news(BuffLen)
+            copy(hBuffer, s, elemsize)             
+        end method
+        
+        method reset(sys n) ' specific element.
+            string s = news(elemsize)
+            copy(hBuffer + n, s, elemsize)
+        end method
+                
+        function arrayattr(int d) as int
+          // not yet implemented.        
+          if d = 0 then return dimensioned
+          if d = 1 then return iType    
+          if d = 2 then return ispointer    
+          if d = 3 then return dims         
+          if d = 4 then return elems         
+          if d = 5 then return elemsize
+          return 0
+        end function  
+    end class
+end macro
+
+
+' END OF ARRAY_DIM_UDT.BIN
+' STARTS ARRAY_DIM_NUM.BIN
+' class for numeric arrays.
+macro ¤TYPE_NUM_UDT(dtype)
+    ¤ARR_NAME_DEF(dtype)
+        
+        public dtype t ' for use with typeof on this array.
+        int dims       ' Number of dimensions
+        int elems      ' Number of elements.
+        int elemsize   ' Number of elements.
+        int slength    ' length of strings.
+        int ispointer  ' is pointer flag.
+        sys hBuffer    ' Address of the buffer
+        sys hCustAddr  ' Address provided by the inline code.
+        int BuffLen    ' length of the buffer in bytes
+        string dtType  ' Data type for the array.
+        int iType      ' Data type ID for the array.
+        int elemsize   ' Data type size.
+        int dimensioned' -1 if dimensioned.  
+        int bnd[10]    ' bounds.
+        int wcode     
+      
+        function redim(int pr, int * d, n)
+            int i
+            dimensioned = -1
+            int ne = 1 
+            for i = 1 to n step 2
+                bnd[i+0] = d[i+0]
+                bnd[i+1] = d[i+1]
+                ne       *= ((d[i+1]+1)-d[i+0])
+            next
+            if ne < elems then
+                if dtType = "STR" then
+                    if hBuffer then
+                        dtype dt at hBuffer
+                        for i = ne+1 to elems
+                            frees dt(i)
+                        next
+                    end if      
+                end if
+            end if        
+            elems = ne
+            int nBufLen 
+            nBufLen = (elems * sizeof(sys)) + 32
+            sys nBuffer = getmemory(nBufLen)
+            int eBfCopy = BuffLen
+            if BuffLen
+              if BuffLen>nBufLen then 
+                  eBfCopy = nBufLen
+              end if
+              copy nBuffer, hBuffer, eBfCopy
+              freememory hBuffer
+            endif
+            hBuffer = nBuffer
+            BuffLen = nBufLen        
+        end function  
+      
+        method constructor(int s, int * d, n, isptr, slen, string dtyp, int dtID, int dtSize, sys hAddr)
+            if s then
+                if this.dims then return -1
+            end if        
+            ispointer = isptr
+            dtType    = dtyp
+            slength   = slen
+            hCustAddr = hAddr
+            iType     = dtID
+            elemsize  = dtSize
+            dims = n / 2
+            if n > -1 then
+                this.redim(0, d, n)
+            end if        
+        end method
+        
+        function destructor()
+            int i
+            dtype dt at hBuffer
+            for i = 0 to elems
+                frees dt(i)
+            next
+            dtype dt at hBuffer
+            for i = 0 to elems
+                frees dt(i)
+            next
+            freememory(hBuffer)
+            hBuffer = 0
+            BuffLen = 0
+        end function
+        
+        function b() as string
+            return ""
+        end function    
+
+         '======================================================================
+        function s(int d1, dtype v)
+            dtype dt at hBuffer
+            dt(¤DIM1) = v
+        end function
+        
+        function c(int d1) as dtype
+            dtype dt at hBuffer                
+            return dt(¤DIM1)
+        end function
+
+        function s(int d1, d2, dtype v)
+            dtype dt at hBuffer
+            dt(¤DIM1 * ¤DIM2) = v
+        end function
+
+        function c(int d1, int d2) as dtype
+            dtype dt at hBuffer                        
+            return dt(¤DIM1 * ¤DIM2)
+        end function
+
+         function s(int d1, d2, d3, dtype v)
+            dtype dt at hBuffer
+            dt(¤DIM1 * ¤DIM2 + ¤DIM3) = v
+        end function
+
+         function c(int d1, d2, d3) as dtype
+            dtype dt at hBuffer
+            return dt(¤DIM1 * ¤DIM2 + ¤DIM3)
+        end function
+        '======================================================================
+        function p(int d1) as dtype*
+            dtype dt at hBuffer
+            return @dt(¤DIM1)
+        end function
+        
+        function p(int d1, d2) as dtype*
+            dtype dt at hBuffer
+            return @dt(¤DIM1 * ¤DIM2)
+        end function
+
+         function p(int d1, d2, d3) as dtype*
+            dtype dt at hBuffer
+            return @dt(¤DIM1 * ¤DIM2 + ¤DIM3)
+        end function    
+        '======================================================================
+        function strptr(int d1) as sys    
+            dtype dt at hBuffer
+            int i = ¤DIM1
+            return strptr(dt(i))
+        end function
+        
+        function strptr(int d1, d2) as sys    
+            dtype dt at hBuffer
+            int i = ¤DIM1 * ¤DIM2
+            return strptr(dt(i))
+        end function
+        
+        function strptr(int d1, d2, d3) as sys    
+            dtype dt at hBuffer
+            int i = ¤DIM1 * ¤DIM2 + ¤DIM3
+            return strptr(dt(i))
+        end function
+        '======================================================================
+          
+        function lbound(int d) as int
+          return bnd[d]
+        end function
+        
+        function ubound(int d) as int 
+          return bnd[d+1]
+        end function
+        
+        method reset()  ' everything.
+            ' missing code! 
+        end method
+        
+        method reset(int n) ' specific element.
+            ' missing code! 
+        end method        
+        
+        function arrayattr(int d) as int
+          // not yet implemented.        
+          if d = 0 then return dimensioned
+          if d = 1 then return iType    
+          if d = 2 then return ispointer    
+          if d = 3 then return dims         
+          if d = 4 then return elems         
+          if d = 5 then return elemsize
+          return 0
+        end function  
+    end class
+end macro
+' END OF ARRAY_DIM_NUM.BIN
+' STARTS WSTRINGZ.BIN
+//assigns a truncated null terminated string.
+MACRO ¤WSTZ_SET(v, c, l  b)    
+    if l<1 then
+        copy00(@v, chr(0), 1)
+    else
+        wbstring b = left(c, l-1) 
+        copy00(@v, b, len(b))
+        frees b         
+    end if        
+END MACRO
+
+
+' END OF WSTRINGZ.BIN
+' STARTS WSTRING.BIN
+//assigns a truncated null terminated string.
+MACRO ¤WSTR_SET(v, c, l  b)
+    wstring b = c
+    if len(b) > l then 
+        b = left(b, l)
+    elseif len(b) < l then
+        b += space(l-len(b))
+    end if
+    v = b        
+END MACRO
+' END OF WSTRING.BIN
+' STARTS UDT_ASSIGNER.BIN
+// copies binary data into a UDT 
+MACRO UDT_ASSIGNER(src, trg  buf, i)
+   string buf
+   int i = sizeof(src)
+   buf = trg 
+   if i > len(buf) then i = len(buf)           
+   copy @src, strptr(buf), i
+END MACRO
+' END OF UDT_ASSIGNER.BIN
+' STARTS TIMER.BIN
+
+// returns the number of seconds since midnight. 
+FUNCTION TIMER() AS DOUBLE
+    return (PluriBASICGetTickCntTimer() / 1000)
+END FUNCTION
+
+' END OF TIMER.BIN
+' STARTS STRINGN.BIN
+//Assigns a truncated null terminated string.
+MACRO ¤STRN_SET(v, c, l  b)    
+    string b = c
+    if len(b) > l then 
+        b = left(b, l)
+    elseif len(b) < l then
+        b += space(l-len(b))
+    end if
+    v = b                
+END MACRO
+
+
+' END OF STRINGN.BIN
+' STARTS SLEEP.BIN
+SUB SLEEP(dword mSec)
+    ¤Sleep(mSec)
+END SUB 
+' END OF SLEEP.BIN
+' STARTS SETEOF.BIN
+
+' Truncates a file to the current pointer position.
+FUNCTION SETEOF(byval sys fn) AS LONG
+    if ¤InvalidFHandle(fn) THEN EXIT FUNCTION 
+    IF ((EXE.FFLAG[fn] and ·ASSIGNED) = ·ASSIGNED) THEN
+        ¤SetEndOfFile(EXE.FHNDL[fn])
+    END IF
+END FUNCTION
+
+' END OF SETEOF.BIN
+' STARTS RND.BIN
+
+FUNCTION RND() AS DOUBLE
+    ¤LRNGN = (¤rand() / 32767)    
+    return ¤LRNGN 
+END FUNCTION
+
+FUNCTION RND(int l1) AS DOUBLE
+    double rv = 0
+    if l1 = 0 then
+        return ¤LRNGN
+    elseif l1 < 0 then
+        int s = ¤GetTickCount()
+        ¤srand(s)
+        rv = (¤rand() / 32767)
+        ¤LRNGN = floor((rv * (¤LRNUB - ¤LRNLB)) + ¤LRNLB)
+        return ¤LRNGN
+    else
+        rv = (¤rand() / 32767)            
+        ¤LRNGN = floor((rv * (¤LRNUB - ¤LRNLB)) + ¤LRNLB)
+        return ¤LRNGN
+    end if
+END FUNCTION
+
+FUNCTION RND(byval int l1, l2) AS LONG
+    if l1 > l2 then
+        int l3 = l1
+        l1 = l2
+        l2 = l3
+    end if
+    ¤LRNLB = l1
+    ¤LRNUB = l2
+    double rv = (¤rand() / 32767)
+    ¤LRNGN = floor(l1 + (rv * ((l2+1) - l1)))
+    return ¤LRNGN  
+END FUNCTION
+' END OF RND.BIN
+' STARTS RGB.BIN
+FUNCTION RGB(byval red as INT,byval green as INT,byval blue as int) as int
+  int color
+  color = red
+  color = color + green*256
+  color = color + blue*65536
+  Return color
+End Function 
+' END OF RGB.BIN
+' STARTS RESOURCE$.BIN
+
+' Returns the contents of a resource
+FUNCTION ¤RESOURCE(int rt, rn) AS WSTRING
+    WCHAR zText[10000]    
+    int nc = ¤LoadStringW(GetModuleHandle(0), rn, zText, byval 10000)
+    if nc then
+        return rtrim(zText)
+    end if
+    return ""
+
+END FUNCTION
+
+' Returns the contents of a resource
+FUNCTION ¤RESOURCE(string rt, rn) AS STRING
+
+    sys nc = 0
+    int i  = 0
+    asciiz rnm[256] = rn + chr(0)
+    
+    if rt = "data" then
+        nc = ¤FindResourceA(GetModuleHandle(0), rnm, byval 10)
+    else
+        for i = 1 to 30
+            if i <> 6 then
+                nc = ¤FindResourceA(GetModuleHandle(0), rnm, byval i)
+                if nc then                    
+                    exit for
+                end if
+            end if
+        next i
+    end if
+    
+    if nc then
+        int rSize = ¤SizeofResource(GetModuleHandle(0), nc)
+        sys hRes  = ¤LoadResource(GetModuleHandle(0), nc)
+        sys hData = ¤LockResource(hRes)
+        string o = news(rSize)
+        copy(o, hData, rSize)
+        ¤FreeResource(hRes)
+        return o
+        
+    end if    
+
+END FUNCTION
+
+
+' Returns the contents of a resource
+FUNCTION ¤RESOURCE(string rt, int rn) AS STRING
+
+    sys nc = 0
+    int i  = 0
+    
+    if rt = "data" then
+        nc = ¤FindResourceA(GetModuleHandle(0), rn, byval 10)
+    else
+        for i = 1 to 30
+            if i <> 6 then
+                nc = ¤FindResourceA(GetModuleHandle(0), byval rn, byval i)
+                if nc then
+                    exit for
+                end if
+            end if
+        next i
+    end if
+    
+    if nc then
+        int rSize = ¤SizeofResource(GetModuleHandle(0), nc)    
+        sys hRes  = ¤LoadResource(GetModuleHandle(0), nc)
+        sys hData = ¤LockResource(hRes)
+        string o = news(rSize)
+        copy(o, hData, rSize)
+        ¤FreeResource(hRes)
+        return o        
+    end if    
+
+END FUNCTION
+' END OF RESOURCE$.BIN
+' STARTS REPEAT$.BIN
+' Returns given string repeated n times.
+FUNCTION REPEAT(int n, string s) AS STRING
+    int i
+    string o
+    for i = 1 to n
+        o += s
+    next i
+    return o
+END FUNCTION
+
+' END OF REPEAT$.BIN
+' STARTS RANDOMIZE.BIN
+// Seeds the randomizer engine. 
+SUB RANDOMIZE(double seed)
+    int s = floor(seed * 1000)
+    ¤srand(s)
+    ¤rand()
+END SUB
+' END OF RANDOMIZE.BIN
+' STARTS PUT.BIN
+' This file contains all the variations of use for the PUT statement.
+
+
+' Writes a string to an open file.
+SUB ¤WriteBinary(byval long fn, quad fp, byval sys st, int sl, byref ¤SYSERR Err)
+    IF ¤InvalidFHandle(fn) THEN 
+        ¤SET_ERR(70)
+        EXIT SUB
+    END IF
+    IF ((EXE.FFLAG[fn] and ·BINARY) <> ·BINARY) AND ((EXE.FFLAG[fn] and ·RANDOM) <> ·RANDOM) THEN
+        ¤SET_ERR(70)
+        return
+    END IF
+    int w = 0
+    IF (sl>0) OR (LEN(st)>0) THEN
+        IF fp > -1 then        
+            ¤SetFilePointerEx(EXE.FHNDL[fn], byval (fp-1), byval 0, byval 0)                     
+        end if
+        ¤WriteFile(EXE.FHNDL[fn], st, sl, w, null)
+        IF w = 0 THEN
+            ¤SET_ERR(70)                        
+        END IF
+    END IF
+END SUB
+
+MACRO ¤PUTUDT(vt, fn, fp, var, ts, nm, el   c)
+    vt c = var
+    ¤WriteBinary(fn, fp, @c, ts, Err)
+END MACRO
+
+
+MACRO ¤PUTST2(vt, fn, fp, var, sl, nm, el   t)
+    string t
+    IF sl>0 then 
+        t = left(var + space(sl), sl)
+    else
+        t = var
+    end if
+    ¤WriteBinary(fn, fp, strptr(t), len(t), Err)    
+END MACRO
+
+MACRO ¤PUTST3(vt, fn, fp, var, sl, nm, el   t)
+    wstring t
+    IF sl then 
+        t = left(var + space(sl*2), sl*2)
+    else
+        t = var
+    end if
+    ¤WriteBinary(fn, fp, strptr(t), len(t)*2, Err)
+END MACRO
+
+MACRO ¤PUTSTR(vt, fn, fp, var, sl, nm, el   t)
+    string t
+    if sl>0 then
+        t = left(var + space(sl), sl)
+    else
+        t = var        
+    end if
+    ¤WriteBinary(fn, fp, strptr(t), len(t), Err)
+END MACRO
+
+
+MACRO ¤PUTVAR(vt, fn, fp, var, sl, nm, el   c)
+    vt c = var         
+    ¤WriteBinary(fn, fp, byval @c, sizeof(c), Err)
+END MACRO
+
+' END OF PUT.BIN
+' STARTS PLURIBASIC_INIT.BIN
+' This code is executed before anything else, if you want to do something before nything else, see PLURIBASIC_PREPARE
+' END OF PLURIBASIC_INIT.BIN
+' STARTS OPEN.BIN
+
+'h  = handle must be an open file handle.
+'fn = filename. 
+'m  = input mode
+'a  = access mode
+'l  = lock mode
+'ff = filenumber.
+'ln = record lenght  
+'bs = base address  
+'ch = 1 = anso, 2 = WIDE
+
+' Opens a file by its already opened handle.
+SUB ¤OPENHANDLE(int h, int m, a, l, ff, ln, bs, ch, ¤SYSERR Err)
+
+IF (ff < 1) OR (ff > 32767) THEN ¤SET_ERR(57) : EXIT FUNCTION
+IF EXE.FFLAG[ff] <> ·ASSIGN THEN ¤SET_ERR(57) : EXIT FUNCTION
+
+EXE.FFLAG[ff] = (EXE.FFLAG[ff] OR ·ASSIGNED OR ·SYSFILE OR ·HANDLE)
+ 
+
+END SUB
+
+
+'========================================================================================
+' Opens a file by its filename.
+SUB ¤OPENFILENM(string fn, int m, a, l, ff, ln, bs, ch, BYREF ¤SYSERR Err)
+
+IF (ff < 1) OR (ff > 32767) THEN 
+    ¤SET_ERR(57) 
+    EXIT FUNCTION
+END IF
+
+IF EXE.FFLAG[ff] <> ·ASSIGN THEN 
+    ¤SET_ERR(57) 
+    EXIT FUNCTION
+END IF
+
+EXE.FFLAG[ff]    = 0
+
+string fname     = fn + chr(0)
+long   fAccess   = 0
+long   fLock     = 0
+long   fCreation = 0
+long   fFlags    = 0
+
+Select CASE m ' Mode
+    CASE 1 ' input
+        EXE.FFLAG[ff] = ·INPUT
+        fCreation = 3 ' open existing
+        fAccess   = 2
+        if (a = 0) then
+            a = 1            
+        elseif ((a and 2) = 2) THEN ' access WRITE?
+            ¤SET_ERR(701)
+            EXIT FUNCTION
+        end if
+        
+    CASE 2 ' output
+        EXE.FFLAG[ff] = ·OUTPUT
+        fCreation = 4 ' create
+        fAccess   = 2
+        if (a = 0) then
+            a = 2            
+        elseif ((a and 1) = 1) THEN ' access READ?
+            ¤SET_ERR(70)
+            EXIT FUNCTION
+        end if
+        
+    case 3 ' append
+        EXE.FFLAG[ff] = ·APPEND
+        fCreation = 4 ' create
+        fAccess   = 2
+        if ((a and 1) = 1) THEN ' access READ??
+            ¤SET_ERR(70)
+            EXIT FUNCTION
+        end if 
+        
+    case 4 ' binary
+        EXE.FFLAG[ff] = ·BINARY        
+        fCreation = 4 ' create
+        if a = 0 then a = 3
+                
+    CASE ELSE
+        fCreation = 3 ' open_existing
+        
+END SELECT
+
+if ((a and 1) = 1) then fAccess = (fAccess or 0x80000000) ' access read
+if ((a and 2) = 2) then fAccess = (fAccess or 0x40000000) ' access write
+
+if (fLock <> 0) then
+    if ((l and 1) <> 1) then fLock  = (fLock   or 0x80000000) ' lock read operations
+    if ((l and 2) <> 2) then fLock  = (flock   or 0x40000000) ' lock write operations
+end if        
+
+IF ch = 1 THEN
+    EXE.FHNDL[ff] = ¤CreateFileA(strptr(fName), fAccess, fLock, 0, fCreation, fFlags, 0)
+    'PRINTR(¤STR(fAccess) + ¤STR(m) + ¤STR(fLock) + ¤STR(fCreation), chr(10, 13))
+    IF EXE.FHNDL[ff] = -1 THEN 
+        ¤SET_ERR(702)
+    ELSE
+        EXE.FFLAG[ff] = (EXE.FFLAG[ff] OR ·ASSIGNED OR ·SYSFILE OR ·ANSI)    
+    END IF    
+ELSE
+    EXE.FHNDL[ff] = ¤CreateFileW(StrPtr(fName), fAccess, fLock, 0, fCreation, fFlags, 0)
+    IF EXE.FHNDL[ff] = -1 THEN 
+        ¤SET_ERR(70)
+    ELSE    
+        EXE.FFLAG[ff] = (EXE.FFLAG[ff] OR ·ASSIGNED OR ·SYSFILE OR ·WIDE)    
+    END IF    
+END IF
+
+IF bs = 1 then
+    EXE.FFLAG[ff] = (EXE.FFLAG[ff] OR ·BASE_ONE)
+ELSE
+    EXE.FFLAG[ff] = (EXE.FFLAG[ff] OR ·BASE_ZERO)
+END IF
+
+if m = 3 then
+    ' set append position here.
+    '¤SetFilePointer(EXE.FHNDL[ff], 0, byval 0, FILE_END)
+end if
+
+
+END SUB
+
+
+' END OF OPEN.BIN
+' STARTS MSGBOX.BIN
+
+FUNCTION MSGBOX(wstring wText, int mOptions, string aCaption) AS LONG
+   wstring wCaption = mid(aCaption, 1)     
+   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
+end function
+
+FUNCTION MSGBOX(string aText, int mOptions, wstring wCaption) AS LONG
+   wstring wText = mid(aText, 1)     
+   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
+end function
+
+FUNCTION MSGBOX(wstring wText, int mOptions, wstring wCaption) AS LONG
+   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
+end function
+
+FUNCTION MSGBOX(string aText, int mOptions, string aCaption) AS LONG
+   FUNCTION = ¤MessageBoxa(0, aText, aCaption, mOptions)   
+END FUNCTION
+
+FUNCTION MSGBOX(string aText) AS LONG
+   string aCaption = "PluriBASIC"
+   int mOptions = 0
+   FUNCTION = ¤MessageBoxa(0, aText, aCaption, mOptions)   
+END FUNCTION
+
+FUNCTION MSGBOX(wstring wText) AS LONG
+   wString wCaption = "PluriBASIC"
+   int mOptions = 0  
+   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
+END FUNCTION
+
+FUNCTION MSGBOX(zstring aText[0]) AS LONG
+   string aCaption = "PluriBASIC"
+   int mOptions = 0  
+   FUNCTION = ¤MessageBoxa(0, aText, aCaption, mOptions)   
+END FUNCTION
+
+FUNCTION MSGBOX(WZSTRING wText[0]) AS LONG
+   wString wCaption = "PluriBASIC"
+   int mOptions = 0  
+   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
+END FUNCTION
+
+FUNCTION MSGBOX(string aText, int mOptions) AS LONG
+   string aCaption = "PluriBASIC"
+   FUNCTION = ¤MessageBoxa(0, aText, aCaption, mOptions)   
+END FUNCTION
+
+FUNCTION MSGBOX(zstring aText[0], int mOptions) AS LONG
+   String aCaption = "PluriBASIC" 
+   FUNCTION = ¤MessageBoxa(0, aText, aCaption, mOptions)   
+END FUNCTION
+
+FUNCTION MSGBOX(WZSTRING wText[0], int mOptions) AS LONG
+   wString wCaption = "PluriBASIC" 
+   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
+END FUNCTION
+
+FUNCTION MSGBOX(wstring wText, int mOptions) AS LONG
+   wString wCaption = "PluriBASIC" 
+   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
+END FUNCTION
+' END OF MSGBOX.BIN
+' STARTS MID$.BIN
+// returns or assigns part of a string. 
+FUNCTION ¤MID(byref string inp, long p, byval long l = -1, string rep = "", long r = 0) AS STRING
+
+if r then ' if replacing
+    if (l = -1) or (len(rep) < l) then
+        l = len(rep)
+    end if        
+    inp = left(inp, p-1) + mid(rep, 1, l) + mid(inp, p+l)
+else
+    if l < 0 then 
+        function = mid(inp, p)
+    else
+        function = mid(inp, p, l)
+    end if 
+end if
+
+END FUNCTION
+      
+' END OF MID$.BIN
+' STARTS LOWRD.BIN
+def LOWRD ((%1) and 0xffff)
+' END OF LOWRD.BIN
+' STARTS ISTRUE.BIN
+' Returns -1 if the passed value is non-zero.
+FUNCTION ¤ISTRUE(long i) as long
+    if i then 
+        return -1
+    end if
+END FUNCTION
+
+' Returns -1 if the passed value is non-zero.
+FUNCTION ¤ISTRUE(quad i) as quad
+    if i then 
+        return -1
+    end if
+END FUNCTION
+' END OF ISTRUE.BIN
+' STARTS ISFALSE.BIN
+
+' Returns -1 if the passed value is zero.
+FUNCTION ¤ISFALSE(long i) as long
+    if i=0 then 
+        return -1
+    end if
+END FUNCTION
+
+' Returns -1 if the passed value is zero.
+FUNCTION ¤ISFALSE(quad i) as quad
+    if i=0 then 
+        return -1
+    end if
+END FUNCTION
+
+
+
+' END OF ISFALSE.BIN
+' STARTS HIWRD.BIN
+def HIWRD(((%1)>>16) and 0xffff)
+' END OF HIWRD.BIN
+' STARTS FREEFILE.BIN
+' returns the next free handle.
+FUNCTION FREEFILE() AS LONG
+
+    int i = EXE.CURHN
+    
+    for i = i to 32767
+        if EXE.FFLAG[i] = 0 then
+            EXE.CURHN = i
+            EXE.FFLAG[i] = ·ASSIGN
+            EXE.FHNDL[i] = 0            
+            EXE.FRLEN[i] = 0            
+            return i
+        end if
+    next
+    
+    for i = 1 to EXE.CURHN
+        if EXE.FFLAG[i] = 0 then
+            EXE.CURHN = i
+            EXE.FFLAG[i] = ·ASSIGN
+            EXE.FHNDL[i] = 0            
+            EXE.FRLEN[i] = 0            
+            return i
+        end if
+    next
+    
+    return 0      
+
+END FUNCTION
+' END OF FREEFILE.BIN
+' STARTS FORMAT$.BIN
+
+FUNCTION ¤FORMATCODE(double dd, byref string f, int decimals) as string
+
+  f += news(3) ' extra space to allow checking.
+  
+  int  iPeriod  = -1
+  int  iCommas  = 0
+  int  iDigits  = 0
+  int  iPercent = 0
+  int  iFill    = 0
+  int  i        = 0
+  int cm        = 0
+  int iBegin    = 0
+  int ml        = len(f)-3
+  string o      = ""
+  int  p[2]
+  byte b at strptr(f)
+  
+  for i = 1 to ml
+    select case b[i]
+        case 44 ' ,
+            if iDigits then
+                iCommas = 1
+                b[i]    = 0                  
+            end if
+        
+        case 42 ' *
+            iDigits += 1                    
+            if iPeriod != -1 then
+                p[2] += 2
+            else
+                p[1] += 2
+            end if        
+            iFill   = b[i+1]
+            b[i]    = 2             
+            b[i+1]  = 2
+            i += 1
+            
+        case 34
+            b[i] = 0
+            do 
+                i += 1
+                if b[i] = 34 then
+                    if b[i+1] != 34 then
+                        b[i] = 0
+                        exit do
+                    end if
+                end if                
+            loop
+            
+        case 92 ' \    
+            b[i] = 0
+            if b[i+1] = 34 then
+                if b[i+2] = 34 then
+                    b[i+2] = 0
+                    i += 2
+                else
+                    b[i+1] = 0
+                    i += 1
+                end if
+                continue                
+            end if
+            i += 1
+            
+        case 48
+            iDigits += 1                    
+            if iPeriod != -1 then
+                p[2] += 1        
+                b[i] = 1
+            else
+                p[1] += 1
+                b[i] = 1
+            end if
+            
+        case 35
+            iDigits += 1                    
+            if iPeriod != -1 then
+                p[2] += 1        
+                b[i] = 2
+            else
+                p[1] += 1
+                b[i] = 2
+            end if            
+        
+        case 37
+            b[i] = 0
+            iPercent = 1            
+            
+        case 46
+            if iPeriod = -1 then
+                iPeriod  = i
+            end if
+        
+        CASE 32, 36, 38, 40, 41, 43, 45         
+            ' these are allowed directly...
+            
+        case else
+            ' anything else is removed.
+            b[i] = 0           
+        
+    end select
+  next i
+  
+  if iPeriod = -1 then 
+    iBegin = ml
+  else
+    iBegin = iPeriod
+  end if
+  
+  if iPercent then
+    dd = (dd * 100)
+  end if    
+  
+'#IF X64
+    ' there is currently a bug for 64 bit compilations.
+  string ss = str(dd, p[2])          
+'#ELSE
+  'numberformat(decimals,1,0,1,1,0)
+  'string ss = str(dd)
+  'numberformat
+'#ENDIF
+  
+  ' split the real numbers.  
+  byte b at strptr(ss)
+  string sValue   = ""  
+  string sDecimal = ""
+    
+  for i = 1 to len(ss)
+    if b[i] = 46 then
+        sValue   = left(ss, i-1)        
+        sDecimal = mid(ss, i+1)
+        exit for
+    elseif i = len(ss) then
+        sValue   = ss
+        sDecimal = ""
+    end if
+  next i  
+  
+'  print ss chr(13, 10)
+'  print sValue chr(13, 10)
+'  print sDecimal chr(13, 10)  
+'  print p[1] chr(13, 10)
+'  print ci  chr(13, 10)
+
+  byte b at strptr(f)
+
+  int ci = len(sValue)  
+  byte n at strptr(sValue) 'first the integer part.
+
+  cm = -1
+    
+  for i = iBegin to 1 step -1
+    select case b[i]
+        case 0 ' discard it!
+
+        case 1, 2 ' 0 #  
+            p[1] -= 1
+            
+            'print chr(n[ci]) " " ci " " p[1] chr(13, 10)
+                      
+            if p[1] <= 0 then
+                if ci then
+                    for ci = ci to 1 step -1
+                       gosub addcomma
+                       o = chr(n[ci]) + o                   
+                    next ci
+                elseif iFill then
+                    if b[i] = 2 then 
+                        o = chr(iFill) + o
+                    end if
+                end if
+            elseif p[1] > 0 then
+                if ci then
+                    gosub addcomma                
+                    o = chr(n[ci]) + o
+                    ci -= 1
+                    if (ci = 0) and (p[1]>0) then
+                        'for ci = (p[1]-1) to 1 step -1
+                            if iFill then 
+                               o = chr(iFill) + o
+                            else
+                               o = "0" + o
+                            end if
+                        'next
+                    end if
+                elseif b[i] = 1 then
+                   gosub addcomma
+                   o = "0" + o
+                   
+                elseif iFill then
+                   o = chr(iFill) + o         
+                end if                
+            end if
+            
+        case 45
+          if (dd<0) then
+              if asc(mid(o, 1, 1)) <> 45 then
+                 o = chr(b[i]) + o
+              end if
+          else
+              o = chr(b[i]) + o
+          end if
+           
+        case else
+           o = chr(b[i]) + o
+
+    end select
+  next i
+  
+  ' phew!! last... the decimals!
+  
+  int ci = 1    
+  byte n at strptr(sDecimal)
+  
+  for i = iBegin+1 to ml
+    select case b[i]
+        case 0 ' discard it!
+        case 1, 2 ' 0 #
+            p[2] -= 1          
+            if p[2] < 0 then
+                if iFill then
+                    if b[i] = 2 then 
+                        o += chr(iFill)
+                    end if            
+                end if
+            elseif p[2] = 0 then
+                if ci = len(sDecimal) then
+                    for ci = ci to len(sDecimal)
+                       o += chr(n[ci])                   
+                    next ci
+                    if iPercent then
+                        o += "%"
+                    end if
+                    
+                elseif ci > len(sDecimal) then
+                    if b[i] = 1 then
+                        o += "0"
+                    elseif iFill then
+                        o += chr(iFill)
+                    end if
+                    if iPercent then
+                        o += "%"
+                    end if                    
+                elseif iFill then
+                    if b[i] = 2 then 
+                        o += chr(iFill)
+                    end if
+                end if
+            elseif p[2] > 0 then
+                if ci < len(sDecimal) then                
+                    o += chr(n[ci])
+                    ci += 1
+                elseif b[i] = 1 then
+                   o += "0"
+                   
+                elseif iFill then
+                   o = chr(iFill) + o         
+                end if                
+            end if                    
+        
+        case else
+            o += chr(b[i])
+
+     end select
+  next i  
+  
+  return o
+  
+addcomma:
+  if iCommas then
+     cm += 1
+     if cm = 3 then
+        cm = 0
+        o = "," + o
+     end if
+  end if
+ret
+
+END FUNCTION
+
+FUNCTION ¤FORMAT(double dd, string fs) AS STRING
+    string f = fs
+    if f = "" then
+        if floor(dd) = dd then
+            f = "0"
+        else
+            f = "0.0"
+        end if
+    elseif instr(f, ";") then
+        if dd<0 then
+            f = mid(f, instr(f, ";")+1)
+            if instr(f, ";") then
+                f = mid(f, 1, instr(f, ";")-1)
+            end if
+        elseif dd = 0
+            f = mid(f, instr(f, ";")+1)
+            if instr(f, ";") then
+                f = mid(f, instr(f, ";")+1)
+                if instr(f, ";") then
+                    f = mid(f, 1, instr(f, ";")-1)
+                end if
+            else
+                f = fs
+            end if
+        end if
+    end if
+    return ¤FORMATCODE(dd, f, 8)
+END FUNCTION
+
+FUNCTION ¤FORMAT(single dd) AS STRING
+    string f = "0"
+    return ¤FORMATCODE(dd, f, 8)
+END FUNCTION
+
+FUNCTION ¤FORMAT(quad dd) AS STRING
+    string f = "0"
+    return ¤FORMATCODE(dd, f, 0)
+END FUNCTION
+
+' END OF FORMAT$.BIN
+' STARTS DIR$.BIN
+
+
+type ¤FILETIME
+   DWORD dwLowDateTime
+   DWORD dwHighDateTime
+end type
+
+type ¤WIN32_FIND_DATA
+   DWORD    dwFileAttributes
+   ¤FILETIME ftCreationTime
+   ¤FILETIME ftLastAccessTime
+   ¤FILETIME ftLastWriteTime
+   DWORD    nFileSizeHigh
+   DWORD    nFileSizeLow
+   DWORD    dwReserved0
+   DWORD    dwReserved1
+   CHAR    cFileName[MAX_PATH]
+   CHAR    cAlternateFileName[14]
+   CHAR    Buffer[512]
+end type
+
+' Returns the first file that matches the specs.
+FUNCTION ¤DIR(string specs, int o, flg, r) AS STRING
+
+    static string pspec
+    static int flags
+    static sys hSearch
+    static int nomatch
+    static int oy
+    int nErr = 0
+    int i = 0         
+    ¤WIN32_FIND_DATA f
+    
+    if o=2 then ' find next file
+        if hSearch then
+            if nomatch then   
+                return ""
+            end if
+            o = oy
+            if ¤FindNextFile(hSearch, @f) then
+                goto .¤ContinueSearch
+            else
+                nomatch = 1
+            end if        
+        end if
+        
+    else    ' find first file.
+        pspec   = specs
+        flags   = flg
+        oy      = o
+        nomatch = 0
+        
+        if hSearch then        
+            ¤FindClose(hSearch)
+        end if
+        
+        
+        'asciiz spcs[256] = specs + chr(0)
+                        
+        hSearch = ¤FindFirstFile(specs, BYVAL @f)
+        
+        if hSearch then
+            do
+                if (ltrim(f.cFileName) <> ".") and (ltrim(f.cFileName) <> "..") then
+                  exit do
+                end if
+                if ¤FindNextFile(hSearch, @f) = 0 then
+                    nomatch = 2
+                    return ""
+                end if                
+            loop                            
+            ..¤ContinueSearch
+            do       
+                if o then ' do we force matching flags?
+                    i = 1
+                    do                 
+                        if ((flags and i) = i) then ' do we force this style? 
+                            if ((f.dwFileAttributes and i) <> i) then
+                                goto .¤NoMatchContinueSearch
+                            end if
+                        else
+                            if ((f.dwFileAttributes and i) = i) then
+                                goto .¤NoMatchContinueSearch
+                            end if
+                        end if
+                        i *= 2
+                        if i > 32 then
+                            exit do
+                        end if
+                    loop
+                else                
+                    if flags then            
+                        i = 1
+                        do
+                            if ((flags and i) = i) then ' do we need this style?
+                                if ((f.dwFileAttributes and i) <> i) then ' do the file have it?
+                                    goto .¤NoMatchContinueSearch
+                                end if
+                            end if
+                            i *= 2
+                            if i > 32 then
+                                exit do
+                            end if
+                        loop
+                    end if
+                end if
+                                   
+                return ltrim(rtrim(f.cFileName))
+                
+              ..¤NoMatchContinueSearch
+              
+                if ¤FindNextFile(hSearch, @f) = 0 then
+                    nomatch = 3
+                    exit do
+                end if   
+            loop
+        end if 
+        
+    end if
+    
+    return ""
+    
+END FUNCTION
+
+
+
+' Returns the next matching file.
+FUNCTION ¤DIR(int specs, f, g) AS STRING
+    return ¤DIR("", 2, 0, 0)
+END FUNCTION
+
+' Returns the first matching file (with flags)
+FUNCTION ¤DIR(string specs, int f, g) AS STRING
+    if specs <> "" then
+        return ¤DIR(specs, 0, 0, 0)
+    end if
+END FUNCTION
+
+' END OF DIR$.BIN
+' STARTS DIALOGSETICON.BIN
+'
+SUB DIALOGSETICON(sys hWnd, string sName)
+
+    sys hIcon = ¤LoadIcon(GetModuleHandle(0), sName)
+    ¤SendMessage(hWnd, 128, 0, hIcon)
+    ¤SendMessage(hWnd, 128, 1, hIcon)
+
+END SUB
+
+' END OF DIALOGSETICON.BIN
+' STARTS CLOSE.BIN
+' Closes an opened file.
+FUNCTION CLOSE(int ff, BYREF ¤SYSERR Err) AS LONG
+
+IF (ff < 1) OR (ff > 32767) THEN 
+    ¤SET_ERR(57) 
+    EXIT FUNCTION
+END IF
+
+IF EXE.FFLAG[ff] = ·ASSIGN THEN 
+    ¤SET_ERR(57) 
+    EXIT FUNCTION
+END IF
+
+IF ((EXE.FFLAG[ff] and ·HANDLE) <> ·HANDLE) THEN
+    if (¤CloseHandle(EXE.FHNDL[ff]) = 0) then
+        ¤SET_ERR(70) 
+        EXIT FUNCTION    
+    end if
+END IF 
+
+EXE.FFLAG[ff] = 0
+EXE.FHNDL[ff] = 0            
+EXE.FRLEN[ff] = 0
+
+END FUNCTION
+
+' END OF CLOSE.BIN
+' STARTS CHOOSE&.BIN
+' returns the selected field.
+FUNCTION CHOOSE(int c, byval int o[], int n) AS int
+    if c < 1 then 
+        return 0
+    end if
+    if c > n then 
+        return 0
+    end if
+    return o[c]
+END FUNCTION
+
+' END OF CHOOSE&.BIN
+' STARTS ASCIIZ.BIN
+//Assigns a truncated null terminated string.
+MACRO ¤ASCZ_SET(v, c, l)
+    if l < 2 then
+        copy0(@v, chr(0), 1) 
+    else        
+        copy0(@v, left(c, l-1), l)
+    end if        
+END MACRO
+' END OF ASCIIZ.BIN
+' STARTS DIALOGSHOW.BIN
+
+Function DialogShow(BYVAL dMode AS LONG, BYVAL hDlg AS SYS, BYVAL hCallback AS DWORD, BYREF Result AS DWORD) AS LONG
+
+    ¤MSG  wm 
+    dword rr = 0
+    ¤HPROP *hdata
+    
+    @hData = ¤GetProp(hDlg, byval @¤DTT)    
+    
+    If @hData Then 
+        hData.curProc = hCallback
+    end if  
+    
+    IF @hData THEN 
+        hData.oldProc = ¤GetWindowLongPtr(hDlg, -4)
+    END IF        
+    sys r = ¤SetWindowLongPtr(hDlg, -4, @¤DEFAULT_CALLBACK_PROC)
+
+    ¤SendMessage(hDlg, 272, hDlg, 0)
+    ¤ShowWindow(hDlg, 5)    
+   
+
+    if @Result then
+        Result = 0
+    end if
+    
+    if dMode = 1 then
+        while ¤GetMessage(wm,0,0,0)
+            rr = ¤TranslateMessage(wm)
+            ¤DispatchMessage(wm)            
+            IF ¤IsWindow(hDlg) = 0 THEN
+                if @Result then
+                    Result = rr
+                end if 
+                EXIT DO
+            end if
+        Wend
+    end if
+    
+end function
+ 
+' END OF DIALOGSHOW.BIN
+' STARTS DIALOGNEW.BIN
+' STARTS CALLBACKDATA.BIN
+' END OF CALLBACKDATA.BIN
+' CONTINUES (1) DIALOGNEW.BIN
+
+FUNCTION DialogNew(BYVAL dMode AS LONG, byval hParent AS DWORD, BYVAL sCaption AS STRING, BYREF Xt AS LONG, BYREF Yt AS LONG, BYVAL W AS LONG, BYVAL H AS LONG, BYVAL pStyle AS DWORD, BYVAL pexStyle AS DWORD, BYREF Result AS DWORD) AS LONG
+
+' Im clueless, dont ask me.
+single ratioX = 1.58  
+single ratioY = 1.82
+'=========================
+
+sys hFont = ¤GetStockObject(17)
+
+long DX = 0
+long dy = 0
+long dw = 0
+long dH = 0
+long dStyle = 0
+long exStyle = 0
+
+if @pStyle then
+    dStyle = pStyle
+end if
+
+if @pexStyle then
+    exStyle = pexStyle
+end if    
+  
+SELECT CASE dMode
+    case 0, 6 ' UNITS.
+        dw = w * RatioX
+        dh = h * RatioY        
+
+        IF @Xt=0 THEN 
+            dx = (¤GetSystemMetrics(0)/2) - (dw/2)
+        ELSE
+            dx = Xt * RatioX
+        END IF        
+        if @Yt=0 then 
+            dy = (¤GetSystemMetrics(1)/2) - (dh/2)
+        else
+            dy = Yt * RatioY
+        end if
+          
+    case 5    ' PIXELS            
+        if @Xt=0 then
+            DX = (¤GetSystemMetrics(0)/2) - (w/2)
+        ELSE
+            DX = Xt
+        end if
+        if @Yt=0 then
+            dy = (¤GetSystemMetrics(1)/2) - (h/2)
+        ELSE
+            dy = Yt
+        end if
+            
+        dw = w        
+        Dh = h 
+        
+        IF ((exStyle and 128) = 128) then      ' WS_EX_TOOLWINDOW
+            dh += ¤GetSystemMetrics(bycopy 51)
+            
+        ELSEIF ((dStyle and 12582912) = 12582912) then ' WS_CAPTION
+            dh += ¤GetSystemMetrics(bycopy 4)
+            
+        END IF
+
+        if ((dStyle and 262144) = 262144) then ' WS_THICKFRAME
+            dw += (2 * ¤GetSystemMetrics(bycopy 32)) ' SM_CXSIZEFRAME        
+            dh += (2 * ¤GetSystemMetrics(bycopy 33)) ' SM_CYSIZEFRAME
+        end if
+                
+    case 7    ' DPIAWARE
+    
+END SELECT 
+
+Result = ¤CreateWindowEx(exStyle,_              'extended styles
+                         "DDTDialog", _         'window class name
+                         sCaption,_             'window caption
+                         dStyle,_               'window style
+                         DX, _                  'initial x position
+                         dy, _                  'initial y position
+                         dw, _                  'initial x size
+                         DH, _                  'initial y size
+                         hParent, _             'parent window handle
+                         0, _                   'window menu handle
+                         ¤GetModuleHandle(0), _ 'program instance handle
+                         0)                     'creation parameter
+                        
+  if Result then
+      ¤SendMessage(Result, 48, hFont, 0)      
+      ¤HPROP *hdata
+      @hData = getmemory(SizeOf(¤HPROP))
+      If @hData Then
+         hData.elem  = 1
+         hData.dMode = dMode
+         ¤SetProp(Result, byval @¤DTT, @hData)         
+      end if
+  end if                          
+
+END FUNCTION
+
+
+' END OF DIALOGNEW.BIN
+
+% ½GAME_W                                                                           = 256
+% ½GAME_H                                                                           = 224
+% ½TIMER_REFRESHSCREEN                                                              = 1001
+% ½TIMER_MUSICLOOP                                                                  = 1002
+% ½TIMER_MUSICCHECK                                                                 = 1003
+% ½AREA_VIRUS                                                                       = 1
+% ½AREA_BLOCK                                                                       = 2
+% ½AREA_PILL                                                                        = 3
+% ½AREA_HALFPILL                                                                    = 4
+% ½BOTTLE_X                                                                         = 96
+% ½BOTTLE_Y                                                                         = 72
+% ½VIRUS_NORMAL                                                                     = 0
+% ½VIRUS_FLOOR                                                                      = 1
+% ½VIRUS_DEAD                                                                       = 3
+% ½SCREEN_TITLE                                                                     = 1
+% ½SCREEN_OPTIONS                                                                   = 2
+% ½SCREEN_GAME                                                                      = 3
+% ½SCREEN_ENDING                                                                    = 4
+% ½DIR_UP                                                                           = 1
+% ½DIR_RT                                                                           = 2
+% ½DIR_DN                                                                           = 3
+% ½DIR_LF                                                                           = 4
+% ½COLOR_RED                                                                        = 1
+% ½COLOR_YELLOW                                                                     = 2
+% ½COLOR_BLUE                                                                       = 3
+% ½MUSIC_FEVER                                                                      = 1
+% ½NULL                                                                             = 0
+% ½SRCCOPY                                                                          = 13369376
+% ½VK_RETURN                                                                        = 13
+% ½VK_ESCAPE                                                                        = 27
+% ½VK_LEFT                                                                          = 37
+% ½VK_UP                                                                            = 38
+% ½VK_RIGHT                                                                         = 39
+% ½VK_DOWN                                                                          = 40
+% ½VK_X                                                                             = 88
+% ½VK_Z                                                                             = 90
+% ½WM_DESTROY                                                                       = 2
+% ½WM_SETFOCUS                                                                      = 7
+% ½WM_KILLFOCUS                                                                     = 8
+% ½WM_PAINT                                                                         = 15
+% ½WM_INITDIALOG                                                                    = 272
+% ½WM_TIMER                                                                         = 275
+% ½WS_OVERLAPPEDWINDOW                                                              = 13565952
+% ½MB_ICONERROR                                                                     = 16
+% ½FD_SETSIZE                                                                       = 64
+% ½SND_ASYNC                                                                        = 1
+% ½SND_RESOURCE                                                                     = 262148
+
+TYPE PILL
+    INT active
+    INT lfcolor
+    INT rtcolor
+    INT xa
+    INT ya
+    INT x
+    INT y
+    INT d
+    INT step
+    SINGLE mome
+    INT dir
+END TYPE
+
+TYPE GAMEDATA
+    BYTE screen
+    BYTE switchframe
+    BYTE music
+    DWORD musiclen
+    DWORD musicloop
+    INT musictimes
+    SINGLE musicstart
+    INT focused
+    INT gameover
+    INT loseframe
+    INT stageclear
+    INT fanfare
+    INT setup
+    INT adjust
+    DWORD mtimer
+    DWORD hmain
+    BYTE lstart
+    BYTE level
+    BYTE speed
+    PILL nextpill
+    PILL curpill
+    INT hitvirus
+    INT hitblock
+    INT pilldir
+    BYTE viruses
+    DWORD hiscore
+    DWORD score
+    INT curframe
+    INT pillnum
+    INT pilldelay
+    INT rotated
+    INT moved
+    INT movestep
+    INT curbond
+    INT redhit
+    INT bluehit
+    INT yellowhit
+    INT paused
+    INT pauser
+    INT combo
+    INT menurow
+    INT mariostep
+    INT marioframe
+    INT throwpill
+    INT falling
+END TYPE
+
+TYPE AREATYPE
+    INT color
+    INT block
+    INT dir
+    INT step
+    INT bond
+END TYPE
+
+TYPE BIGVIRUS
+    INT x
+    INT y
+    INT yo
+    INT state
+    INT steps
+    BYTE frame
+    INT color
+END TYPE
+
+TYPE POINT
+    INT x
+    INT y
+END TYPE
+
+UNION RECT
+    INT nleft
+    INT ntop
+    INT nright
+    INT nbottom
+    INT left
+    INT top
+    INT right
+    INT bottom
+END UNION
+
+TYPE LV_ITEM
+    DWORD mask
+    INT iitem
+    INT isubitem
+    DWORD state
+    DWORD statemask
+    CHAR*  psztext[255]
+    INT cchtextmax
+    INT iimage
+    INT lparam
+    INT iindent
+END TYPE
+
+TYPE TVITEM
+    DWORD mask
+    DWORD hitem
+    DWORD state
+    DWORD statemask
+    CHAR*  psztext[255]
+    INT cchtextmax
+    INT iimage
+    INT iselectedimage
+    INT cchildren
+    INT lparam
+END TYPE
+
+TYPE PAINTSTRUCT
+    DWORD hdc
+    INT ferase
+    RECT rcpaint
+    INT frestore
+    INT fincupdate
+    BYTE rgbreserved[32]
+END TYPE
+
+
+' SYSTEM CLASSES FOR ARRAYS:
+  ¤TYPE_UDT_UDT(AREATYPE)
+  ¤TYPE_UDT_UDT(BIGVIRUS)
+
+DECLARE FUNCTION BITBLT LIB "GDI32.DLL" ALIAS "BitBlt" (BYVAL P1 AS DWORD, BYVAL P2 AS INT, BYVAL P3 AS INT, BYVAL P4 AS INT, BYVAL P5 AS INT, BYVAL P6 AS DWORD, BYVAL P7 AS INT, BYVAL P8 AS INT, BYVAL P9 AS DWORD) AS INT
+DECLARE FUNCTION CREATECOMPATIBLEBITMAP LIB "GDI32.DLL" ALIAS "CreateCompatibleBitmap" (BYVAL P1 AS DWORD, BYVAL P2 AS INT, BYVAL P3 AS INT) AS DWORD
+DECLARE FUNCTION CREATECOMPATIBLEDC LIB "GDI32.DLL" ALIAS "CreateCompatibleDC" (BYVAL P1 AS DWORD) AS DWORD
+DECLARE FUNCTION CREATESOLIDBRUSH LIB "GDI32.DLL" ALIAS "CreateSolidBrush" (BYVAL P1 AS DWORD) AS DWORD
+DECLARE FUNCTION DELETEDC LIB "GDI32.DLL" ALIAS "DeleteDC" (BYVAL P1 AS DWORD) AS INT
+DECLARE FUNCTION DELETEOBJECT LIB "GDI32.DLL" ALIAS "DeleteObject" (BYVAL P1 AS DWORD) AS INT
+DECLARE FUNCTION SELECTOBJECT LIB "GDI32.DLL" ALIAS "SelectObject" (BYVAL P1 AS DWORD, BYVAL P2 AS DWORD) AS DWORD
+DECLARE FUNCTION STRETCHBLT LIB "GDI32.DLL" ALIAS "StretchBlt" (BYVAL P1 AS DWORD, BYVAL P2 AS INT, BYVAL P3 AS INT, BYVAL P4 AS INT, BYVAL P5 AS INT, BYVAL P6 AS DWORD, BYVAL P7 AS INT, BYVAL P8 AS INT, BYVAL P9 AS INT, BYVAL P10 AS INT, BYVAL P11 AS DWORD) AS INT
+DECLARE FUNCTION GETASYNCKEYSTATE LIB "User32.dll" ALIAS "GetAsyncKeyState" (BYVAL P1 AS INT) AS SHORT
+DECLARE FUNCTION SETTIMER LIB "User32.dll" ALIAS "SetTimer" (BYVAL P1 AS DWORD, BYVAL P2 AS DWORD, BYVAL P3 AS DWORD, BYVAL P4 AS DWORD) AS DWORD
+DECLARE FUNCTION KILLTIMER LIB "User32.dll" ALIAS "KillTimer" (BYVAL P1 AS DWORD, BYVAL P2 AS DWORD) AS INT
+DECLARE FUNCTION BEGINPAINT LIB "User32.dll" ALIAS "BeginPaint" (BYVAL P1 AS DWORD, P2 AS PAINTSTRUCT) AS DWORD
+DECLARE FUNCTION ENDPAINT LIB "User32.dll" ALIAS "EndPaint" (BYVAL P1 AS DWORD, P2 AS PAINTSTRUCT) AS INT
+DECLARE FUNCTION INVALIDATERECT LIB "User32.dll" ALIAS "InvalidateRect" (BYVAL P1 AS DWORD, P2 AS RECT, BYVAL P3 AS INT) AS INT
+DECLARE FUNCTION GETCLIENTRECT LIB "User32.dll" ALIAS "GetClientRect" (BYVAL P1 AS DWORD, P2 AS RECT) AS INT
+DECLARE FUNCTION FILLRECT LIB "User32.dll" ALIAS "FillRect" (BYVAL P1 AS DWORD, P2 AS RECT, BYVAL P3 AS DWORD) AS INT
+DECLARE FUNCTION LOADBITMAP LIB "User32.dll" ALIAS "LoadBitmapA" (BYVAL P1 AS DWORD, P2 AS ASCIIZ) AS DWORD
+DECLARE FUNCTION SNDPLAYSOUND LIB "WINMM.DLL" ALIAS "sndPlaySoundA" (P1 AS ASCIIZ, BYVAL P2 AS DWORD) AS INT
+DECLARE FUNCTION MCISENDSTRING LIB "WINMM.DLL" ALIAS "mciSendStringA" (P1 AS ASCIIZ, P2 AS ASCIIZ, BYVAL P3 AS DWORD, BYVAL P4 AS DWORD) AS DWORD
+DECLARE FUNCTION TESTBGM(BYVAL P1 AS STRING) AS INT
+DECLARE FUNCTION PLAYBGM(BYVAL P1 AS STRING, BYVAL P2 AS INT, BYVAL P3 AS INT, BYVAL P4 AS INT) AS INT
+DECLARE FUNCTION CHANGEGAMESCREEN(BYVAL P1 AS INT) AS INT
+DECLARE FUNCTION SETAREAFORLEVEL(BYVAL P1 AS INT) AS INT
+DECLARE SUB INITGAME() 
+DECLARE FUNCTION PILLCANGO(BYVAL P1 AS INT) AS INT
+DECLARE FUNCTION LEAVEPILL() AS INT
+DECLARE FUNCTION MOVEPILL(BYVAL P1 AS INT) AS INT
+DECLARE FUNCTION CANROTATE() AS INT
+DECLARE FUNCTION CHECKVERT(BYVAL P1 AS INT, BYVAL P2 AS INT) AS INT
+DECLARE FUNCTION REMAININGVIRUS(BYVAL P1 AS INT) AS INT
+DECLARE FUNCTION CHECKHORZ(BYVAL P1 AS INT, BYVAL P2 AS INT) AS INT
+DECLARE FUNCTION INDIVIDUALIZEBLOCKS() AS INT
+DECLARE FUNCTION DESTROYED() AS INT
+DECLARE FUNCTION BLOCKFELL() AS INT
+DECLARE FUNCTION ROTATEPILL(BYVAL P1 AS INT) AS INT
+DECLARE FUNCTION EXECGAMEMECHANICS() AS INT
+DECLARE FUNCTION PBMAIN() AS INT
+DECLARE FUNCTION DLGPROC() AS INT
+declare function ¤srand lib "msvcrt.dll" alias "srand" (int seed)
+DWORD hvirbg
+DWORD hvirsm
+DWORD hmario
+DWORD hnumbr
+DWORD hbackg
+DWORD htitle
+DWORD hselec
+DWORD hhighl
+DWORD hendin
+GAMEDATA config
+new ¤ARR_AREATYPE area(0, int{0, 0}, -1, 0, 0, "UDT", 20, 20, 0)
+new ¤ARR_BIGVIRUS bigv(0, int{0, 0}, -1, 0, 0, "UDT", 20, 25, 0)
+
+
+' Initializes various things in the script.
+FUNCTION PluriBASIC_Initialize() AS LONG
+END FUNCTION
+
+FUNCTION TESTBGM(STRING »resname) AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   STRING resname = »resname
+   INT ff
+   STRING cont
+   ERRCLEAR 
+   ff = (FREEFILE())
+   ¤OPENFILENM(resname & ".mp3", 4, 0, 0, ff, 128, 1, 1, Err) 
+   IF ¤ISFALSE(Err.err) THEN
+      cont = (¤RESOURCE("data", resname))
+      ERRCLEAR 
+      ¤PUTSTR(string, ff, -1, cont, 0, 0, 0) 
+      SETEOF(ff) 
+      CLOSE(ff, Err)
+   END IF
+   ¤RETVAL = (Err.err=0)
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION PLAYBGM(STRING »resname, INT »musiclen, INT »musicloop, INT »adjust) AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   STRING resname = »resname
+   INT musiclen = »musiclen
+   INT musicloop = »musicloop
+   INT adjust = »adjust
+   ASCIIZ temp[257]
+   INT r
+   INT ff
+   STRING cont
+   STATIC INT playing
+   STATIC STRING resplay
+   STATIC INT pmusiclen
+   STATIC INT pmusicloop
+   STATIC INT padjust
+   IF ¤ISFALSE(LEN(¤DIR(resname & ".mp3", byval 0, byval 0))) THEN
+      ff = (FREEFILE())
+      ERRCLEAR 
+      ¤OPENFILENM(resname & ".mp3", 4, 0, 0, ff, 128, 1, 1, Err) 
+      cont = (¤RESOURCE("data", resname))
+      ERRCLEAR 
+      ¤PUTSTR(string, ff, -1, cont, 0, 0, 0) 
+      SETEOF(ff) 
+      CLOSE(ff, Err)
+   END IF
+   IF playing THEN
+      IF EXE.dwd(@config, 47) THEN
+         KILLTIMER EXE.dwd(@config, 51), EXE.dwd(@config, 47) 
+      END IF
+      MCISENDSTRING("stop mp3file", 0, 0, 0) 
+      MCISENDSTRING("close mp3file", 0, 0, 0) 
+   END IF
+   IF resname="pause" THEN
+      playing = (0)
+      RETURN ¤RETVAL
+   ELSEIF resname="resume" THEN
+      resname = (resplay)
+      musiclen = (pmusiclen)
+      musicloop = (pmusicloop)
+      adjust = (padjust)
+   ELSE
+      resplay = (resname)
+      pmusiclen = (musiclen)
+      pmusicloop = (musicloop)
+      padjust = (adjust)
+   END IF
+   r = (MCISENDSTRING("open " + resname + ".mp3 type MPEGVideo alias mp3file", ½NULL, 0, ½NULL))
+   IF r=0 THEN
+      playing = (-1)
+      MCISENDSTRING("status mp3file length", temp, 255, ½NULL) 
+      ¤MEM_SETV(config, (3), DWORD, (musiclen), 4)
+      MCISENDSTRING("play mp3file", 0, 0, 0) 
+      ¤MEM_SETV(config, (47), DWORD, (SETTIMER(EXE.dwd(@config, 51), ½TIMER_MUSICLOOP, EXE.dwd(@config, 3) + 3000, ½NULL)), 4)
+      ¤MEM_SETV(config, (7), DWORD, (musicloop), 4)
+      ¤MEM_SETV(config, (11), LONG, (0), 4)
+      ¤MEM_SETV(config, (43), LONG, (adjust), 4)
+      ¤MEM_SETV(config, (15), SINGLE, (TIMER()), 4)
+      ¤RETVAL = VAL(temp)
+   ELSE
+      playing = (0)
+   END IF
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION CHANGEGAMESCREEN(INT »scrn) AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT scrn = »scrn
+   INT ¤SCV129 = scrn
+   IF ¤SCV129 = ½SCREEN_TITLE THEN
+      PLAYBGM("SFX21", 23060, 11839, -900) 
+      ¤MEM_SETV(config, (23), LONG, (0), 4)
+      ¤UDT_SETV(bigv, bigv.m(4), (12), LONG, (½VIRUS_NORMAL), 4)
+      ¤UDT_SETV(bigv, bigv.m(4), (0), LONG, (192), 4)
+      ¤UDT_SETV(bigv, bigv.m(4), (4), LONG, (163), 4)
+      ¤UDT_SETV(bigv, bigv.m(4), (21), LONG, (½COLOR_BLUE), 4)
+      ¤MEM_SETV(config, (0), BYTE, ¤BytOvf(scrn), 1)
+   ELSEIF ¤SCV129 = ½SCREEN_OPTIONS THEN
+      ¤MEM_SETV(config, (219), LONG, (1), 4)
+      PLAYBGM("SFX23", 16350, 270, -100) 
+      ¤MEM_SETV(config, (0), BYTE, ¤BytOvf(scrn), 1)
+   ELSEIF ¤SCV129 = ½SCREEN_GAME THEN
+      ¤MEM_SETV(config, (23), LONG, (0), 4)
+      ¤MEM_SETV(config, (31), LONG, (0), 4)
+      ¤MEM_SETV(config, (207), LONG, (0), 4)
+      BYTE ¤SCV130 = EXE.byt(@config, 2)
+      IF ¤SCV130 = 1 THEN
+         PLAYBGM("SFX24", 64700, 2600, 1000) 
+      ELSEIF ¤SCV130 = 2 THEN
+         PLAYBGM("SFX22", 116000, 7523, -4000) 
+      ELSEIF ¤SCV130 = 3 THEN
+         PLAYBGM("none", 0, 0, 0) 
+      END IF
+      ¤UDT_SETV(bigv, bigv.m(1), (0), LONG, (41), 4)
+      ¤UDT_SETV(bigv, bigv.m(1), (4), LONG, (133), 4)
+      ¤UDT_SETV(bigv, bigv.m(1), (21), LONG, (½COLOR_RED), 4)
+      ¤UDT_SETV(bigv, bigv.m(2), (0), LONG, (15), 4)
+      ¤UDT_SETV(bigv, bigv.m(2), (4), LONG, (146), 4)
+      ¤UDT_SETV(bigv, bigv.m(2), (21), LONG, (½COLOR_YELLOW), 4)
+      ¤UDT_SETV(bigv, bigv.m(3), (0), LONG, (40), 4)
+      ¤UDT_SETV(bigv, bigv.m(3), (4), LONG, (163), 4)
+      ¤UDT_SETV(bigv, bigv.m(3), (21), LONG, (½COLOR_BLUE), 4)
+      ¤MEM_SETV(config, (55), BYTE, ¤BytOvf(EXE.byt(@config, 56)), 1)
+      SETAREAFORLEVEL(EXE.byt(@config, 55)) 
+      ¤MEM_SETV(config, (0), BYTE, ¤BytOvf(scrn), 1)
+   ELSEIF ¤SCV129 = ½SCREEN_ENDING THEN
+      ¤MEM_SETV(config, (167), LONG, (0), 4)
+      PLAYBGM("SFX28", 99999, 0, 0) 
+      ¤MEM_SETV(config, (0), BYTE, ¤BytOvf(scrn), 1)
+   ELSE
+   END IF
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION SETAREAFORLEVEL(INT »lvl) AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT lvl = »lvl
+   INT x
+   INT y
+   INT thecolor
+   INT numvirus
+   INT numblock
+   INT highest
+   Randomize(TIMER()) 
+   IF lvl < 0 THEN
+      lvl = (0)
+   ELSEIF lvl > 20 THEN
+      lvl = (20)
+   END IF
+   ¤MEM_SETV(config, (39), LONG, (-1), 4)
+   DO
+      x = 0
+      gosub .£FNini0377
+      goto .£FNind0377
+   ..£FNini0377 
+      int ¤ite0377
+      int ¤iti0377 = 1
+      INT ¤tov0377 = 9
+      RET
+   ..£FNind0377 
+      FOR ¤ite0377 = 0 TO 2 STEP 1 
+      ..£FNst0377 
+         if (¤ite0377 > 0) then
+            x += 1
+            if x > ¤tov0377 then exit for
+         end if
+         y = 0
+         gosub .£FNini0378
+         goto .£FNind0378
+      ..£FNini0378 
+         int ¤ite0378
+         int ¤iti0378 = 1
+         INT ¤tov0378 = 17
+         RET
+      ..£FNind0378 
+         FOR ¤ite0378 = 0 TO 2 STEP 1 
+         ..£FNst0378 
+            if (¤ite0378 > 0) then
+               y += 1
+               if y > ¤tov0378 then exit for
+            end if
+            area.reset(area.m(x,y))
+            ¤ite0378 += 1
+            if ¤iti0378 = 0 then
+               gosub .£FNini0378
+            end if
+            goto .£FNst0378
+         NEXT 
+         ¤ite0377 += 1
+         if ¤iti0377 = 0 then
+            gosub .£FNini0377
+         end if
+         goto .£FNst0377
+      NEXT 
+      thecolor = (0)
+      numvirus = (((lvl + 1) * 4))
+      ¤MEM_SETV(config, (158), BYTE, ¤BytOvf(numvirus), 1)
+      highest = ((12 - (lvl / 3)))
+      IF y < 3 THEN
+         y = (3)
+      END IF
+      DO WHILE numvirus
+         x = (RND(1, 8))
+         y = (RND(highest, 16))
+         IF area.lng(area.m(x,y), (4))=0 THEN
+            numvirus = ((numvirus) - 1)
+            thecolor = ((thecolor) + 1)
+            ¤UDT_SETV(area, area.m(x,y), (8), LONG, (0), 4)
+            ¤UDT_SETV(area, area.m(x,y), (4), LONG, (½AREA_VIRUS), 4)
+            IF thecolor > 3 THEN
+               ¤UDT_SETV(area, area.m(x,y), (0), LONG, (RND(1, 3)), 4)
+            ELSE
+               ¤UDT_SETV(area, area.m(x,y), (0), LONG, (thecolor), 4)
+            END IF
+         END IF
+      LOOP
+      IF ¤ISFALSE(DESTROYED()) THEN
+         EXIT DO
+      END IF
+   LOOP
+   ¤MEM_SETV(config, (39), LONG, (0), 4)
+   ¤MEM_SETV(config, (167), LONG, (0), 4)
+   ¤MEM_SETV(config, (171), LONG, (0), 4)
+   ¤MEM_SETV(config, (227), LONG, (3), 4)
+   ¤MEM_SETV(config, (223), LONG, (0), 4)
+   ¤MEM_SETV(config, (215), LONG, (0), 4)
+   ¤MEM_SETV(config, (175), LONG, ((30 - ((EXE.byt(@config, 57) - 1) * 5))), 4)
+   IF EXE.lng(@config, 175) < 3 THEN
+      ¤MEM_SETV(config, (175), LONG, (3), 4)
+   END IF
+   ¤MEM_SETV(config, (58 + 32), LONG, (0), 4)
+   ¤MEM_SETV(config, (58 + 20), LONG, (188), 4)
+   ¤MEM_SETV(config, (58 + 24), LONG, (64), 4)
+   ¤MEM_SETV(config, (58 + 40), LONG, (½DIR_RT), 4)
+   ¤MEM_SETV(config, (58 + 4), LONG, (CHOOSE(RND(1, 3), INT {½COLOR_RED, ½COLOR_YELLOW, ½COLOR_BLUE}, countof)), 4)
+   ¤MEM_SETV(config, (58 + 8), LONG, (CHOOSE(RND(1, 3), INT {½COLOR_RED, ½COLOR_YELLOW, ½COLOR_BLUE}, countof)), 4)
+   ¤UDT_SETV(bigv, bigv.m(1), (12), LONG, (½VIRUS_NORMAL), 4)
+   ¤UDT_SETV(bigv, bigv.m(1), (16), LONG, (0), 4)
+   ¤UDT_SETV(bigv, bigv.m(2), (12), LONG, (½VIRUS_NORMAL), 4)
+   ¤UDT_SETV(bigv, bigv.m(2), (16), LONG, (0), 4)
+   ¤UDT_SETV(bigv, bigv.m(3), (12), LONG, (½VIRUS_NORMAL), 4)
+   ¤UDT_SETV(bigv, bigv.m(3), (16), LONG, (0), 4)
+   ¤UDT_RESET(44, (@config + 102))
+   RETURN ¤RETVAL
+END FUNCTION
+
+SUB INITGAME()
+   ¤SYSERR Err
+   area.redim(0, int{0, 9, 0, 17}, countof)
+   bigv.redim(0, int{0, 4}, countof)
+END SUB
+
+FUNCTION PILLCANGO(INT »dir) AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT dir = »dir
+   INT ¤SCV131 = dir
+   IF ¤SCV131 = ½DIR_DN THEN
+      IF EXE.lng(@config, 102 + 16) > 15 THEN
+         RETURN ¤RETVAL
+      END IF
+      IF area.lng(area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 1), (0)) THEN
+         RETURN ¤RETVAL
+      END IF
+      INT ¤SCV132 = EXE.lng(@config, 102 + 40)
+      IF ¤SCV132 = ½DIR_LF or  ¤SCV132 = ½DIR_RT THEN
+         IF area.lng(area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16) + 1), (0)) THEN
+            RETURN ¤RETVAL
+         END IF
+      END IF
+   ELSEIF ¤SCV131 = ½DIR_LF THEN
+      IF EXE.lng(@config, 102 + 12)=1 THEN
+         RETURN ¤RETVAL
+      END IF
+      INT ¤SCV133 = EXE.lng(@config, 102 + 40)
+      IF ¤SCV133 = ½DIR_UP or  ¤SCV133 = ½DIR_DN THEN
+         IF area.lng(area.m(EXE.lng(@config, 102 + 12) - 1,EXE.lng(@config, 102 + 16) - 1), (0)) THEN
+            RETURN ¤RETVAL
+         END IF
+         IF area.lng(area.m(EXE.lng(@config, 102 + 12) - 1,EXE.lng(@config, 102 + 16)), (0)) THEN
+            RETURN ¤RETVAL
+         END IF
+      ELSEIF ¤SCV133 = ½DIR_LF or  ¤SCV133 = ½DIR_RT THEN
+         IF area.lng(area.m(EXE.lng(@config, 102 + 12) - 1,EXE.lng(@config, 102 + 16)), (0)) THEN
+            RETURN ¤RETVAL
+         END IF
+      END IF
+   ELSEIF ¤SCV131 = ½DIR_RT THEN
+      INT ¤SCV134 = EXE.lng(@config, 102 + 40)
+      IF ¤SCV134 = ½DIR_UP or  ¤SCV134 = ½DIR_DN THEN
+         IF EXE.lng(@config, 102 + 12) > 7 THEN
+            RETURN ¤RETVAL
+         END IF
+         IF area.lng(area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16) - 1), (0)) THEN
+            RETURN ¤RETVAL
+         END IF
+         IF area.lng(area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (0)) THEN
+            RETURN ¤RETVAL
+         END IF
+      ELSEIF ¤SCV134 = ½DIR_LF or  ¤SCV134 = ½DIR_RT THEN
+         IF EXE.lng(@config, 102 + 12) > 6 THEN
+            RETURN ¤RETVAL
+         END IF
+         IF area.lng(area.m(EXE.lng(@config, 102 + 12) + 2,EXE.lng(@config, 102 + 16)), (0)) THEN
+            RETURN ¤RETVAL
+         END IF
+      END IF
+   END IF
+   ¤RETVAL = -1
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION LEAVEPILL() AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT x
+   ¤MEM_INCR(config, (191), LONG, 1)
+   INT ¤SCV135 = EXE.lng(@config, 102 + 40)
+   IF ¤SCV135 = ½DIR_UP THEN
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (4), LONG, (½AREA_PILL), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (0), LONG, (EXE.lng(@config, 102 + 4)), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (8), LONG, (½DIR_DN), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (16), LONG, (EXE.lng(@config, 191)), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (4), LONG, (½AREA_PILL), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (0), LONG, (EXE.lng(@config, 102 + 8)), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (8), LONG, (½DIR_UP), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (16), LONG, (EXE.lng(@config, 191)), 4)
+   ELSEIF ¤SCV135 = ½DIR_DN THEN
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (4), LONG, (½AREA_PILL), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (0), LONG, (EXE.lng(@config, 102 + 8)), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (8), LONG, (½DIR_DN), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (16), LONG, (EXE.lng(@config, 191)), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (4), LONG, (½AREA_PILL), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (0), LONG, (EXE.lng(@config, 102 + 4)), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (8), LONG, (½DIR_UP), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (16), LONG, (EXE.lng(@config, 191)), 4)
+   ELSEIF ¤SCV135 = ½DIR_RT THEN
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (4), LONG, (½AREA_PILL), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (0), LONG, (EXE.lng(@config, 102 + 4)), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (8), LONG, (½DIR_LF), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (16), LONG, (EXE.lng(@config, 191)), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (4), LONG, (½AREA_PILL), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (0), LONG, (EXE.lng(@config, 102 + 8)), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (8), LONG, (½DIR_RT), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (16), LONG, (EXE.lng(@config, 191)), 4)
+   ELSEIF ¤SCV135 = ½DIR_LF THEN
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (4), LONG, (½AREA_PILL), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (0), LONG, (EXE.lng(@config, 102 + 8)), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (8), LONG, (½DIR_LF), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (16), LONG, (EXE.lng(@config, 191)), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (4), LONG, (½AREA_PILL), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (0), LONG, (EXE.lng(@config, 102 + 4)), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (8), LONG, (½DIR_RT), 4)
+      ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (16), LONG, (EXE.lng(@config, 191)), 4)
+   END IF
+   x = 1
+   gosub .£FNini0404
+   goto .£FNind0404
+..£FNini0404 
+   int ¤ite0404
+   int ¤iti0404 = 1
+   INT ¤tov0404 = 8
+   RET
+..£FNind0404 
+   FOR ¤ite0404 = 0 TO 2 STEP 1 
+   ..£FNst0404 
+      if (¤ite0404 > 0) then
+         x += 1
+         if x > ¤tov0404 then exit for
+      end if
+      area.reset(area.m(x,0))
+      ¤ite0404 += 1
+      if ¤iti0404 = 0 then
+         gosub .£FNini0404
+      end if
+      goto .£FNst0404
+   NEXT 
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION MOVEPILL(INT »dir) AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT dir = »dir
+   INT ¤SCV136 = dir
+   IF ¤SCV136 = ½DIR_DN THEN
+      ¤MEM_INCR(config, (102 + 24), LONG, 8)
+      ¤MEM_INCR(config, (102 + 16), LONG, 1)
+   ELSEIF ¤SCV136 = ½DIR_LF THEN
+      ¤MEM_DECR(config, (102 + 20), LONG, 8)
+      ¤MEM_DECR(config, (102 + 12), LONG, 1)
+      IF ¤ISFALSE(EXE.lng(@config, 35)) THEN
+         SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+      END IF
+   ELSEIF ¤SCV136 = ½DIR_RT THEN
+      ¤MEM_INCR(config, (102 + 20), LONG, 8)
+      ¤MEM_INCR(config, (102 + 12), LONG, 1)
+      IF ¤ISFALSE(EXE.lng(@config, 35)) THEN
+         SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+      END IF
+   END IF
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION CANROTATE() AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT ¤SCV137 = EXE.lng(@config, 102 + 40)
+   IF ¤SCV137 = ½DIR_LF or  ¤SCV137 = ½DIR_RT THEN
+      IF area.lng(area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (0)) THEN
+         IF area.lng(area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 1), (0)) THEN
+            RETURN ¤RETVAL
+         ELSE
+            MOVEPILL(½DIR_DN) 
+         END IF
+      END IF
+   ELSEIF ¤SCV137 = ½DIR_UP or  ¤SCV137 = ½DIR_DN THEN
+      IF ¤ISTRUE(EXE.lng(@config, 102 + 12) > 7) OR ¤ISTRUE(area.lng(area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (0))) THEN
+         IF area.lng(area.m(EXE.lng(@config, 102 + 12) - 1,EXE.lng(@config, 102 + 16)), (0)) THEN
+            RETURN ¤RETVAL
+         ELSE
+            MOVEPILL(½DIR_LF) 
+         END IF
+      END IF
+   END IF
+   ¤RETVAL = -1
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION CHECKVERT(INT »x, INT »y) AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT x = »x
+   INT y = »y
+   INT i
+   INT v
+   INT e
+   INT hv
+   INT hb
+   IF ¤ISFALSE(area.lng(area.m(x,y), (0))) THEN
+      RETURN ¤RETVAL
+   END IF
+   i = y
+   gosub .£FNini0417
+   goto .£FNind0417
+..£FNini0417 
+   int ¤ite0417
+   int ¤iti0417 = 1
+   INT ¤tov0417 = (y + 16)
+   RET
+..£FNind0417 
+   FOR ¤ite0417 = 0 TO 2 STEP 1 
+   ..£FNst0417 
+      if (¤ite0417 > 0) then
+         i += 1
+         if i > ¤tov0417 then exit for
+      end if
+      IF i > 16 THEN
+         EXIT FOR
+      END IF
+      IF area.lng(area.m(x,i), (0))=area.lng(area.m(x,y), (0)) THEN
+         IF area.lng(area.m(x,i), (4))=½AREA_VIRUS THEN
+            hv = ((hv) + 1)
+         ELSE
+            hb = ((hb) + 1)
+         END IF
+         e = ((e) + 1)
+      ELSE
+         EXIT FOR
+      END IF
+      ¤ite0417 += 1
+      if ¤iti0417 = 0 then
+         gosub .£FNini0417
+      end if
+      goto .£FNst0417
+   NEXT 
+   IF e >= 4 THEN
+      IF ¤ISFALSE(EXE.lng(@config, 39)) THEN
+         ¤MEM_MODV(config, (146), LONG, +, (hv), 4)
+         ¤MEM_MODV(config, (150), LONG, +, (hb), 4)
+      END IF
+      i = y
+      gosub .£FNini0422
+      goto .£FNind0422
+   ..£FNini0422 
+      int ¤ite0422
+      int ¤iti0422 = 1
+      INT ¤tov0422 = (y + 16)
+      RET
+   ..£FNind0422 
+      FOR ¤ite0422 = 0 TO 2 STEP 1 
+      ..£FNst0422 
+         if (¤ite0422 > 0) then
+            i += 1
+            if i > ¤tov0422 then exit for
+         end if
+         IF i > 16 THEN
+            EXIT FOR
+         END IF
+         IF area.lng(area.m(x,i), (0))=area.lng(area.m(x,y), (0)) THEN
+            IF area.lng(area.m(x,i), (4))=½AREA_VIRUS THEN
+               IF area.lng(area.m(x,i), (0))=½COLOR_RED THEN
+                  ¤MEM_SETV(config, (195), LONG, (1), 4)
+               END IF
+               IF area.lng(area.m(x,i), (0))=½COLOR_BLUE THEN
+                  ¤MEM_SETV(config, (199), LONG, (1), 4)
+               END IF
+               IF area.lng(area.m(x,i), (0))=½COLOR_YELLOW THEN
+                  ¤MEM_SETV(config, (203), LONG, (1), 4)
+               END IF
+               v = (-1)
+            END IF
+            ¤UDT_SETV(area, area.m(x,i), (4), LONG, (½AREA_BLOCK), 4)
+            ¤UDT_SETV(area, area.m(x,i), (16), LONG, (0), 4)
+            ¤UDT_SETV(area, area.m(x,i), (12), LONG, (1), 4)
+         ELSE
+            EXIT FOR
+         END IF
+         ¤ite0422 += 1
+         if ¤iti0422 = 0 then
+            gosub .£FNini0422
+         end if
+         goto .£FNst0422
+      NEXT 
+      IF v THEN
+         ¤RETVAL = 2
+      ELSE
+         ¤RETVAL = 1
+      END IF
+   END IF
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION REMAININGVIRUS(INT »clr) AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT clr = »clr
+   INT x
+   INT y
+   INT nvirus
+   IF clr=0 THEN
+      x = 1
+      gosub .£FNini0431
+      goto .£FNind0431
+   ..£FNini0431 
+      int ¤ite0431
+      int ¤iti0431 = 1
+      INT ¤tov0431 = 8
+      RET
+   ..£FNind0431 
+      FOR ¤ite0431 = 0 TO 2 STEP 1 
+      ..£FNst0431 
+         if (¤ite0431 > 0) then
+            x += 1
+            if x > ¤tov0431 then exit for
+         end if
+         y = 1
+         gosub .£FNini0432
+         goto .£FNind0432
+      ..£FNini0432 
+         int ¤ite0432
+         int ¤iti0432 = 1
+         INT ¤tov0432 = 16
+         RET
+      ..£FNind0432 
+         FOR ¤ite0432 = 0 TO 2 STEP 1 
+         ..£FNst0432 
+            if (¤ite0432 > 0) then
+               y += 1
+               if y > ¤tov0432 then exit for
+            end if
+            IF area.lng(area.m(x,y), (4))=½AREA_VIRUS THEN
+               nvirus = ((nvirus) + 1)
+            END IF
+            ¤ite0432 += 1
+            if ¤iti0432 = 0 then
+               gosub .£FNini0432
+            end if
+            goto .£FNst0432
+         NEXT 
+         ¤ite0431 += 1
+         if ¤iti0431 = 0 then
+            gosub .£FNini0431
+         end if
+         goto .£FNst0431
+      NEXT 
+   ELSE
+      x = 1
+      gosub .£FNini0434
+      goto .£FNind0434
+   ..£FNini0434 
+      int ¤ite0434
+      int ¤iti0434 = 1
+      INT ¤tov0434 = 8
+      RET
+   ..£FNind0434 
+      FOR ¤ite0434 = 0 TO 2 STEP 1 
+      ..£FNst0434 
+         if (¤ite0434 > 0) then
+            x += 1
+            if x > ¤tov0434 then exit for
+         end if
+         y = 1
+         gosub .£FNini0435
+         goto .£FNind0435
+      ..£FNini0435 
+         int ¤ite0435
+         int ¤iti0435 = 1
+         INT ¤tov0435 = 16
+         RET
+      ..£FNind0435 
+         FOR ¤ite0435 = 0 TO 2 STEP 1 
+         ..£FNst0435 
+            if (¤ite0435 > 0) then
+               y += 1
+               if y > ¤tov0435 then exit for
+            end if
+            IF area.lng(area.m(x,y), (4))=½AREA_VIRUS THEN
+               IF area.lng(area.m(x,y), (0))=clr THEN
+                  nvirus = ((nvirus) + 1)
+               END IF
+            END IF
+            ¤ite0435 += 1
+            if ¤iti0435 = 0 then
+               gosub .£FNini0435
+            end if
+            goto .£FNst0435
+         NEXT 
+         ¤ite0434 += 1
+         if ¤iti0434 = 0 then
+            gosub .£FNini0434
+         end if
+         goto .£FNst0434
+      NEXT 
+   END IF
+   ¤RETVAL = nvirus
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION CHECKHORZ(INT »x, INT »y) AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT x = »x
+   INT y = »y
+   INT i
+   INT v
+   INT e
+   INT hv
+   INT hb
+   IF ¤ISFALSE(area.lng(area.m(x,y), (0))) THEN
+      RETURN ¤RETVAL
+   END IF
+   i = x
+   gosub .£FNini0440
+   goto .£FNind0440
+..£FNini0440 
+   int ¤ite0440
+   int ¤iti0440 = 1
+   INT ¤tov0440 = (x + 8)
+   RET
+..£FNind0440 
+   FOR ¤ite0440 = 0 TO 2 STEP 1 
+   ..£FNst0440 
+      if (¤ite0440 > 0) then
+         i += 1
+         if i > ¤tov0440 then exit for
+      end if
+      IF i > 8 THEN
+         EXIT FOR
+      END IF
+      IF area.lng(area.m(i,y), (0))=area.lng(area.m(x,y), (0)) THEN
+         IF area.lng(area.m(x,i), (4))=½AREA_VIRUS THEN
+            hv = ((hv) + 1)
+         ELSE
+            hb = ((hb) + 1)
+         END IF
+         e = ((e) + 1)
+      ELSE
+         EXIT FOR
+      END IF
+      ¤ite0440 += 1
+      if ¤iti0440 = 0 then
+         gosub .£FNini0440
+      end if
+      goto .£FNst0440
+   NEXT 
+   IF e >= 4 THEN
+      IF ¤ISFALSE(EXE.lng(@config, 39)) THEN
+         ¤MEM_MODV(config, (146), LONG, +, (hv), 4)
+         ¤MEM_MODV(config, (150), LONG, +, (hb), 4)
+      END IF
+      i = x
+      gosub .£FNini0445
+      goto .£FNind0445
+   ..£FNini0445 
+      int ¤ite0445
+      int ¤iti0445 = 1
+      INT ¤tov0445 = (x + 8)
+      RET
+   ..£FNind0445 
+      FOR ¤ite0445 = 0 TO 2 STEP 1 
+      ..£FNst0445 
+         if (¤ite0445 > 0) then
+            i += 1
+            if i > ¤tov0445 then exit for
+         end if
+         IF i > 8 THEN
+            EXIT FOR
+         END IF
+         IF area.lng(area.m(i,y), (0))=area.lng(area.m(x,y), (0)) THEN
+            IF area.lng(area.m(i,y), (4))=½AREA_VIRUS THEN
+               IF area.lng(area.m(i,y), (0))=½COLOR_RED THEN
+                  ¤MEM_SETV(config, (195), LONG, (1), 4)
+               END IF
+               IF area.lng(area.m(i,y), (0))=½COLOR_BLUE THEN
+                  ¤MEM_SETV(config, (199), LONG, (1), 4)
+               END IF
+               IF area.lng(area.m(i,y), (0))=½COLOR_YELLOW THEN
+                  ¤MEM_SETV(config, (203), LONG, (1), 4)
+               END IF
+               v = (-1)
+            END IF
+            ¤UDT_SETV(area, area.m(i,y), (4), LONG, (½AREA_BLOCK), 4)
+            ¤UDT_SETV(area, area.m(i,y), (16), LONG, (0), 4)
+            ¤UDT_SETV(area, area.m(i,y), (12), LONG, (1), 4)
+         ELSE
+            EXIT FOR
+         END IF
+         ¤ite0445 += 1
+         if ¤iti0445 = 0 then
+            gosub .£FNini0445
+         end if
+         goto .£FNst0445
+      NEXT 
+      IF v THEN
+         ¤RETVAL = 2
+      ELSE
+         ¤RETVAL = 1
+      END IF
+   END IF
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION INDIVIDUALIZEBLOCKS() AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT x
+   INT y
+   x = 1
+   gosub .£FNini0453
+   goto .£FNind0453
+..£FNini0453 
+   int ¤ite0453
+   int ¤iti0453 = 1
+   INT ¤tov0453 = 8
+   RET
+..£FNind0453 
+   FOR ¤ite0453 = 0 TO 2 STEP 1 
+   ..£FNst0453 
+      if (¤ite0453 > 0) then
+         x += 1
+         if x > ¤tov0453 then exit for
+      end if
+      y = 1
+      gosub .£FNini0454
+      goto .£FNind0454
+   ..£FNini0454 
+      int ¤ite0454
+      int ¤iti0454 = 1
+      INT ¤tov0454 = 16
+      RET
+   ..£FNind0454 
+      FOR ¤ite0454 = 0 TO 2 STEP 1 
+      ..£FNst0454 
+         if (¤ite0454 > 0) then
+            y += 1
+            if y > ¤tov0454 then exit for
+         end if
+         IF area.lng(area.m(x,y), (4))=½AREA_PILL THEN
+            IF area.lng(area.m(x,y), (16))=area.lng(area.m(x - 1,y), (16)) THEN
+               goto .£FNst0454
+            END IF
+            IF area.lng(area.m(x,y), (16))=area.lng(area.m(x + 1,y), (16)) THEN
+               goto .£FNst0454
+            END IF
+            IF area.lng(area.m(x,y), (16))=area.lng(area.m(x,y - 1), (16)) THEN
+               goto .£FNst0454
+            END IF
+            IF area.lng(area.m(x,y), (16))=area.lng(area.m(x,y + 1), (16)) THEN
+               goto .£FNst0454
+            END IF
+            ¤UDT_SETV(area, area.m(x,y), (16), LONG, (0), 4)
+            ¤UDT_SETV(area, area.m(x,y), (4), LONG, (½AREA_HALFPILL), 4)
+         END IF
+         ¤ite0454 += 1
+         if ¤iti0454 = 0 then
+            gosub .£FNini0454
+         end if
+         goto .£FNst0454
+      NEXT 
+      ¤ite0453 += 1
+      if ¤iti0453 = 0 then
+         gosub .£FNini0453
+      end if
+      goto .£FNst0453
+   NEXT 
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION DESTROYED() AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT x
+   INT y
+   INT r
+   INT v
+   INT boom
+   ¤MEM_SETV(config, (195), LONG, (0), 4)
+   ¤MEM_SETV(config, (199), LONG, (0), 4)
+   ¤MEM_SETV(config, (203), LONG, (0), 4)
+   ¤MEM_SETV(config, (146), LONG, (0), 4)
+   ¤MEM_SETV(config, (150), LONG, (0), 4)
+   x = 1
+   gosub .£FNini0461
+   goto .£FNind0461
+..£FNini0461 
+   int ¤ite0461
+   int ¤iti0461 = 1
+   INT ¤tov0461 = 6
+   RET
+..£FNind0461 
+   FOR ¤ite0461 = 0 TO 2 STEP 1 
+   ..£FNst0461 
+      if (¤ite0461 > 0) then
+         x += 1
+         if x > ¤tov0461 then exit for
+      end if
+      y = 1
+      gosub .£FNini0462
+      goto .£FNind0462
+   ..£FNini0462 
+      int ¤ite0462
+      int ¤iti0462 = 1
+      INT ¤tov0462 = 16
+      RET
+   ..£FNind0462 
+      FOR ¤ite0462 = 0 TO 2 STEP 1 
+      ..£FNst0462 
+         if (¤ite0462 > 0) then
+            y += 1
+            if y > ¤tov0462 then exit for
+         end if
+         r = (CHECKHORZ(x, y))
+         IF r THEN
+            IF r=2 THEN
+               v = (-1)
+            END IF
+            boom = (-1)
+         END IF
+         ¤ite0462 += 1
+         if ¤iti0462 = 0 then
+            gosub .£FNini0462
+         end if
+         goto .£FNst0462
+      NEXT 
+      ¤ite0461 += 1
+      if ¤iti0461 = 0 then
+         gosub .£FNini0461
+      end if
+      goto .£FNst0461
+   NEXT 
+   x = 1
+   gosub .£FNini0464
+   goto .£FNind0464
+..£FNini0464 
+   int ¤ite0464
+   int ¤iti0464 = 1
+   INT ¤tov0464 = 8
+   RET
+..£FNind0464 
+   FOR ¤ite0464 = 0 TO 2 STEP 1 
+   ..£FNst0464 
+      if (¤ite0464 > 0) then
+         x += 1
+         if x > ¤tov0464 then exit for
+      end if
+      y = 1
+      gosub .£FNini0465
+      goto .£FNind0465
+   ..£FNini0465 
+      int ¤ite0465
+      int ¤iti0465 = 1
+      INT ¤tov0465 = 13
+      RET
+   ..£FNind0465 
+      FOR ¤ite0465 = 0 TO 2 STEP 1 
+      ..£FNst0465 
+         if (¤ite0465 > 0) then
+            y += 1
+            if y > ¤tov0465 then exit for
+         end if
+         r = (CHECKVERT(x, y))
+         IF r THEN
+            IF r=2 THEN
+               v = (-1)
+            END IF
+            boom = (-1)
+         END IF
+         ¤ite0465 += 1
+         if ¤iti0465 = 0 then
+            gosub .£FNini0465
+         end if
+         goto .£FNst0465
+      NEXT 
+      ¤ite0464 += 1
+      if ¤iti0464 = 0 then
+         gosub .£FNini0464
+      end if
+      goto .£FNst0464
+   NEXT 
+   IF boom THEN
+      IF EXE.lng(@config, 39) THEN
+         ¤RETVAL = 1
+         RETURN ¤RETVAL
+      END IF
+      ¤MEM_INCR(config, (215), LONG, 1)
+      ¤MEM_MODV(config, (163), DWORD, +, (((EXE.lng(@config, 146) * 100) * EXE.lng(@config, 215))), 4)
+      ¤MEM_MODV(config, (163), DWORD, +, (((EXE.lng(@config, 150) * 10) * EXE.lng(@config, 215))), 4)
+      IF v THEN
+         IF EXE.lng(@config, 195) THEN
+            ¤UDT_SETV(bigv, bigv.m(1), (12), LONG, (½VIRUS_FLOOR), 4)
+            ¤UDT_SETV(bigv, bigv.m(1), (16), LONG, (0), 4)
+         END IF
+         IF EXE.lng(@config, 203) THEN
+            ¤UDT_SETV(bigv, bigv.m(2), (12), LONG, (½VIRUS_FLOOR), 4)
+            ¤UDT_SETV(bigv, bigv.m(2), (16), LONG, (0), 4)
+         END IF
+         IF EXE.lng(@config, 199) THEN
+            ¤UDT_SETV(bigv, bigv.m(3), (12), LONG, (½VIRUS_FLOOR), 4)
+            ¤UDT_SETV(bigv, bigv.m(3), (16), LONG, (0), 4)
+         END IF
+         INDIVIDUALIZEBLOCKS() 
+         SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(9, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+         ¤RETVAL = 2
+      ELSE
+         INDIVIDUALIZEBLOCKS() 
+         SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(8, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+         ¤RETVAL = 1
+      END IF
+      INT ¤SCV138 = EXE.lng(@config, 215)
+      IF ¤SCV138 = 3 THEN
+         ¤MEM_SETV(config, (35), LONG, (1), 4)
+         SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(12, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+      ELSEIF ¤SCV138 = 4 THEN
+         ¤MEM_SETV(config, (35), LONG, (1), 4)
+         SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(15, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+      END IF
+   END IF
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION BLOCKFELL() AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT x
+   INT y
+   INT f
+   y = 15
+   gosub .£FNini0475
+   goto .£FNind0475
+..£FNini0475 
+   int ¤ite0475
+   int ¤iti0475 = 1
+   INT ¤tov0475 = 1
+   INT ¤cnt0475 = -1
+   RET
+..£FNind0475 
+   FOR ¤ite0475 = 0 TO 2 STEP 1 
+   ..£FNst0475 
+      if (¤ite0475 > 0) then
+         y += ¤cnt0475
+         if ¤cnt0475 > 0 then
+            if y > ¤tov0475 then exit for
+         else
+            if y < ¤tov0475 then exit for
+         end if
+      end if
+      x = 8
+      gosub .£FNini0476
+      goto .£FNind0476
+   ..£FNini0476 
+      int ¤ite0476
+      int ¤iti0476 = 1
+      INT ¤tov0476 = 1
+      INT ¤cnt0476 = -1
+      RET
+   ..£FNind0476 
+      FOR ¤ite0476 = 0 TO 2 STEP 1 
+      ..£FNst0476 
+         if (¤ite0476 > 0) then
+            x += ¤cnt0476
+            if ¤cnt0476 > 0 then
+               if x > ¤tov0476 then exit for
+            else
+               if x < ¤tov0476 then exit for
+            end if
+         end if
+         INT ¤SCV139 = area.lng(area.m(x,y), (4))
+         IF ¤SCV139 = ½AREA_HALFPILL THEN
+            IF area.lng(area.m(x,y + 1), (4))=0 THEN
+               ¤UDT_COPY(20, area.udt(area.p(x,y + 1), (0)), area.udt(area.p(x,y), (0)))
+               area.reset(area.m(x,y))
+               f = (1)
+            END IF
+         ELSEIF ¤SCV139 = ½AREA_PILL THEN
+            IF area.lng(area.m(x,y), (16))=area.lng(area.m(x - 1,y), (16)) THEN
+               IF ¤ISFALSE(area.lng(area.m(x - 1,y + 1), (4))) AND ¤ISFALSE(area.lng(area.m(x,y + 1), (4))) THEN
+                  ¤UDT_COPY(20, area.udt(area.p(x,y + 1), (0)), area.udt(area.p(x,y), (0)))
+                  area.reset(area.m(x,y))
+                  ¤UDT_COPY(20, area.udt(area.p(x - 1,y + 1), (0)), area.udt(area.p(x - 1,y), (0)))
+                  area.reset(area.m(x - 1,y))
+                  f = (1)
+               END IF
+               x = ((x) - 1)
+            ELSE
+               IF ¤ISFALSE(area.lng(area.m(x,y + 1), (4))) THEN
+                  ¤UDT_COPY(20, area.udt(area.p(x,y + 1), (0)), area.udt(area.p(x,y), (0)))
+                  area.reset(area.m(x,y))
+                  f = (1)
+               END IF
+            END IF
+         END IF
+         ¤ite0476 += 1
+         if ¤iti0476 = 0 then
+            gosub .£FNini0476
+         end if
+         goto .£FNst0476
+      NEXT 
+      ¤ite0475 += 1
+      if ¤iti0475 = 0 then
+         gosub .£FNini0475
+      end if
+      goto .£FNst0475
+   NEXT 
+   ¤RETVAL = f
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION ROTATEPILL(INT »dir) AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT dir = »dir
+   IF ¤ISFALSE(EXE.lng(@config, 35)) THEN
+      SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(4, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+   END IF
+   INT ¤SCV140 = dir
+   IF ¤SCV140 = ½DIR_LF THEN
+      ¤MEM_SETV(config, (179), LONG, (1), 4)
+      ¤MEM_DECR(config, (102 + 40), LONG, 1)
+      IF EXE.lng(@config, 102 + 40) < 1 THEN
+         ¤MEM_SETV(config, (102 + 40), LONG, (4), 4)
+      END IF
+   ELSEIF ¤SCV140 = ½DIR_RT THEN
+      ¤MEM_SETV(config, (179), LONG, (1), 4)
+      ¤MEM_INCR(config, (102 + 40), LONG, 1)
+      IF EXE.lng(@config, 102 + 40) > 4 THEN
+         ¤MEM_SETV(config, (102 + 40), LONG, (1), 4)
+      END IF
+   END IF
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION EXECGAMEMECHANICS() AS INT
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   INT r
+   IF EXE.lng(@config, 19) THEN
+      BYTE ¤SCV141 = EXE.byt(@config, 0)
+      IF ¤SCV141 = ½SCREEN_TITLE THEN
+         ¤MEM_INCR(config, (167), LONG, 1)
+         IF GETASYNCKEYSTATE(½VK_RETURN) THEN
+            DO WHILE GETASYNCKEYSTATE(½VK_RETURN)
+               SLEEP 100 
+            LOOP
+            CHANGEGAMESCREEN(½SCREEN_OPTIONS) 
+         END IF
+      ELSEIF ¤SCV141 = ½SCREEN_OPTIONS THEN
+         ¤MEM_INCR(config, (167), LONG, 1)
+         IF EXE.lng(@config, 183) THEN
+            ¤MEM_INCR(config, (187), LONG, 1)
+         END IF
+         IF GETASYNCKEYSTATE(½VK_ESCAPE) THEN
+            IF EXE.lng(@config, 183)=0 THEN
+               CHANGEGAMESCREEN(½SCREEN_TITLE) 
+            END IF
+         ELSEIF GETASYNCKEYSTATE(½VK_UP) THEN
+            IF EXE.lng(@config, 183)=0 THEN
+               IF EXE.lng(@config, 219) > 1 THEN
+                  SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(2, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                  ¤MEM_DECR(config, (219), LONG, 1)
+                  ¤MEM_SETV(config, (183), LONG, (1), 4)
+               END IF
+            END IF
+         ELSEIF GETASYNCKEYSTATE(½VK_DOWN) THEN
+            IF EXE.lng(@config, 183)=0 THEN
+               IF EXE.lng(@config, 219) < 3 THEN
+                  SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(2, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                  ¤MEM_INCR(config, (219), LONG, 1)
+                  ¤MEM_SETV(config, (183), LONG, (1), 4)
+               END IF
+            END IF
+         ELSEIF GETASYNCKEYSTATE(½VK_LEFT) THEN
+            INT ¤SCV142 = EXE.lng(@config, 219)
+            IF ¤SCV142 = 1 THEN
+               IF (EXE.lng(@config, 183)=0) OR (EXE.lng(@config, 187) > 3) THEN
+                  IF EXE.byt(@config, 56) > 0 THEN
+                     SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                     ¤MEM_DECR(config, (56), BYTE, 1)
+                     IF EXE.lng(@config, 183)=0 THEN
+                        ¤MEM_SETV(config, (187), LONG, (-15), 4)
+                     ELSE
+                        ¤MEM_SETV(config, (187), LONG, (0), 4)
+                     END IF
+                     ¤MEM_SETV(config, (183), LONG, (1), 4)
+                  END IF
+               END IF
+            ELSEIF ¤SCV142 = 2 THEN
+               IF (EXE.lng(@config, 183)=0) THEN
+                  IF EXE.byt(@config, 57) > 1 THEN
+                     SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                     ¤MEM_DECR(config, (57), BYTE, 1)
+                     ¤MEM_SETV(config, (183), LONG, (1), 4)
+                  END IF
+               END IF
+            ELSEIF ¤SCV142 = 3 THEN
+               IF (EXE.lng(@config, 183)=0) THEN
+                  IF EXE.byt(@config, 2) > 1 THEN
+                     SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                     ¤MEM_DECR(config, (2), BYTE, 1)
+                     ¤MEM_SETV(config, (183), LONG, (1), 4)
+                  END IF
+               END IF
+            END IF
+         ELSEIF GETASYNCKEYSTATE(½VK_RIGHT) THEN
+            INT ¤SCV143 = EXE.lng(@config, 219)
+            IF ¤SCV143 = 1 THEN
+               IF (EXE.lng(@config, 183)=0) OR (EXE.lng(@config, 187) > 3) THEN
+                  IF EXE.byt(@config, 56) < 20 THEN
+                     SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                     ¤MEM_INCR(config, (56), BYTE, 1)
+                     IF EXE.lng(@config, 183)=0 THEN
+                        ¤MEM_SETV(config, (187), LONG, (-10), 4)
+                     ELSE
+                        ¤MEM_SETV(config, (187), LONG, (0), 4)
+                     END IF
+                     ¤MEM_SETV(config, (183), LONG, (1), 4)
+                  END IF
+               END IF
+            ELSEIF ¤SCV143 = 2 THEN
+               IF (EXE.lng(@config, 183)=0) THEN
+                  IF EXE.byt(@config, 57) < 3 THEN
+                     SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                     ¤MEM_INCR(config, (57), BYTE, 1)
+                     ¤MEM_SETV(config, (183), LONG, (1), 4)
+                  END IF
+               END IF
+            ELSEIF ¤SCV143 = 3 THEN
+               IF (EXE.lng(@config, 183)=0) THEN
+                  IF EXE.byt(@config, 2) < 3 THEN
+                     SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                     ¤MEM_INCR(config, (2), BYTE, 1)
+                     ¤MEM_SETV(config, (183), LONG, (1), 4)
+                  END IF
+               END IF
+            END IF
+         ELSEIF GETASYNCKEYSTATE(½VK_RETURN) THEN
+            IF EXE.lng(@config, 183)=0 THEN
+               DO WHILE GETASYNCKEYSTATE(½VK_RETURN)
+                  SLEEP 100 
+               LOOP
+               CHANGEGAMESCREEN(½SCREEN_GAME) 
+            END IF
+         ELSE
+            ¤MEM_SETV(config, (183), LONG, (0), 4)
+         END IF
+      ELSEIF ¤SCV141 = ½SCREEN_GAME THEN
+         ¤MEM_INCR(config, (167), LONG, 1)
+         IF ¤ISFALSE(EXE.lng(@config, 31)) THEN
+            IF ¤ISFALSE(EXE.lng(@config, 207)) THEN
+               IF EXE.lng(@config, 35) THEN
+                  ¤MEM_INCR(config, (35), LONG, 1)
+                  IF EXE.lng(@config, 35) > 40 THEN
+                     ¤MEM_SETV(config, (35), LONG, (0), 4)
+                  END IF
+               END IF
+            END IF
+         END IF
+         IF GETASYNCKEYSTATE(½VK_RETURN) THEN
+            IF ¤ISFALSE(EXE.lng(@config, 31)) THEN
+               IF ¤ISFALSE(EXE.lng(@config, 211)) THEN
+                  ¤MEM_SETV(config, (211), LONG, (1), 4)
+                  ¤MEM_SETV(config, (207), LONG, ((EXE.lng(@config, 207)=0)), 4)
+                  IF EXE.lng(@config, 207) THEN
+                     SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(5, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                     PLAYBGM("pause", 0, 0, 0) 
+                  ELSE
+                     PLAYBGM("resume", 0, 0, 0) 
+                  END IF
+               END IF
+            END IF
+         ELSE
+            ¤MEM_SETV(config, (211), LONG, (0), 4)
+         END IF
+         IF EXE.lng(@config, 207) THEN
+         ELSEIF EXE.lng(@config, 167) > 80 THEN
+            IF EXE.lng(@config, 23) THEN
+               ¤MEM_SETV(config, (102 + 0), LONG, (0), 4)
+               ¤MEM_INCR(config, (27), LONG, 1)
+               IF EXE.lng(@config, 27) > 60 THEN
+                  IF GETASYNCKEYSTATE(½VK_RETURN) THEN
+                     DO WHILE GETASYNCKEYSTATE(½VK_RETURN)
+                        SLEEP 100 
+                     LOOP
+                     CHANGEGAMESCREEN(½SCREEN_TITLE) 
+                  END IF
+               END IF
+            ELSEIF EXE.lng(@config, 31) THEN
+               ¤MEM_SETV(config, (102 + 0), LONG, (0), 4)
+               ¤MEM_INCR(config, (27), LONG, 1)
+               IF EXE.lng(@config, 27) > 60 THEN
+                  IF GETASYNCKEYSTATE(½VK_RETURN) THEN
+                     IF EXE.byt(@config, 55)=20 THEN
+                        CHANGEGAMESCREEN(½SCREEN_ENDING) 
+                     ELSE
+                        ¤MEM_SETV(config, (211), LONG, (-1), 4)
+                        ¤MEM_SETV(config, (23), LONG, (0), 4)
+                        ¤MEM_SETV(config, (31), LONG, (0), 4)
+                        ¤MEM_SETV(config, (167), LONG, (0), 4)
+                        BYTE ¤SCV144 = EXE.byt(@config, 2)
+                        IF ¤SCV144 = 1 THEN
+                           PLAYBGM("SFX24", 64700, 2600, 1000) 
+                        ELSEIF ¤SCV144 = 2 THEN
+                           PLAYBGM("SFX22", 116000, 7523, -4000) 
+                        ELSEIF ¤SCV144 = 3 THEN
+                           PLAYBGM("none", 0, 0, 0) 
+                        END IF
+                        ¤UDT_SETV(bigv, bigv.m(1), (12), LONG, (½VIRUS_NORMAL), 4)
+                        ¤UDT_SETV(bigv, bigv.m(2), (12), LONG, (½VIRUS_NORMAL), 4)
+                        ¤UDT_SETV(bigv, bigv.m(3), (12), LONG, (½VIRUS_NORMAL), 4)
+                        ¤MEM_SETV(config, (171), LONG, (0), 4)
+                        ¤MEM_SETV(config, (231), LONG, (0), 4)
+                        ¤MEM_SETV(config, (102 + 32), LONG, (0), 4)
+                        ¤MEM_SETV(config, (235), LONG, (0), 4)
+                        ¤MEM_INCR(config, (55), BYTE, 1)
+                        SETAREAFORLEVEL(EXE.byt(@config, 55)) 
+                        ¤MEM_SETV(config, (58 + 4), LONG, (CHOOSE(RND(1, 3), INT {½COLOR_RED, ½COLOR_YELLOW, ½COLOR_BLUE}, countof)), 4)
+                        ¤MEM_SETV(config, (58 + 8), LONG, (CHOOSE(RND(1, 3), INT {½COLOR_RED, ½COLOR_YELLOW, ½COLOR_BLUE}, countof)), 4)
+                     END IF
+                  END IF
+               END IF
+            ELSEIF EXE.lng(@config, 171)=0 THEN
+               ¤MEM_INCR(config, (171), LONG, 1)
+               ¤MEM_SETV(config, (231), LONG, (1), 4)
+               ¤MEM_SETV(config, (223), LONG, (0), 4)
+               ¤MEM_SETV(config, (58 + 32), LONG, (1), 4)
+               ¤MEM_SETV(config, (58 + 20), LONG, (188), 4)
+               ¤MEM_SETV(config, (58 + 24), LONG, (64), 4)
+               ¤MEM_SETV(config, (58 + 36), SINGLE, (-8), 4)
+            ELSEIF EXE.lng(@config, 231) THEN
+               ¤MEM_INCR(config, (223), LONG, 1)
+               ¤MEM_INCR(config, (58 + 36), SINGLE, 0.69)
+               ¤MEM_INCR(config, (58 + 40), LONG, 1)
+               IF EXE.lng(@config, 58 + 40) > 4 THEN
+                  ¤MEM_SETV(config, (58 + 40), LONG, (1), 4)
+               END IF
+               ¤MEM_DECR(config, (58 + 20), LONG, 3)
+               ¤MEM_INCR(config, (58 + 24), LONG, EXE.sng(@config, 58 + 36))
+               GETASYNCKEYSTATE(½VK_DOWN) 
+               GETASYNCKEYSTATE(½VK_LEFT) 
+               GETASYNCKEYSTATE(½VK_RIGHT) 
+               INT ¤SCV145 = EXE.lng(@config, 223)
+               IF ¤SCV145 = 4 THEN
+                  ¤MEM_SETV(config, (227), LONG, (4), 4)
+               ELSEIF ¤SCV145 = 8 THEN
+                  ¤MEM_SETV(config, (227), LONG, (5), 4)
+               ELSEIF ¤SCV145 = 23 THEN
+                  ¤MEM_SETV(config, (227), LONG, (3), 4)
+                  ¤MEM_SETV(config, (231), LONG, (0), 4)
+                  ¤MEM_SETV(config, (102 + 32), LONG, (0), 4)
+                  ¤UDT_COPY(44, (@config + 102), (@config + 58))
+                  ¤MEM_SETV(config, (102 + 20), LONG, (120), 4)
+                  ¤MEM_SETV(config, (102 + 24), LONG, (72), 4)
+                  ¤MEM_SETV(config, (102 + 12), LONG, (4), 4)
+                  ¤MEM_SETV(config, (102 + 16), LONG, (1), 4)
+                  ¤MEM_SETV(config, (102 + 40), LONG, (½DIR_RT), 4)
+                  IF ¤ISTRUE(area.lng(area.m(4,1), (4))) OR ¤ISTRUE(area.lng(area.m(5,1), (4))) THEN
+                     LEAVEPILL() 
+                     PLAYBGM("SFX20", 9999099, 9909999, 0) 
+                     ¤MEM_SETV(config, (23), LONG, (-1), 4)
+                     ¤MEM_SETV(config, (102 + 0), LONG, (0), 4)
+                     ¤MEM_SETV(config, (27), LONG, (0), 4)
+                  ELSE
+                     ¤MEM_SETV(config, (102 + 0), LONG, (1), 4)
+                     ¤MEM_SETV(config, (58 + 20), LONG, (188), 4)
+                     ¤MEM_SETV(config, (58 + 24), LONG, (64), 4)
+                     ¤MEM_SETV(config, (58 + 4), LONG, (CHOOSE(RND(1, 3), INT {½COLOR_RED, ½COLOR_YELLOW, ½COLOR_BLUE}, countof)), 4)
+                     ¤MEM_SETV(config, (58 + 8), LONG, (CHOOSE(RND(1, 3), INT {½COLOR_RED, ½COLOR_YELLOW, ½COLOR_BLUE}, countof)), 4)
+                     ¤MEM_SETV(config, (58 + 40), LONG, (½DIR_RT), 4)
+                     ¤MEM_SETV(config, (58 + 32), LONG, (0), 4)
+                     ¤MEM_SETV(config, (58 + 36), SINGLE, (-8), 4)
+                     ¤MEM_SETV(config, (223), LONG, (0), 4)
+                  END IF
+               END IF
+            END IF
+         END IF
+         IF EXE.lng(@config, 207) THEN
+         ELSEIF EXE.lng(@config, 102 + 0) THEN
+            IF (EXE.lng(@config, 167) MOD 2000)=0 THEN
+               IF ¤ISFALSE(EXE.lng(@config, 31)) THEN
+                  ¤MEM_DECR(config, (175), LONG, EXE.byt(@config, 57))
+                  IF ¤ISFALSE(EXE.lng(@config, 35)) THEN
+                     ¤MEM_SETV(config, (35), LONG, (1), 4)
+                     SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(7, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                  END IF
+                  IF EXE.lng(@config, 175) < 1 THEN
+                     ¤MEM_SETV(config, (175), LONG, (1), 4)
+                  END IF
+               END IF
+            END IF
+            IF EXE.lng(@config, 235) THEN
+               ¤MEM_INCR(config, (235), LONG, 1)
+               IF EXE.lng(@config, 235) > 11 THEN
+                  ¤MEM_SETV(config, (235), LONG, (1), 4)
+                  IF EXE.lng(@config, 31) THEN
+                  ELSE
+                     ¤MEM_SETV(config, (158), BYTE, ¤BytOvf(REMAININGVIRUS(0)), 1)
+                     IF EXE.byt(@config, 158)=0 THEN
+                        goto .£1EC3stageisclear
+                     ELSE
+                        IF BLOCKFELL() THEN
+                           IF ¤ISFALSE(EXE.lng(@config, 35)) THEN
+                              SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(3, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                           END IF
+                        ELSE
+                           r = (DESTROYED())
+                           IF r THEN
+                              ¤MEM_SETV(config, (158), BYTE, ¤BytOvf(REMAININGVIRUS(0)), 1)
+                              IF EXE.byt(@config, 158)=0 THEN
+                              ..£1EC3stageisclear:
+                                 Err.erp = "stageisclear"
+                                 ¤MEM_SETV(config, (31), LONG, (1), 4)
+                                 ¤MEM_SETV(config, (27), LONG, (0), 4)
+                                 BYTE ¤SCV146 = EXE.byt(@config, 2)
+                                 IF ¤SCV146 = 1 THEN
+                                    PLAYBGM("SFX26", 999999, 0, 0) 
+                                 ELSEIF ¤SCV146 = 2 THEN
+                                    PLAYBGM("SFX25", 999999, 0, 0) 
+                                 ELSEIF ¤SCV146 = 3 THEN
+                                    PLAYBGM("SFX27", 999999, 0, 0) 
+                                 END IF
+                              ELSE
+                                 ¤MEM_SETV(config, (235), LONG, (1), 4)
+                              END IF
+                           ELSE
+                              ¤MEM_SETV(config, (235), LONG, (0), 4)
+                              ¤MEM_SETV(config, (231), LONG, (1), 4)
+                           END IF
+                        END IF
+                     END IF
+                  END IF
+               END IF
+            ELSEIF EXE.lng(@config, 231) THEN
+            ELSE
+               IF EXE.lng(@config, 179) THEN
+                  IF ¤ISFALSE(GETASYNCKEYSTATE(½VK_Z)) AND ¤ISFALSE(GETASYNCKEYSTATE(½VK_X)) THEN
+                     ¤MEM_SETV(config, (179), LONG, (0), 4)
+                  END IF
+               ELSEIF GETASYNCKEYSTATE(½VK_Z) THEN
+                  IF CANROTATE() THEN
+                     ROTATEPILL(½DIR_LF) 
+                  END IF
+               ELSEIF GETASYNCKEYSTATE(½VK_X) THEN
+                  IF CANROTATE() THEN
+                     ROTATEPILL(½DIR_RT) 
+                  END IF
+               END IF
+               IF GETASYNCKEYSTATE(½VK_DOWN) THEN
+                  ¤MEM_SETV(config, (183), LONG, (0), 4)
+                  ¤MEM_SETV(config, (187), LONG, (0), 4)
+                  IF PILLCANGO(½DIR_DN) THEN
+                     MOVEPILL(½DIR_DN) 
+                  ELSE
+                     goto .£1EC3pillfell
+                  END IF
+               ELSEIF EXE.lng(@config, 183) THEN
+                  IF GETASYNCKEYSTATE(EXE.lng(@config, 183)) THEN
+                     ¤MEM_INCR(config, (187), LONG, 1)
+                     IF EXE.lng(@config, 187) > 15 THEN
+                        IF EXE.lng(@config, 183)=½VK_RIGHT THEN
+                           IF PILLCANGO(½DIR_RT) THEN
+                              ¤MEM_SETV(config, (183), LONG, (½VK_RIGHT), 4)
+                              MOVEPILL(½DIR_RT) 
+                           END IF
+                        ELSEIF EXE.lng(@config, 183)=½VK_LEFT THEN
+                           IF PILLCANGO(½DIR_LF) THEN
+                              ¤MEM_SETV(config, (183), LONG, (½VK_LEFT), 4)
+                              MOVEPILL(½DIR_LF) 
+                           END IF
+                        END IF
+                     END IF
+                  ELSE
+                     ¤MEM_SETV(config, (183), LONG, (0), 4)
+                     ¤MEM_SETV(config, (187), LONG, (0), 4)
+                  END IF
+               ELSE
+                  IF GETASYNCKEYSTATE(½VK_RIGHT) THEN
+                     IF PILLCANGO(½DIR_RT) THEN
+                        ¤MEM_SETV(config, (183), LONG, (½VK_RIGHT), 4)
+                        MOVEPILL(½DIR_RT) 
+                     END IF
+                  ELSEIF GETASYNCKEYSTATE(½VK_LEFT) THEN
+                     IF PILLCANGO(½DIR_LF) THEN
+                        ¤MEM_SETV(config, (183), LONG, (½VK_LEFT), 4)
+                        MOVEPILL(½DIR_LF) 
+                     END IF
+                  END IF
+               END IF
+               ¤MEM_INCR(config, (102 + 32), LONG, 1)
+               IF (EXE.lng(@config, 102 + 32) MOD EXE.lng(@config, 175))=0 THEN
+                  IF PILLCANGO(½DIR_DN) THEN
+                     MOVEPILL(½DIR_DN) 
+                  ELSE
+                  ..£1EC3pillfell:
+                     Err.erp = "pillfell"
+                     IF ¤ISFALSE(EXE.lng(@config, 35)) THEN
+                        SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(3, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                     END IF
+                     LEAVEPILL() 
+                     ¤MEM_SETV(config, (215), LONG, (0), 4)
+                     r = (DESTROYED())
+                     IF r THEN
+                        ¤MEM_SETV(config, (235), LONG, (1), 4)
+                     ELSE
+                        ¤MEM_SETV(config, (231), LONG, (1), 4)
+                     END IF
+                  END IF
+               END IF
+            END IF
+         END IF
+      ELSEIF ¤SCV141 = ½SCREEN_ENDING THEN
+         ¤MEM_INCR(config, (167), LONG, 1)
+         IF EXE.lng(@config, 167) > 50 THEN
+            IF GETASYNCKEYSTATE(½VK_RETURN) THEN
+               DO WHILE GETASYNCKEYSTATE(½VK_RETURN)
+                  SLEEP 100 
+               LOOP
+               CHANGEGAMESCREEN(½SCREEN_TITLE) 
+            END IF
+         END IF
+      END IF
+   END IF
+   IF (EXE.lng(@config, 167) MOD 4)=0 THEN
+      IF EXE.byt(@config, 1) THEN
+         ¤MEM_SETV(config, (1), BYTE, ¤BytOvf(0), 1)
+      ELSE
+         ¤MEM_SETV(config, (1), BYTE, ¤BytOvf(1), 1)
+      END IF
+   END IF
+   RETURN ¤RETVAL
+END FUNCTION
+
+FUNCTION PBMAIN() AS INT 
+   INT ¤RETVAL = 0
+   CALL PluriBASIC_Initialize()
+   ¤SYSERR Err
+   DWORD hdlg
+   INITGAME() 
+   IF ¤ISFALSE(TESTBGM("sfx21")) THEN
+      MSGBOX ("Music resources could not be extracted.", ½MB_ICONERROR, "The game cannot start") 
+      RETURN ¤RETVAL
+   END IF
+   DialogNew(5, 0, "DrMario - " & "OxygenBASIC", byval 0, byval 0, 512, 448, ½WS_OVERLAPPEDWINDOW, 0, hdlg) 
+   ¤MEM_SETV(config, (51), DWORD, (hdlg), 4)
+   DialogSetIcon(hdlg, "DLGICON") 
+   DialogShow(1, hdlg, @DLGPROC, byval 0) 
+   RETURN ¤RETVAL
+END FUNCTION
+
+PBMAIN() ' invoke entry point
+
+EXTERN
+FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
+   INT ¤RETVAL = 0
+   ¤SYSERR Err
+   STATIC SYS htimer
+   STATIC SYS htimem
+   STATIC INT hframe
+   RECT rc
+   DWORD hmemdc
+   DWORD hmemdb
+   DWORD hmembm
+   DWORD holdbm
+   DWORD holdbb
+   DWORD hfont
+   DWORD holdf
+   DWORD hbrush
+   SYS hdc
+   INT offframe
+   INT sprframe
+   INT index
+   INT xa
+   INT ya
+   INT x
+   INT y
+   PAINTSTRUCT ps
+   INT xn1
+   INT wn2
+   INT yn7
+   STRING sn3
+   INT in4
+   INT tn5
+   INT nxn6
+   STRING sn8
+   INT in9
+   INT tna
+   INT nxnb
+   INT xne
+   INT wnf
+   INT p1nc
+   INT p2nd
+   INT p1n10
+   INT p2n11
+   RECT rcn12
+   STRING sn13
+   INT in14
+   INT tn15
+   INT nxn16
+   STRING sn17
+   INT in18
+   INT tn19
+   INT nxn1a
+   STRING sn1b
+   INT in1c
+   INT tn1d
+   INT nxn1e
+   STRING sn1f
+   INT in20
+   INT tn21
+   INT nxn22
+   INT ¤SCV147 = cbMsg
+   IF ¤SCV147 = ½WM_INITDIALOG THEN
+      ¤MEM_SETV(config, (159), DWORD, (10000), 4)
+      ¤MEM_SETV(config, (57), BYTE, ¤BytOvf(1), 1)
+      ¤MEM_SETV(config, (56), BYTE, ¤BytOvf(0), 1)
+      ¤MEM_SETV(config, (2), BYTE, ¤BytOvf(½MUSIC_FEVER), 1)
+      ¤MEM_SETV(config, (19), LONG, (-1), 4)
+      hvirbg = (LOADBITMAP(GetModuleHandle(0), "VBIG"))
+      hvirsm = (LOADBITMAP(GetModuleHandle(0), "VSML"))
+      hmario = (LOADBITMAP(GetModuleHandle(0), "DRMA"))
+      hnumbr = (LOADBITMAP(GetModuleHandle(0), "NUMR"))
+      hbackg = (LOADBITMAP(GetModuleHandle(0), "BACK"))
+      htitle = (LOADBITMAP(GetModuleHandle(0), "TITL"))
+      hselec = (LOADBITMAP(GetModuleHandle(0), "SELE"))
+      hhighl = (LOADBITMAP(GetModuleHandle(0), "HLTH"))
+      hendin = (LOADBITMAP(GetModuleHandle(0), "ENDS"))
+      htimer = (SETTIMER(cbhndl, ½TIMER_REFRESHSCREEN, 20, ½NULL))
+      htimem = (SETTIMER(cbhndl, ½TIMER_MUSICCHECK, 500, ½NULL))
+      CHANGEGAMESCREEN(½SCREEN_TITLE) 
+   ELSEIF ¤SCV147 = ½WM_DESTROY THEN
+      IF htimer THEN
+         KILLTIMER cbhndl, htimer 
+      END IF
+      IF htimem THEN
+         KILLTIMER cbhndl, htimem 
+      END IF
+      SLEEP 100 
+      DELETEOBJECT hvirbg 
+      DELETEOBJECT hvirsm 
+      DELETEOBJECT hmario 
+      DELETEOBJECT hnumbr 
+      DELETEOBJECT hbackg 
+      DELETEOBJECT htitle 
+      DELETEOBJECT hselec 
+      DELETEOBJECT hhighl 
+      DELETEOBJECT hendin 
+   ELSEIF ¤SCV147 = ½WM_TIMER THEN
+      INT ¤SCV148 = wParam
+      IF ¤SCV148 = ½TIMER_MUSICCHECK THEN
+      ELSEIF ¤SCV148 = ½TIMER_REFRESHSCREEN THEN
+         EXECGAMEMECHANICS() 
+         GETCLIENTRECT(cbhndl, rc) 
+         hframe = (1)
+         INVALIDATERECT cbhndl, rc, 0 
+      ELSEIF ¤SCV148 = ½TIMER_MUSICLOOP THEN
+         MCISENDSTRING("seek mp3file to " & ¤FORMAT(EXE.dwd(@config, 7), byval 0), 0, 0, 0) 
+         MCISENDSTRING("play mp3file", 0, 0, 0) 
+         IF EXE.lng(@config, 11)=0 THEN
+            IF EXE.dwd(@config, 47) THEN
+               KILLTIMER cbhndl, EXE.dwd(@config, 47) 
+               ¤MEM_SETV(config, (3), DWORD, (((EXE.dwd(@config, 3) - EXE.dwd(@config, 7)) + EXE.lng(@config, 43))), 4)
+               ¤MEM_SETV(config, (47), DWORD, (SETTIMER(cbhndl, ½TIMER_MUSICLOOP, EXE.dwd(@config, 3), ½NULL)), 4)
+            END IF
+         END IF
+         ¤MEM_INCR(config, (11), LONG, 1)
+      END IF
+   ControlFlow0148:
+   ELSEIF ¤SCV147 = ½WM_KILLFOCUS THEN
+      ¤MEM_SETV(config, (19), LONG, (0), 4)
+   ELSEIF ¤SCV147 = ½WM_SETFOCUS THEN
+      ¤MEM_SETV(config, (19), LONG, (-1), 4)
+   ELSEIF ¤SCV147 = ½WM_PAINT THEN
+      IF hframe THEN
+         hframe = (0)
+         hdc = (BEGINPAINT(cbhndl, ps))
+         hmemdc = (CREATECOMPATIBLEDC(hdc))
+         hmemdb = (CREATECOMPATIBLEDC(hdc))
+         hmembm = (CREATECOMPATIBLEBITMAP(hdc, ½GAME_W, ½GAME_H))
+         holdbm = (SELECTOBJECT(hmemdc, hmembm))
+         BYTE ¤SCV149 = EXE.byt(@config, 0)
+         IF ¤SCV149 = ½SCREEN_TITLE THEN
+            holdbb = (SELECTOBJECT(hmemdb, htitle))
+            BITBLT hmemdc, 0, 0, ½GAME_W, ½GAME_H, hmemdb, 0, 0, ½SRCCOPY 
+            holdbb = (SELECTOBJECT(hmemdb, holdbb))
+            IF (EXE.lng(@config, 167) MOD 10)=0 THEN
+               IF EXE.lng(@config, 227) THEN
+                  ¤MEM_SETV(config, (227), LONG, (0), 4)
+               ELSE
+                  ¤MEM_SETV(config, (227), LONG, (1), 4)
+               END IF
+            END IF
+            holdbb = (SELECTOBJECT(hmemdb, hmario))
+            xn1 = ((EXE.lng(@config, 227) * 34))
+            wn2 = (30)
+            BITBLT hmemdc, 50, 152, wn2, 40, hmemdb, xn1, 0, ½SRCCOPY 
+            holdbb = (SELECTOBJECT(hmemdb, holdbb))
+            holdbb = (SELECTOBJECT(hmemdb, hvirbg))
+            DO
+               IF EXE.lng(@config, 23) THEN
+                  IF EXE.byt(@config, 1) THEN
+                     x = ((24 * 1))
+                  ELSE
+                     x = ((24 * 3))
+                  END IF
+                  y = ((24 * (4 - 1)))
+                  BITBLT hmemdc, bigv.lng(bigv.m(4), (0)), bigv.lng(bigv.m(4), (4)) + bigv.lng(bigv.m(4), (8)), 24, 24, hmemdb, x, y, ½SRCCOPY 
+               ELSE
+                  INT ¤SCV150 = bigv.lng(bigv.m(4), (12))
+                  IF ¤SCV150 = ½VIRUS_NORMAL THEN
+                     IF (EXE.lng(@config, 167) MOD 8)=0 THEN
+                        ¤UDT_INCR(bigv, bigv.m(4), (20), BYTE, 1)
+                     END IF
+                     offframe = (bigv.byt(bigv.m(4), (20)) MOD 4)
+                     sprframe = (CHOOSE(offframe + 1, INT {1, 2, 3, 2}, countof))
+                     x = ((24 * (sprframe - 1)))
+                     y = ((24 * (4 - 1)))
+                  ELSEIF ¤SCV150 = ½VIRUS_DEAD THEN
+                     ¤UDT_INCR(bigv, bigv.m(4), (16), LONG, 1)
+                     IF bigv.lng(bigv.m(4), (16)) < 20 THEN
+                        x = ((24 * (7 - 1)))
+                        y = ((24 * (4 - 1)))
+                     ELSE
+                        EXIT DO
+                     END IF
+                  ELSEIF ¤SCV150 = ½VIRUS_FLOOR THEN
+                     IF (EXE.lng(@config, 167) MOD 3)=0 THEN
+                        ¤UDT_INCR(bigv, bigv.m(4), (20), BYTE, 1)
+                     END IF
+                     ¤UDT_INCR(bigv, bigv.m(4), (16), LONG, 1)
+                     offframe = (bigv.byt(bigv.m(4), (20)) MOD 2)
+                     sprframe = (CHOOSE((offframe + 1), INT {5, 6}, countof))
+                     x = ((24 * (sprframe - 1)))
+                     y = ((24 * (4 - 1)))
+                     IF bigv.lng(bigv.m(4), (16)) < 7 THEN
+                        INT ¤SCV151 = bigv.lng(bigv.m(4), (16))
+                        IF ¤SCV151 = 1 THEN
+                           ¤UDT_SETV(bigv, bigv.m(4), (8), LONG, (-5), 4)
+                        ELSEIF ¤SCV151 = 2 THEN
+                           ¤UDT_SETV(bigv, bigv.m(4), (8), LONG, (-9), 4)
+                        ELSEIF ¤SCV151 = 3 THEN
+                           ¤UDT_SETV(bigv, bigv.m(4), (8), LONG, (-11), 4)
+                        ELSEIF ¤SCV151 = 4 THEN
+                           ¤UDT_SETV(bigv, bigv.m(4), (8), LONG, (-9), 4)
+                        ELSEIF ¤SCV151 = 5 THEN
+                           ¤UDT_SETV(bigv, bigv.m(4), (8), LONG, (-5), 4)
+                        ELSEIF ¤SCV151 = 6 THEN
+                           ¤UDT_SETV(bigv, bigv.m(4), (8), LONG, (0), 4)
+                        END IF
+                     ControlFlow0151:
+                     END IF
+                     IF bigv.lng(bigv.m(4), (16)) > 80 THEN
+                        IF REMAININGVIRUS(bigv.lng(bigv.m(4), (21))) THEN
+                           ¤UDT_SETV(bigv, bigv.m(4), (12), LONG, (½VIRUS_NORMAL), 4)
+                        ELSE
+                           ¤MEM_SETV(config, (35), LONG, (1), 4)
+                           SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(11, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                           ¤UDT_SETV(bigv, bigv.m(4), (12), LONG, (½VIRUS_DEAD), 4)
+                           ¤UDT_SETV(bigv, bigv.m(4), (16), LONG, (0), 4)
+                        END IF
+                     END IF
+                  END IF
+               ControlFlow0150:
+                  BITBLT hmemdc, bigv.lng(bigv.m(4), (0)), bigv.lng(bigv.m(4), (4)) + bigv.lng(bigv.m(4), (8)), 24, 24, hmemdb, x, y, ½SRCCOPY 
+               END IF
+               EXIT DO
+            LOOP
+            holdbb = (SELECTOBJECT(hmemdb, holdbb))
+         ELSEIF ¤SCV149 = ½SCREEN_OPTIONS THEN
+            holdbb = (SELECTOBJECT(hmemdb, hselec))
+            BITBLT hmemdc, 0, 0, ½GAME_W, ½GAME_H, hmemdb, 0, 0, ½SRCCOPY 
+            holdbb = (SELECTOBJECT(hmemdb, holdbb))
+            holdbb = (SELECTOBJECT(hmemdb, hhighl))
+            INT ¤SCV152 = EXE.lng(@config, 219)
+            IF ¤SCV152 = 1 THEN
+               yn7 = (47)
+            ELSEIF ¤SCV152 = 2 THEN
+               yn7 = (104)
+            ELSEIF ¤SCV152 = 3 THEN
+               yn7 = (153)
+            END IF
+         ControlFlow0152:
+            BITBLT hmemdc, 39, yn7, 108, 23, hmemdb, 0, (EXE.lng(@config, 219) - 1) * 24, ½SRCCOPY 
+            tn5 = EXE.byt(@config, 56) 
+            sn3 = (¤FORMAT(tn5, REPEAT(2, "0")))
+            x = (185)
+            yn7 = (72)
+            holdbb = (SELECTOBJECT(hmemdb, hnumbr))
+            in4 = 1
+            gosub .£FNini0599
+            goto .£FNind0599
+         ..£FNini0599 
+            int ¤ite0599
+            int ¤iti0599 = 1
+            INT ¤tov0599 = 2
+            RET
+         ..£FNind0599 
+            FOR ¤ite0599 = 0 TO 2 STEP 1 
+            ..£FNst0599 
+               if (¤ite0599 > 0) then
+                  in4 += 1
+                  if in4 > ¤tov0599 then exit for
+               end if
+               nxn6 = (VAL(¤MID(sn3, in4, 1, byval 0)) * 7)
+               BITBLT hmemdc, x, yn7, 7, 7, hmemdb, nxn6, ((2 - 1) * 7), ½SRCCOPY 
+               x = ((x) + 8)
+               ¤ite0599 += 1
+               if ¤iti0599 = 0 then
+                  gosub .£FNini0599
+               end if
+               goto .£FNst0599
+            NEXT 
+            holdbb = (SELECTOBJECT(hmemdb, holdbb))
+            BITBLT hmemdc, 87 + (EXE.byt(@config, 56) * 4), 74, 7, 7, hmemdb, 111, 0, ½SRCCOPY 
+            BITBLT hmemdc, 50 + (EXE.byt(@config, 57) * 39), 128, 21, 7, hmemdb, 111, 8, ½SRCCOPY 
+            BITBLT hmemdc, 4 + (EXE.byt(@config, 2) * 55), 179, 51, 18, hmemdb, 0 + ((EXE.byt(@config, 2) - 1) * 51), 71, ½SRCCOPY 
+            holdbb = (SELECTOBJECT(hmemdb, holdbb))
+         ELSEIF ¤SCV149 = ½SCREEN_ENDING THEN
+            holdbb = (SELECTOBJECT(hmemdb, hendin))
+            BITBLT hmemdc, 0, 0, ½GAME_W, ½GAME_H, hmemdb, 0, 0, ½SRCCOPY 
+            holdbb = (SELECTOBJECT(hmemdb, holdbb))
+            tna = EXE.byt(@config, 56) 
+            sn8 = (¤FORMAT(tna, REPEAT(2, "0")))
+            x = (169)
+            y = (88)
+            holdbb = (SELECTOBJECT(hmemdb, hnumbr))
+            in9 = 1
+            gosub .£FNini0600
+            goto .£FNind0600
+         ..£FNini0600 
+            int ¤ite0600
+            int ¤iti0600 = 1
+            INT ¤tov0600 = 2
+            RET
+         ..£FNind0600 
+            FOR ¤ite0600 = 0 TO 2 STEP 1 
+            ..£FNst0600 
+               if (¤ite0600 > 0) then
+                  in9 += 1
+                  if in9 > ¤tov0600 then exit for
+               end if
+               nxnb = (VAL(¤MID(sn8, in9, 1, byval 0)) * 7)
+               BITBLT hmemdc, x, y, 7, 7, hmemdb, nxnb, ((3 - 1) * 7), ½SRCCOPY 
+               x = ((x) + 8)
+               ¤ite0600 += 1
+               if ¤iti0600 = 0 then
+                  gosub .£FNini0600
+               end if
+               goto .£FNst0600
+            NEXT 
+            holdbb = (SELECTOBJECT(hmemdb, holdbb))
+            holdbb = (SELECTOBJECT(hmemdb, hhighl))
+            BYTE ¤SCV153 = EXE.byt(@config, 57)
+            IF ¤SCV153 = 1 THEN
+               BITBLT hmemdc, 169, 104, 25, 9, hmemdb, 139, 23, ½SRCCOPY 
+            ELSEIF ¤SCV153 = 2 THEN
+               BITBLT hmemdc, 169, 104, 25, 9, hmemdb, 139, 32, ½SRCCOPY 
+            ELSEIF ¤SCV153 = 3 THEN
+               BITBLT hmemdc, 169, 104, 25, 9, hmemdb, 139, 41, ½SRCCOPY 
+            END IF
+         ControlFlow0153:
+            holdbb = (SELECTOBJECT(hmemdb, holdbb))
+         ELSEIF ¤SCV149 = ½SCREEN_GAME THEN
+            IF EXE.lng(@config, 207) THEN
+               GETCLIENTRECT(cbhndl, rc) 
+               hbrush = (CREATESOLIDBRUSH(RGB(0, 0, 0)))
+               FILLRECT hmemdc, rc, hbrush 
+               DELETEOBJECT(hbrush) 
+               holdbb = (SELECTOBJECT(hmemdb, hhighl))
+               BITBLT hmemdc, 110, 100, 51, 10, hmemdb, 108, 54, ½SRCCOPY 
+               holdbb = (SELECTOBJECT(hmemdb, holdbb))
+            ELSE
+               holdbb = (SELECTOBJECT(hmemdb, hbackg))
+               BITBLT hmemdc, 0, 0, ½GAME_W, ½GAME_H, hmemdb, 0, 0, ½SRCCOPY 
+               holdbb = (SELECTOBJECT(hmemdb, holdbb))
+               holdbb = (SELECTOBJECT(hmemdb, hvirbg))
+               index = 1
+               gosub .£FNini0603
+               goto .£FNind0603
+            ..£FNini0603 
+               int ¤ite0603
+               int ¤iti0603 = 1
+               INT ¤tov0603 = 3
+               RET
+            ..£FNind0603 
+               FOR ¤ite0603 = 0 TO 2 STEP 1 
+               ..£FNst0603 
+                  if (¤ite0603 > 0) then
+                     index += 1
+                     if index > ¤tov0603 then exit for
+                  end if
+                  DO
+                     IF EXE.lng(@config, 23) THEN
+                        IF EXE.byt(@config, 1) THEN
+                           x = ((24 * 1))
+                        ELSE
+                           x = ((24 * 3))
+                        END IF
+                        y = ((24 * (index - 1)))
+                        BITBLT hmemdc, bigv.lng(bigv.m(index), (0)), bigv.lng(bigv.m(index), (4)) + bigv.lng(bigv.m(index), (8)), 24, 24, hmemdb, x, y, ½SRCCOPY 
+                     ELSE
+                        INT ¤SCV154 = bigv.lng(bigv.m(index), (12))
+                        IF ¤SCV154 = ½VIRUS_NORMAL THEN
+                           IF (EXE.lng(@config, 167) MOD 8)=0 THEN
+                              ¤UDT_INCR(bigv, bigv.m(index), (20), BYTE, 1)
+                           END IF
+                           offframe = (bigv.byt(bigv.m(index), (20)) MOD 4)
+                           sprframe = (CHOOSE(offframe + 1, INT {1, 2, 3, 2}, countof))
+                           x = ((24 * (sprframe - 1)))
+                           y = ((24 * (index - 1)))
+                        ELSEIF ¤SCV154 = ½VIRUS_DEAD THEN
+                           ¤UDT_INCR(bigv, bigv.m(index), (16), LONG, 1)
+                           IF bigv.lng(bigv.m(index), (16)) < 20 THEN
+                              x = ((24 * (7 - 1)))
+                              y = ((24 * (index - 1)))
+                           ELSE
+                              EXIT DO
+                           END IF
+                        ELSEIF ¤SCV154 = ½VIRUS_FLOOR THEN
+                           IF (EXE.lng(@config, 167) MOD 3)=0 THEN
+                              ¤UDT_INCR(bigv, bigv.m(index), (20), BYTE, 1)
+                           END IF
+                           ¤UDT_INCR(bigv, bigv.m(index), (16), LONG, 1)
+                           offframe = (bigv.byt(bigv.m(index), (20)) MOD 2)
+                           sprframe = (CHOOSE((offframe + 1), INT {5, 6}, countof))
+                           x = ((24 * (sprframe - 1)))
+                           y = ((24 * (index - 1)))
+                           IF bigv.lng(bigv.m(index), (16)) < 7 THEN
+                              INT ¤SCV155 = bigv.lng(bigv.m(index), (16))
+                              IF ¤SCV155 = 1 THEN
+                                 ¤UDT_SETV(bigv, bigv.m(index), (8), LONG, (-5), 4)
+                              ELSEIF ¤SCV155 = 2 THEN
+                                 ¤UDT_SETV(bigv, bigv.m(index), (8), LONG, (-9), 4)
+                              ELSEIF ¤SCV155 = 3 THEN
+                                 ¤UDT_SETV(bigv, bigv.m(index), (8), LONG, (-11), 4)
+                              ELSEIF ¤SCV155 = 4 THEN
+                                 ¤UDT_SETV(bigv, bigv.m(index), (8), LONG, (-9), 4)
+                              ELSEIF ¤SCV155 = 5 THEN
+                                 ¤UDT_SETV(bigv, bigv.m(index), (8), LONG, (-5), 4)
+                              ELSEIF ¤SCV155 = 6 THEN
+                                 ¤UDT_SETV(bigv, bigv.m(index), (8), LONG, (0), 4)
+                              END IF
+                           ControlFlow0155:
+                           END IF
+                           IF bigv.lng(bigv.m(index), (16)) > 80 THEN
+                              IF REMAININGVIRUS(bigv.lng(bigv.m(index), (21))) THEN
+                                 ¤UDT_SETV(bigv, bigv.m(index), (12), LONG, (½VIRUS_NORMAL), 4)
+                              ELSE
+                                 ¤MEM_SETV(config, (35), LONG, (1), 4)
+                                 SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(11, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
+                                 ¤UDT_SETV(bigv, bigv.m(index), (12), LONG, (½VIRUS_DEAD), 4)
+                                 ¤UDT_SETV(bigv, bigv.m(index), (16), LONG, (0), 4)
+                              END IF
+                           END IF
+                        END IF
+                     ControlFlow0154:
+                        BITBLT hmemdc, bigv.lng(bigv.m(index), (0)), bigv.lng(bigv.m(index), (4)) + bigv.lng(bigv.m(index), (8)), 24, 24, hmemdb, x, y, ½SRCCOPY 
+                     END IF
+                     EXIT DO
+                  LOOP
+                  ¤ite0603 += 1
+                  if ¤iti0603 = 0 then
+                     gosub .£FNini0603
+                  end if
+                  goto .£FNst0603
+               NEXT 
+               holdbb = (SELECTOBJECT(hmemdb, holdbb))
+               holdbb = (SELECTOBJECT(hmemdb, hvirsm))
+               xa = 0
+               gosub .£FNini0615
+               goto .£FNind0615
+            ..£FNini0615 
+               int ¤ite0615
+               int ¤iti0615 = 1
+               INT ¤tov0615 = 9
+               RET
+            ..£FNind0615 
+               FOR ¤ite0615 = 0 TO 2 STEP 1 
+               ..£FNst0615 
+                  if (¤ite0615 > 0) then
+                     xa += 1
+                     if xa > ¤tov0615 then exit for
+                  end if
+                  ya = 0
+                  gosub .£FNini0616
+                  goto .£FNind0616
+               ..£FNini0616 
+                  int ¤ite0616
+                  int ¤iti0616 = 1
+                  INT ¤tov0616 = 17
+                  RET
+               ..£FNind0616 
+                  FOR ¤ite0616 = 0 TO 2 STEP 1 
+                  ..£FNst0616 
+                     if (¤ite0616 > 0) then
+                        ya += 1
+                        if ya > ¤tov0616 then exit for
+                     end if
+                     INT ¤SCV156 = area.lng(area.m(xa,ya), (4))
+                     IF ¤SCV156 = ½AREA_VIRUS THEN
+                        x = ((7 * EXE.byt(@config, 1)))
+                        y = ((7 * (area.lng(area.m(xa,ya), (0)) - 1)))
+                        BITBLT hmemdc, ½BOTTLE_X + ((xa * 8) - 8), ½BOTTLE_Y + ((ya * 8) - 8), 7, 7, hmemdb, x, y, ½SRCCOPY 
+                     ELSEIF ¤SCV156 = ½AREA_HALFPILL THEN
+                        x = ((7 * 8))
+                        y = ((7 * (area.lng(area.m(xa,ya), (0)) - 1)))
+                        BITBLT hmemdc, ½BOTTLE_X + ((xa * 8) - 8), ½BOTTLE_Y + ((ya * 8) - 8), 7, 7, hmemdb, x, y, ½SRCCOPY 
+                     ELSEIF ¤SCV156 = ½AREA_PILL THEN
+                        x = ((7 * (area.lng(area.m(xa,ya), (8)) + 1)))
+                        y = ((7 * (area.lng(area.m(xa,ya), (0)) - 1)))
+                        BITBLT hmemdc, ½BOTTLE_X + ((xa * 8) - 8), ½BOTTLE_Y + ((ya * 8) - 8), 7, 7, hmemdb, x, y, ½SRCCOPY 
+                     ELSEIF ¤SCV156 = ½AREA_BLOCK THEN
+                        IF area.lng(area.m(xa,ya), (12)) THEN
+                           IF ¤ISFALSE(EXE.lng(@config, 31)) THEN
+                              ¤UDT_INCR(area, area.m(xa,ya), (12), LONG, 1)
+                           END IF
+                           x = ((7 * 6))
+                           y = ((7 * (area.lng(area.m(xa,ya), (0)) - 1)))
+                           IF area.lng(area.m(xa,ya), (12)) > 10 THEN
+                              ¤UDT_SETV(area, area.m(xa,ya), (4), LONG, (0), 4)
+                              ¤UDT_SETV(area, area.m(xa,ya), (0), LONG, (0), 4)
+                              ¤UDT_SETV(area, area.m(xa,ya), (12), LONG, (0), 4)
+                           END IF
+                        ELSE
+                           x = ((7 * 8))
+                           y = ((7 * (area.lng(area.m(xa,ya), (0)) - 1)))
+                        END IF
+                        BITBLT hmemdc, ½BOTTLE_X + ((xa * 8) - 8), ½BOTTLE_Y + ((ya * 8) - 8), 7, 7, hmemdb, x, y, ½SRCCOPY 
+                     END IF
+                  ControlFlow0156:
+                     ¤ite0616 += 1
+                     if ¤iti0616 = 0 then
+                        gosub .£FNini0616
+                     end if
+                     goto .£FNst0616
+                  NEXT 
+                  ¤ite0615 += 1
+                  if ¤iti0615 = 0 then
+                     gosub .£FNini0615
+                  end if
+                  goto .£FNst0615
+               NEXT 
+               holdbb = (SELECTOBJECT(hmemdb, holdbb))
+               IF EXE.lng(@config, 31) THEN
+                  holdbb = (SELECTOBJECT(hmemdb, hmario))
+                  IF EXE.byt(@config, 1) THEN
+                     xne = ((34 * 5))
+                  ELSE
+                     xne = ((34 * 6))
+                  END IF
+                  BITBLT hmemdc, 188, 68, 30, 40, hmemdb, xne, 0, ½SRCCOPY 
+                  holdbb = (SELECTOBJECT(hmemdb, holdbb))
+                  IF EXE.lng(@config, 27) > 60 THEN
+                     holdbb = (SELECTOBJECT(hmemdb, hvirbg))
+                     ¤MEM_SETV(rc, (0), LONG, (96), 4)
+                     ¤MEM_SETV(rc, (8), LONG, ((96 + 64)), 4)
+                     ¤MEM_SETV(rc, (4), LONG, (136), 4)
+                     ¤MEM_SETV(rc, (12), LONG, ((136 + 64)), 4)
+                     hbrush = (CREATESOLIDBRUSH(RGB(0, 0, 0)))
+                     FILLRECT hmemdc, rc, hbrush 
+                     DELETEOBJECT(hbrush) 
+                     BITBLT hmemdc, 97, 90, 62, 71, hmemdb, 250, 0, ½SRCCOPY 
+                     holdbb = (SELECTOBJECT(hmemdb, holdbb))
+                  END IF
+               ELSEIF EXE.lng(@config, 23) THEN
+                  holdbb = (SELECTOBJECT(hmemdb, hmario))
+                  BITBLT hmemdc, 188, 68, 40, 40, hmemdb, 34 * 7, 0, ½SRCCOPY 
+                  holdbb = (SELECTOBJECT(hmemdb, holdbb))
+               ELSE
+                  holdbb = (SELECTOBJECT(hmemdb, hmario))
+                  INT ¤SCV157 = EXE.lng(@config, 227)
+                  IF ¤SCV157 = 3 or  ¤SCV157 = 4 or  ¤SCV157 = 5 THEN
+                     xne = (((EXE.lng(@config, 227) - 1) * 34))
+                     wnf = (30)
+                  END IF
+               ControlFlow0157:
+                  BITBLT hmemdc, 188, 68, wnf, 40, hmemdb, xne, 0, ½SRCCOPY 
+                  holdbb = (SELECTOBJECT(hmemdb, holdbb))
+                  holdbb = (SELECTOBJECT(hmemdb, hvirsm))
+                  INT ¤SCV158 = EXE.lng(@config, 58 + 40)
+                  IF ¤SCV158 = ½DIR_UP THEN
+                     xne = ((7 * (½DIR_DN + 1)))
+                     y = ((7 * (EXE.lng(@config, 58 + 4) - 1)))
+                     BITBLT hmemdc, EXE.lng(@config, 58 + 20), EXE.lng(@config, 58 + 24), 7, 7, hmemdb, xne, y, ½SRCCOPY 
+                     xne = ((7 * (½DIR_UP + 1)))
+                     y = ((7 * (EXE.lng(@config, 58 + 8) - 1)))
+                     BITBLT hmemdc, EXE.lng(@config, 58 + 20), EXE.lng(@config, 58 + 24) - 8, 7, 7, hmemdb, xne, y, ½SRCCOPY 
+                  ELSEIF ¤SCV158 = ½DIR_DN THEN
+                     xne = ((7 * (½DIR_DN + 1)))
+                     y = ((7 * (EXE.lng(@config, 58 + 8) - 1)))
+                     BITBLT hmemdc, EXE.lng(@config, 58 + 20), EXE.lng(@config, 58 + 24), 7, 7, hmemdb, xne, y, ½SRCCOPY 
+                     xne = ((7 * (½DIR_UP + 1)))
+                     y = ((7 * (EXE.lng(@config, 58 + 4) - 1)))
+                     BITBLT hmemdc, EXE.lng(@config, 58 + 20), EXE.lng(@config, 58 + 24) - 8, 7, 7, hmemdb, xne, y, ½SRCCOPY 
+                  ELSEIF ¤SCV158 = ½DIR_RT THEN
+                     xne = ((7 * (½DIR_LF + 1)))
+                     y = ((7 * (EXE.lng(@config, 58 + 4) - 1)))
+                     BITBLT hmemdc, EXE.lng(@config, 58 + 20), EXE.lng(@config, 58 + 24), 7, 7, hmemdb, xne, y, ½SRCCOPY 
+                     xne = (((7 * (½DIR_RT + 1))))
+                     y = ((7 * (EXE.lng(@config, 58 + 8) - 1)))
+                     BITBLT hmemdc, EXE.lng(@config, 58 + 20) + 8, EXE.lng(@config, 58 + 24), 7, 7, hmemdb, xne, y, ½SRCCOPY 
+                  ELSEIF ¤SCV158 = ½DIR_LF THEN
+                     xne = ((7 * (½DIR_LF + 1)))
+                     y = ((7 * (EXE.lng(@config, 58 + 8) - 1)))
+                     BITBLT hmemdc, EXE.lng(@config, 58 + 20), EXE.lng(@config, 58 + 24), 7, 7, hmemdb, xne, y, ½SRCCOPY 
+                     xne = (((7 * (½DIR_RT + 1))))
+                     y = ((7 * (EXE.lng(@config, 58 + 4) - 1)))
+                     BITBLT hmemdc, EXE.lng(@config, 58 + 20) + 8, EXE.lng(@config, 58 + 24), 7, 7, hmemdb, xne, y, ½SRCCOPY 
+                  END IF
+               ControlFlow0158:
+               END IF
+               holdbb = (SELECTOBJECT(hmemdb, holdbb))
+               IF EXE.lng(@config, 102 + 0) THEN
+                  IF ¤ISFALSE(EXE.lng(@config, 235)) AND ¤ISFALSE(EXE.lng(@config, 231)) THEN
+                     holdbb = (SELECTOBJECT(hmemdb, hvirsm))
+                     INT ¤SCV159 = EXE.lng(@config, 102 + 40)
+                     IF ¤SCV159 = ½DIR_UP THEN
+                        x = ((7 * (½DIR_DN + 1)))
+                        y = ((7 * (EXE.lng(@config, 102 + 4) - 1)))
+                        BITBLT hmemdc, EXE.lng(@config, 102 + 20), EXE.lng(@config, 102 + 24), 7, 7, hmemdb, x, y, ½SRCCOPY 
+                        x = ((7 * (½DIR_UP + 1)))
+                        y = ((7 * (EXE.lng(@config, 102 + 8) - 1)))
+                        BITBLT hmemdc, EXE.lng(@config, 102 + 20), EXE.lng(@config, 102 + 24) - 8, 7, 7, hmemdb, x, y, ½SRCCOPY 
+                     ELSEIF ¤SCV159 = ½DIR_DN THEN
+                        x = ((7 * (½DIR_DN + 1)))
+                        y = ((7 * (EXE.lng(@config, 102 + 8) - 1)))
+                        BITBLT hmemdc, EXE.lng(@config, 102 + 20), EXE.lng(@config, 102 + 24), 7, 7, hmemdb, x, y, ½SRCCOPY 
+                        x = ((7 * (½DIR_UP + 1)))
+                        y = ((7 * (EXE.lng(@config, 102 + 4) - 1)))
+                        BITBLT hmemdc, EXE.lng(@config, 102 + 20), EXE.lng(@config, 102 + 24) - 8, 7, 7, hmemdb, x, y, ½SRCCOPY 
+                     ELSEIF ¤SCV159 = ½DIR_RT THEN
+                        x = ((7 * (½DIR_LF + 1)))
+                        y = ((7 * (EXE.lng(@config, 102 + 4) - 1)))
+                        BITBLT hmemdc, EXE.lng(@config, 102 + 20), EXE.lng(@config, 102 + 24), 7, 7, hmemdb, x, y, ½SRCCOPY 
+                        x = (((7 * (½DIR_RT + 1))))
+                        y = ((7 * (EXE.lng(@config, 102 + 8) - 1)))
+                        BITBLT hmemdc, EXE.lng(@config, 102 + 20) + 8, EXE.lng(@config, 102 + 24), 7, 7, hmemdb, x, y, ½SRCCOPY 
+                     ELSEIF ¤SCV159 = ½DIR_LF THEN
+                        x = ((7 * (½DIR_LF + 1)))
+                        y = ((7 * (EXE.lng(@config, 102 + 8) - 1)))
+                        BITBLT hmemdc, EXE.lng(@config, 102 + 20), EXE.lng(@config, 102 + 24), 7, 7, hmemdb, x, y, ½SRCCOPY 
+                        x = (((7 * (½DIR_RT + 1))))
+                        y = ((7 * (EXE.lng(@config, 102 + 4) - 1)))
+                        BITBLT hmemdc, EXE.lng(@config, 102 + 20) + 8, EXE.lng(@config, 102 + 24), 7, 7, hmemdb, x, y, ½SRCCOPY 
+                     END IF
+                  ControlFlow0159:
+                     holdbb = (SELECTOBJECT(hmemdb, holdbb))
+                  END IF
+               END IF
+               IF EXE.lng(@config, 23) THEN
+                  IF EXE.lng(@config, 27) > 60 THEN
+                     holdbb = (SELECTOBJECT(hmemdb, hvirbg))
+                     IF EXE.byt(@config, 1) THEN
+                        x = (168)
+                        y = (0)
+                     ELSE
+                        x = (208)
+                        y = (0)
+                     END IF
+                     ¤MEM_SETV(rcn12, (0), LONG, (96), 4)
+                     ¤MEM_SETV(rcn12, (8), LONG, ((96 + 64)), 4)
+                     ¤MEM_SETV(rcn12, (4), LONG, (136), 4)
+                     ¤MEM_SETV(rcn12, (12), LONG, ((136 + 64)), 4)
+                     hbrush = (CREATESOLIDBRUSH(RGB(0, 0, 0)))
+                     FILLRECT hmemdc, rcn12, hbrush 
+                     DELETEOBJECT(hbrush) 
+                     BITBLT hmemdc, 112, 144, 40, 56, hmemdb, x, y, ½SRCCOPY 
+                     holdbb = (SELECTOBJECT(hmemdb, holdbb))
+                  END IF
+               END IF
+               IF EXE.dwd(@config, 163) > EXE.dwd(@config, 159) THEN
+                  ¤MEM_SETV(config, (159), DWORD, (EXE.dwd(@config, 163)), 4)
+               END IF
+               tn15 = EXE.dwd(@config, 159) 
+               sn13 = (¤FORMAT(tn15, REPEAT(7, "0")))
+               x = (16)
+               y = (56)
+               holdbb = (SELECTOBJECT(hmemdb, hnumbr))
+               in14 = 1
+               gosub .£FNini0633
+               goto .£FNind0633
+            ..£FNini0633 
+               int ¤ite0633
+               int ¤iti0633 = 1
+               INT ¤tov0633 = 7
+               RET
+            ..£FNind0633 
+               FOR ¤ite0633 = 0 TO 2 STEP 1 
+               ..£FNst0633 
+                  if (¤ite0633 > 0) then
+                     in14 += 1
+                     if in14 > ¤tov0633 then exit for
+                  end if
+                  nxn16 = (VAL(¤MID(sn13, in14, 1, byval 0)) * 7)
+                  BITBLT hmemdc, x, y, 7, 7, hmemdb, nxn16, ((1 - 1) * 7), ½SRCCOPY 
+                  x = ((x) + 8)
+                  ¤ite0633 += 1
+                  if ¤iti0633 = 0 then
+                     gosub .£FNini0633
+                  end if
+                  goto .£FNst0633
+               NEXT 
+               holdbb = (SELECTOBJECT(hmemdb, holdbb))
+               tn19 = EXE.dwd(@config, 163) 
+               sn17 = (¤FORMAT(tn19, REPEAT(7, "0")))
+               x = (16)
+               y = (80)
+               holdbb = (SELECTOBJECT(hmemdb, hnumbr))
+               in18 = 1
+               gosub .£FNini0634
+               goto .£FNind0634
+            ..£FNini0634 
+               int ¤ite0634
+               int ¤iti0634 = 1
+               INT ¤tov0634 = 7
+               RET
+            ..£FNind0634 
+               FOR ¤ite0634 = 0 TO 2 STEP 1 
+               ..£FNst0634 
+                  if (¤ite0634 > 0) then
+                     in18 += 1
+                     if in18 > ¤tov0634 then exit for
+                  end if
+                  nxn1a = (VAL(¤MID(sn17, in18, 1, byval 0)) * 7)
+                  BITBLT hmemdc, x, y, 7, 7, hmemdb, nxn1a, ((1 - 1) * 7), ½SRCCOPY 
+                  x = ((x) + 8)
+                  ¤ite0634 += 1
+                  if ¤iti0634 = 0 then
+                     gosub .£FNini0634
+                  end if
+                  goto .£FNst0634
+               NEXT 
+               holdbb = (SELECTOBJECT(hmemdb, holdbb))
+               tn1d = EXE.byt(@config, 55) 
+               sn1b = (¤FORMAT(tn1d, REPEAT(2, "0")))
+               x = (207)
+               y = (145)
+               holdbb = (SELECTOBJECT(hmemdb, hnumbr))
+               in1c = 1
+               gosub .£FNini0635
+               goto .£FNind0635
+            ..£FNini0635 
+               int ¤ite0635
+               int ¤iti0635 = 1
+               INT ¤tov0635 = 2
+               RET
+            ..£FNind0635 
+               FOR ¤ite0635 = 0 TO 2 STEP 1 
+               ..£FNst0635 
+                  if (¤ite0635 > 0) then
+                     in1c += 1
+                     if in1c > ¤tov0635 then exit for
+                  end if
+                  nxn1e = (VAL(¤MID(sn1b, in1c, 1, byval 0)) * 7)
+                  BITBLT hmemdc, x, y, 7, 7, hmemdb, nxn1e, ((1 - 1) * 7), ½SRCCOPY 
+                  x = ((x) + 8)
+                  ¤ite0635 += 1
+                  if ¤iti0635 = 0 then
+                     gosub .£FNini0635
+                  end if
+                  goto .£FNst0635
+               NEXT 
+               holdbb = (SELECTOBJECT(hmemdb, holdbb))
+               holdbb = (SELECTOBJECT(hmemdb, hhighl))
+               BYTE ¤SCV160 = EXE.byt(@config, 57)
+               IF ¤SCV160 = 1 THEN
+                  BITBLT hmemdc, 207, 169, 25, 9, hmemdb, 109, 23, ½SRCCOPY 
+               ELSEIF ¤SCV160 = 2 THEN
+                  BITBLT hmemdc, 207, 169, 25, 9, hmemdb, 109, 32, ½SRCCOPY 
+               ELSEIF ¤SCV160 = 3 THEN
+                  BITBLT hmemdc, 207, 169, 25, 9, hmemdb, 109, 41, ½SRCCOPY 
+               END IF
+            ControlFlow0160:
+               holdbb = (SELECTOBJECT(hmemdb, holdbb))
+               tn21 = EXE.byt(@config, 158) 
+               sn1f = (¤FORMAT(tn21, REPEAT(2, "0")))
+               x = (207)
+               y = (194)
+               holdbb = (SELECTOBJECT(hmemdb, hnumbr))
+               in20 = 1
+               gosub .£FNini0637
+               goto .£FNind0637
+            ..£FNini0637 
+               int ¤ite0637
+               int ¤iti0637 = 1
+               INT ¤tov0637 = 2
+               RET
+            ..£FNind0637 
+               FOR ¤ite0637 = 0 TO 2 STEP 1 
+               ..£FNst0637 
+                  if (¤ite0637 > 0) then
+                     in20 += 1
+                     if in20 > ¤tov0637 then exit for
+                  end if
+                  nxn22 = (VAL(¤MID(sn1f, in20, 1, byval 0)) * 7)
+                  BITBLT hmemdc, x, y, 7, 7, hmemdb, nxn22, ((1 - 1) * 7), ½SRCCOPY 
+                  x = ((x) + 8)
+                  ¤ite0637 += 1
+                  if ¤iti0637 = 0 then
+                     gosub .£FNini0637
+                  end if
+                  goto .£FNst0637
+               NEXT 
+               holdbb = (SELECTOBJECT(hmemdb, holdbb))
+            END IF
+         END IF
+      ControlFlow0149:
+         GETCLIENTRECT(cbhndl, rc) 
+         STRETCHBLT hdc, 0, 0, EXE.lng(@rc, 8) - EXE.lng(@rc, 0), EXE.lng(@rc, 12) - EXE.lng(@rc, 4), hmemdc, 0, 0, ½GAME_W, ½GAME_H, ½SRCCOPY 
+         DELETEOBJECT(SELECTOBJECT(hmemdc, holdbm)) 
+         DELETEDC(hmemdc) 
+         DELETEDC(hmemdb) 
+         ENDPAINT(cbhndl, ps) 
+      END IF
+   END IF
+ControlFlow0147:
+   RETURN ¤RETVAL
+END FUNCTION
+END EXTERN
+
