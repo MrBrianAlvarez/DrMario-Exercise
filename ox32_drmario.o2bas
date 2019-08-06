@@ -265,8 +265,6 @@ DECLARE FUNCTION ¤LoadResource   LIB "Kernel32.dll" ALIAS "LoadResource" (BYVAL 
 DECLARE FUNCTION ¤FreeResource   LIB "Kernel32.dll" ALIAS "FreeResource" (BYVAL hResData AS SYS) AS LONG
 DECLARE FUNCTION ¤LockResource   LIB "Kernel32.dll" ALIAS "LockResource" (BYVAL hResData AS SYS) AS SYS
 DECLARE FUNCTION ¤SizeofResource LIB "Kernel32.dll" ALIAS "SizeofResource" (BYVAL hInstance AS SYS, BYVAL hResInfo AS SYS) AS SYS
-Declare Function ¤MessageBoxa  Lib "user32.dll" Alias "MessageBoxA"
-Declare Function ¤MessageBoxw  Lib "user32.dll" Alias "MessageBoxW"
 declare function ¤FindFirstFile alias "FindFirstFileA" lib "kernel32.dll"                    (lpFileName AS ASCIIZ, BYVAL lpFindFileData AS SYS) AS SYS
 declare function ¤FindNextFile  alias "FindNextFileA" lib "kernel32.dll"                     (BYVAL hFindFile AS SYS, BYVAL lpFindFileData AS SYS) AS SYS
 declare function ¤FindClose     alias "FindClose" lib "kernel32.dll"                         '(BYVAL hFindFile AS SYS) AS SYS
@@ -1551,70 +1549,6 @@ END SUB
 
 
 ' END OF OPEN.BIN
-' STARTS MSGBOX.BIN
-
-FUNCTION MSGBOX(wstring wText, int mOptions, string aCaption) AS LONG
-   wstring wCaption = mid(aCaption, 1)     
-   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
-end function
-
-FUNCTION MSGBOX(string aText, int mOptions, wstring wCaption) AS LONG
-   wstring wText = mid(aText, 1)     
-   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
-end function
-
-FUNCTION MSGBOX(wstring wText, int mOptions, wstring wCaption) AS LONG
-   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
-end function
-
-FUNCTION MSGBOX(string aText, int mOptions, string aCaption) AS LONG
-   FUNCTION = ¤MessageBoxa(0, aText, aCaption, mOptions)   
-END FUNCTION
-
-FUNCTION MSGBOX(string aText) AS LONG
-   string aCaption = "PluriBASIC"
-   int mOptions = 0
-   FUNCTION = ¤MessageBoxa(0, aText, aCaption, mOptions)   
-END FUNCTION
-
-FUNCTION MSGBOX(wstring wText) AS LONG
-   wString wCaption = "PluriBASIC"
-   int mOptions = 0  
-   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
-END FUNCTION
-
-FUNCTION MSGBOX(zstring aText[0]) AS LONG
-   string aCaption = "PluriBASIC"
-   int mOptions = 0  
-   FUNCTION = ¤MessageBoxa(0, aText, aCaption, mOptions)   
-END FUNCTION
-
-FUNCTION MSGBOX(WZSTRING wText[0]) AS LONG
-   wString wCaption = "PluriBASIC"
-   int mOptions = 0  
-   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
-END FUNCTION
-
-FUNCTION MSGBOX(string aText, int mOptions) AS LONG
-   string aCaption = "PluriBASIC"
-   FUNCTION = ¤MessageBoxa(0, aText, aCaption, mOptions)   
-END FUNCTION
-
-FUNCTION MSGBOX(zstring aText[0], int mOptions) AS LONG
-   String aCaption = "PluriBASIC" 
-   FUNCTION = ¤MessageBoxa(0, aText, aCaption, mOptions)   
-END FUNCTION
-
-FUNCTION MSGBOX(WZSTRING wText[0], int mOptions) AS LONG
-   wString wCaption = "PluriBASIC" 
-   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
-END FUNCTION
-
-FUNCTION MSGBOX(wstring wText, int mOptions) AS LONG
-   wString wCaption = "PluriBASIC" 
-   FUNCTION = ¤MessageBoxw(0, wText, wCaption, mOptions)   
-END FUNCTION
-' END OF MSGBOX.BIN
 ' STARTS MID$.BIN
 // returns or assigns part of a string. 
 FUNCTION ¤MID(byref string inp, long p, byval long l = -1, string rep = "", long r = 0) AS STRING
@@ -2090,15 +2024,17 @@ FUNCTION ¤DIR(string specs, int o, flg, r) AS STRING
         hSearch = ¤FindFirstFile(specs, BYVAL @f)
         
         if hSearch then
-            do
-                if (ltrim(f.cFileName) <> ".") and (ltrim(f.cFileName) <> "..") then
-                  exit do
-                end if
-                if ¤FindNextFile(hSearch, @f) = 0 then
-                    nomatch = 2
-                    return ""
-                end if                
-            loop                            
+            ¤FindNextFile(hSearch, @f)
+            ¤FindNextFile(hSearch, @f)
+            'do
+            '    if (ltrim(f.cFileName) <> ".") and (ltrim(f.cFileName) <> "..") then
+            '      exit do
+            '    end if
+            '    if ¤FindNextFile(hSearch, @f) = 0 then
+            '        nomatch = 2
+            '        return ""
+            '    end if                
+            'loop                            
             ..¤ContinueSearch
             do       
                 if o then ' do we force matching flags?
@@ -2421,7 +2357,6 @@ END FUNCTION
 % ½WM_INITDIALOG                                                                    = 272
 % ½WM_TIMER                                                                         = 275
 % ½WS_OVERLAPPEDWINDOW                                                              = 13565952
-% ½MB_ICONERROR                                                                     = 16
 % ½FD_SETSIZE                                                                       = 64
 % ½SND_ASYNC                                                                        = 1
 % ½SND_RESOURCE                                                                     = 262148
@@ -2581,7 +2516,6 @@ DECLARE FUNCTION FILLRECT LIB "User32.dll" ALIAS "FillRect" (BYVAL P1 AS DWORD, 
 DECLARE FUNCTION LOADBITMAP LIB "User32.dll" ALIAS "LoadBitmapA" (BYVAL P1 AS DWORD, P2 AS ASCIIZ) AS DWORD
 DECLARE FUNCTION SNDPLAYSOUND LIB "WINMM.DLL" ALIAS "sndPlaySoundA" (P1 AS ASCIIZ, BYVAL P2 AS DWORD) AS INT
 DECLARE FUNCTION MCISENDSTRING LIB "WINMM.DLL" ALIAS "mciSendStringA" (P1 AS ASCIIZ, P2 AS ASCIIZ, BYVAL P3 AS DWORD, BYVAL P4 AS DWORD) AS DWORD
-DECLARE FUNCTION TESTBGM(BYVAL P1 AS STRING) AS INT
 DECLARE FUNCTION PLAYBGM(BYVAL P1 AS STRING, BYVAL P2 AS INT, BYVAL P3 AS INT, BYVAL P4 AS INT) AS INT
 DECLARE FUNCTION CHANGEGAMESCREEN(BYVAL P1 AS INT) AS INT
 DECLARE FUNCTION SETAREAFORLEVEL(BYVAL P1 AS INT) AS INT
@@ -2619,26 +2553,6 @@ new ¤ARR_BIGVIRUS bigv(0, int{0, 0}, -1, 0, 0, "UDT", 20, 25, 0)
 FUNCTION PluriBASIC_Initialize() AS LONG
 END FUNCTION
 
-FUNCTION TESTBGM(STRING »resname) AS INT
-   INT ¤RETVAL = 0
-   ¤SYSERR Err
-   STRING resname = »resname
-   INT ff
-   STRING cont
-   ERRCLEAR 
-   ff = (FREEFILE())
-   ¤OPENFILENM(resname & ".mp3", 4, 0, 0, ff, 128, 1, 1, Err) 
-   IF ¤ISFALSE(Err.err) THEN
-      cont = (¤RESOURCE("data", resname))
-      ERRCLEAR 
-      ¤PUTSTR(string, ff, -1, cont, 0, 0, 0) 
-      SETEOF(ff) 
-      CLOSE(ff, Err)
-   END IF
-   ¤RETVAL = (Err.err=0)
-   RETURN ¤RETVAL
-END FUNCTION
-
 FUNCTION PLAYBGM(STRING »resname, INT »musiclen, INT »musicloop, INT »adjust) AS INT
    INT ¤RETVAL = 0
    ¤SYSERR Err
@@ -2664,6 +2578,9 @@ FUNCTION PLAYBGM(STRING »resname, INT »musiclen, INT »musicloop, INT »adjust) AS
       ¤PUTSTR(string, ff, -1, cont, 0, 0, 0) 
       SETEOF(ff) 
       CLOSE(ff, Err)
+      IF Err.err THEN
+         RETURN ¤RETVAL
+      END IF
    END IF
    IF playing THEN
       IF EXE.dwd(@config, 47) THEN
@@ -2708,8 +2625,8 @@ FUNCTION CHANGEGAMESCREEN(INT »scrn) AS INT
    INT ¤RETVAL = 0
    ¤SYSERR Err
    INT scrn = »scrn
-   INT ¤SCV257 = scrn
-   IF ¤SCV257 = ½SCREEN_TITLE THEN
+   INT ¤SCV673 = scrn
+   IF ¤SCV673 = ½SCREEN_TITLE THEN
       PLAYBGM("SFX21", 23060, 11839, -900) 
       ¤MEM_SETV(config, (23), LONG, (0), 4)
       ¤UDT_SETV(bigv, bigv.m(4), (12), LONG, (½VIRUS_NORMAL), 4)
@@ -2717,20 +2634,20 @@ FUNCTION CHANGEGAMESCREEN(INT »scrn) AS INT
       ¤UDT_SETV(bigv, bigv.m(4), (4), LONG, (163), 4)
       ¤UDT_SETV(bigv, bigv.m(4), (21), LONG, (½COLOR_BLUE), 4)
       ¤MEM_SETV(config, (0), BYTE, ¤BytOvf(scrn), 1)
-   ELSEIF ¤SCV257 = ½SCREEN_OPTIONS THEN
+   ELSEIF ¤SCV673 = ½SCREEN_OPTIONS THEN
       ¤MEM_SETV(config, (219), LONG, (1), 4)
       PLAYBGM("SFX23", 16350, 270, -100) 
       ¤MEM_SETV(config, (0), BYTE, ¤BytOvf(scrn), 1)
-   ELSEIF ¤SCV257 = ½SCREEN_GAME THEN
+   ELSEIF ¤SCV673 = ½SCREEN_GAME THEN
       ¤MEM_SETV(config, (23), LONG, (0), 4)
       ¤MEM_SETV(config, (31), LONG, (0), 4)
       ¤MEM_SETV(config, (207), LONG, (0), 4)
-      BYTE ¤SCV258 = EXE.byt(@config, 2)
-      IF ¤SCV258 = 1 THEN
+      BYTE ¤SCV674 = EXE.byt(@config, 2)
+      IF ¤SCV674 = 1 THEN
          PLAYBGM("SFX24", 64700, 2600, 1000) 
-      ELSEIF ¤SCV258 = 2 THEN
+      ELSEIF ¤SCV674 = 2 THEN
          PLAYBGM("SFX22", 116000, 7523, -4000) 
-      ELSEIF ¤SCV258 = 3 THEN
+      ELSEIF ¤SCV674 = 3 THEN
          PLAYBGM("none", 0, 0, 0) 
       END IF
       ¤UDT_SETV(bigv, bigv.m(1), (0), LONG, (41), 4)
@@ -2745,7 +2662,7 @@ FUNCTION CHANGEGAMESCREEN(INT »scrn) AS INT
       ¤MEM_SETV(config, (55), BYTE, ¤BytOvf(EXE.byt(@config, 56)), 1)
       SETAREAFORLEVEL(EXE.byt(@config, 55)) 
       ¤MEM_SETV(config, (0), BYTE, ¤BytOvf(scrn), 1)
-   ELSEIF ¤SCV257 = ½SCREEN_ENDING THEN
+   ELSEIF ¤SCV673 = ½SCREEN_ENDING THEN
       ¤MEM_SETV(config, (167), LONG, (0), 4)
       PLAYBGM("SFX28", 99999, 0, 0) 
       ¤MEM_SETV(config, (0), BYTE, ¤BytOvf(scrn), 1)
@@ -2773,47 +2690,47 @@ FUNCTION SETAREAFORLEVEL(INT »lvl) AS INT
    ¤MEM_SETV(config, (39), LONG, (-1), 4)
    DO
       x = 0
-      gosub .£FNini0377
-      goto .£FNind0377
-   ..£FNini0377 
-      int ¤ite0377
-      int ¤iti0377 = 1
-      INT ¤tov0377 = 9
+      gosub .£FNini0375
+      goto .£FNind0375
+   ..£FNini0375 
+      int ¤ite0375
+      int ¤iti0375 = 1
+      INT ¤tov0375 = 9
       RET
-   ..£FNind0377 
-      FOR ¤ite0377 = 0 TO 2 STEP 1 
-      ..£FNst0377 
-         if (¤ite0377 > 0) then
+   ..£FNind0375 
+      FOR ¤ite0375 = 0 TO 2 STEP 1 
+      ..£FNst0375 
+         if (¤ite0375 > 0) then
             x += 1
-            if x > ¤tov0377 then exit for
+            if x > ¤tov0375 then exit for
          end if
          y = 0
-         gosub .£FNini0378
-         goto .£FNind0378
-      ..£FNini0378 
-         int ¤ite0378
-         int ¤iti0378 = 1
-         INT ¤tov0378 = 17
+         gosub .£FNini0376
+         goto .£FNind0376
+      ..£FNini0376 
+         int ¤ite0376
+         int ¤iti0376 = 1
+         INT ¤tov0376 = 17
          RET
-      ..£FNind0378 
-         FOR ¤ite0378 = 0 TO 2 STEP 1 
-         ..£FNst0378 
-            if (¤ite0378 > 0) then
+      ..£FNind0376 
+         FOR ¤ite0376 = 0 TO 2 STEP 1 
+         ..£FNst0376 
+            if (¤ite0376 > 0) then
                y += 1
-               if y > ¤tov0378 then exit for
+               if y > ¤tov0376 then exit for
             end if
             area.reset(area.m(x,y))
-            ¤ite0378 += 1
-            if ¤iti0378 = 0 then
-               gosub .£FNini0378
+            ¤ite0376 += 1
+            if ¤iti0376 = 0 then
+               gosub .£FNini0376
             end if
-            goto .£FNst0378
+            goto .£FNst0376
          NEXT 
-         ¤ite0377 += 1
-         if ¤iti0377 = 0 then
-            gosub .£FNini0377
+         ¤ite0375 += 1
+         if ¤iti0375 = 0 then
+            gosub .£FNini0375
          end if
-         goto .£FNst0377
+         goto .£FNst0375
       NEXT 
       thecolor = (0)
       numvirus = (((lvl + 1) * 4))
@@ -2877,40 +2794,40 @@ FUNCTION PILLCANGO(INT »dir) AS INT
    INT ¤RETVAL = 0
    ¤SYSERR Err
    INT dir = »dir
-   INT ¤SCV259 = dir
-   IF ¤SCV259 = ½DIR_DN THEN
+   INT ¤SCV675 = dir
+   IF ¤SCV675 = ½DIR_DN THEN
       IF EXE.lng(@config, 102 + 16) > 15 THEN
          RETURN ¤RETVAL
       END IF
       IF area.lng(area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 1), (0)) THEN
          RETURN ¤RETVAL
       END IF
-      INT ¤SCV260 = EXE.lng(@config, 102 + 40)
-      IF ¤SCV260 = ½DIR_LF or  ¤SCV260 = ½DIR_RT THEN
+      INT ¤SCV676 = EXE.lng(@config, 102 + 40)
+      IF ¤SCV676 = ½DIR_LF or  ¤SCV676 = ½DIR_RT THEN
          IF area.lng(area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16) + 1), (0)) THEN
             RETURN ¤RETVAL
          END IF
       END IF
-   ELSEIF ¤SCV259 = ½DIR_LF THEN
+   ELSEIF ¤SCV675 = ½DIR_LF THEN
       IF EXE.lng(@config, 102 + 12)=1 THEN
          RETURN ¤RETVAL
       END IF
-      INT ¤SCV261 = EXE.lng(@config, 102 + 40)
-      IF ¤SCV261 = ½DIR_UP or  ¤SCV261 = ½DIR_DN THEN
+      INT ¤SCV677 = EXE.lng(@config, 102 + 40)
+      IF ¤SCV677 = ½DIR_UP or  ¤SCV677 = ½DIR_DN THEN
          IF area.lng(area.m(EXE.lng(@config, 102 + 12) - 1,EXE.lng(@config, 102 + 16) - 1), (0)) THEN
             RETURN ¤RETVAL
          END IF
          IF area.lng(area.m(EXE.lng(@config, 102 + 12) - 1,EXE.lng(@config, 102 + 16)), (0)) THEN
             RETURN ¤RETVAL
          END IF
-      ELSEIF ¤SCV261 = ½DIR_LF or  ¤SCV261 = ½DIR_RT THEN
+      ELSEIF ¤SCV677 = ½DIR_LF or  ¤SCV677 = ½DIR_RT THEN
          IF area.lng(area.m(EXE.lng(@config, 102 + 12) - 1,EXE.lng(@config, 102 + 16)), (0)) THEN
             RETURN ¤RETVAL
          END IF
       END IF
-   ELSEIF ¤SCV259 = ½DIR_RT THEN
-      INT ¤SCV262 = EXE.lng(@config, 102 + 40)
-      IF ¤SCV262 = ½DIR_UP or  ¤SCV262 = ½DIR_DN THEN
+   ELSEIF ¤SCV675 = ½DIR_RT THEN
+      INT ¤SCV678 = EXE.lng(@config, 102 + 40)
+      IF ¤SCV678 = ½DIR_UP or  ¤SCV678 = ½DIR_DN THEN
          IF EXE.lng(@config, 102 + 12) > 7 THEN
             RETURN ¤RETVAL
          END IF
@@ -2920,7 +2837,7 @@ FUNCTION PILLCANGO(INT »dir) AS INT
          IF area.lng(area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (0)) THEN
             RETURN ¤RETVAL
          END IF
-      ELSEIF ¤SCV262 = ½DIR_LF or  ¤SCV262 = ½DIR_RT THEN
+      ELSEIF ¤SCV678 = ½DIR_LF or  ¤SCV678 = ½DIR_RT THEN
          IF EXE.lng(@config, 102 + 12) > 6 THEN
             RETURN ¤RETVAL
          END IF
@@ -2938,8 +2855,8 @@ FUNCTION LEAVEPILL() AS INT
    ¤SYSERR Err
    INT x
    ¤MEM_INCR(config, (191), LONG, 1)
-   INT ¤SCV263 = EXE.lng(@config, 102 + 40)
-   IF ¤SCV263 = ½DIR_UP THEN
+   INT ¤SCV679 = EXE.lng(@config, 102 + 40)
+   IF ¤SCV679 = ½DIR_UP THEN
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (4), LONG, (½AREA_PILL), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (0), LONG, (EXE.lng(@config, 102 + 4)), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (8), LONG, (½DIR_DN), 4)
@@ -2948,7 +2865,7 @@ FUNCTION LEAVEPILL() AS INT
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (0), LONG, (EXE.lng(@config, 102 + 8)), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (8), LONG, (½DIR_UP), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (16), LONG, (EXE.lng(@config, 191)), 4)
-   ELSEIF ¤SCV263 = ½DIR_DN THEN
+   ELSEIF ¤SCV679 = ½DIR_DN THEN
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (4), LONG, (½AREA_PILL), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (0), LONG, (EXE.lng(@config, 102 + 8)), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 0), (8), LONG, (½DIR_DN), 4)
@@ -2957,7 +2874,7 @@ FUNCTION LEAVEPILL() AS INT
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (0), LONG, (EXE.lng(@config, 102 + 4)), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (8), LONG, (½DIR_UP), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (16), LONG, (EXE.lng(@config, 191)), 4)
-   ELSEIF ¤SCV263 = ½DIR_RT THEN
+   ELSEIF ¤SCV679 = ½DIR_RT THEN
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (4), LONG, (½AREA_PILL), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (0), LONG, (EXE.lng(@config, 102 + 4)), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (8), LONG, (½DIR_LF), 4)
@@ -2966,7 +2883,7 @@ FUNCTION LEAVEPILL() AS INT
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (0), LONG, (EXE.lng(@config, 102 + 8)), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (8), LONG, (½DIR_RT), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (16), LONG, (EXE.lng(@config, 191)), 4)
-   ELSEIF ¤SCV263 = ½DIR_LF THEN
+   ELSEIF ¤SCV679 = ½DIR_LF THEN
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (4), LONG, (½AREA_PILL), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (0), LONG, (EXE.lng(@config, 102 + 8)), 4)
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16)), (8), LONG, (½DIR_LF), 4)
@@ -2977,26 +2894,26 @@ FUNCTION LEAVEPILL() AS INT
       ¤UDT_SETV(area, area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (16), LONG, (EXE.lng(@config, 191)), 4)
    END IF
    x = 1
-   gosub .£FNini0404
-   goto .£FNind0404
-..£FNini0404 
-   int ¤ite0404
-   int ¤iti0404 = 1
-   INT ¤tov0404 = 8
+   gosub .£FNini0402
+   goto .£FNind0402
+..£FNini0402 
+   int ¤ite0402
+   int ¤iti0402 = 1
+   INT ¤tov0402 = 8
    RET
-..£FNind0404 
-   FOR ¤ite0404 = 0 TO 2 STEP 1 
-   ..£FNst0404 
-      if (¤ite0404 > 0) then
+..£FNind0402 
+   FOR ¤ite0402 = 0 TO 2 STEP 1 
+   ..£FNst0402 
+      if (¤ite0402 > 0) then
          x += 1
-         if x > ¤tov0404 then exit for
+         if x > ¤tov0402 then exit for
       end if
       area.reset(area.m(x,0))
-      ¤ite0404 += 1
-      if ¤iti0404 = 0 then
-         gosub .£FNini0404
+      ¤ite0402 += 1
+      if ¤iti0402 = 0 then
+         gosub .£FNini0402
       end if
-      goto .£FNst0404
+      goto .£FNst0402
    NEXT 
    RETURN ¤RETVAL
 END FUNCTION
@@ -3005,17 +2922,17 @@ FUNCTION MOVEPILL(INT »dir) AS INT
    INT ¤RETVAL = 0
    ¤SYSERR Err
    INT dir = »dir
-   INT ¤SCV264 = dir
-   IF ¤SCV264 = ½DIR_DN THEN
+   INT ¤SCV680 = dir
+   IF ¤SCV680 = ½DIR_DN THEN
       ¤MEM_INCR(config, (102 + 24), LONG, 8)
       ¤MEM_INCR(config, (102 + 16), LONG, 1)
-   ELSEIF ¤SCV264 = ½DIR_LF THEN
+   ELSEIF ¤SCV680 = ½DIR_LF THEN
       ¤MEM_DECR(config, (102 + 20), LONG, 8)
       ¤MEM_DECR(config, (102 + 12), LONG, 1)
       IF ¤ISFALSE(EXE.lng(@config, 35)) THEN
          SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
       END IF
-   ELSEIF ¤SCV264 = ½DIR_RT THEN
+   ELSEIF ¤SCV680 = ½DIR_RT THEN
       ¤MEM_INCR(config, (102 + 20), LONG, 8)
       ¤MEM_INCR(config, (102 + 12), LONG, 1)
       IF ¤ISFALSE(EXE.lng(@config, 35)) THEN
@@ -3028,8 +2945,8 @@ END FUNCTION
 FUNCTION CANROTATE() AS INT
    INT ¤RETVAL = 0
    ¤SYSERR Err
-   INT ¤SCV265 = EXE.lng(@config, 102 + 40)
-   IF ¤SCV265 = ½DIR_LF or  ¤SCV265 = ½DIR_RT THEN
+   INT ¤SCV681 = EXE.lng(@config, 102 + 40)
+   IF ¤SCV681 = ½DIR_LF or  ¤SCV681 = ½DIR_RT THEN
       IF area.lng(area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) - 1), (0)) THEN
          IF area.lng(area.m(EXE.lng(@config, 102 + 12),EXE.lng(@config, 102 + 16) + 1), (0)) THEN
             RETURN ¤RETVAL
@@ -3037,7 +2954,7 @@ FUNCTION CANROTATE() AS INT
             MOVEPILL(½DIR_DN) 
          END IF
       END IF
-   ELSEIF ¤SCV265 = ½DIR_UP or  ¤SCV265 = ½DIR_DN THEN
+   ELSEIF ¤SCV681 = ½DIR_UP or  ¤SCV681 = ½DIR_DN THEN
       IF ¤ISTRUE(EXE.lng(@config, 102 + 12) > 7) OR ¤ISTRUE(area.lng(area.m(EXE.lng(@config, 102 + 12) + 1,EXE.lng(@config, 102 + 16)), (0))) THEN
          IF area.lng(area.m(EXE.lng(@config, 102 + 12) - 1,EXE.lng(@config, 102 + 16)), (0)) THEN
             RETURN ¤RETVAL
@@ -3064,19 +2981,19 @@ FUNCTION CHECKVERT(INT »x, INT »y) AS INT
       RETURN ¤RETVAL
    END IF
    i = y
-   gosub .£FNini0417
-   goto .£FNind0417
-..£FNini0417 
-   int ¤ite0417
-   int ¤iti0417 = 1
-   INT ¤tov0417 = (y + 16)
+   gosub .£FNini0415
+   goto .£FNind0415
+..£FNini0415 
+   int ¤ite0415
+   int ¤iti0415 = 1
+   INT ¤tov0415 = (y + 16)
    RET
-..£FNind0417 
-   FOR ¤ite0417 = 0 TO 2 STEP 1 
-   ..£FNst0417 
-      if (¤ite0417 > 0) then
+..£FNind0415 
+   FOR ¤ite0415 = 0 TO 2 STEP 1 
+   ..£FNst0415 
+      if (¤ite0415 > 0) then
          i += 1
-         if i > ¤tov0417 then exit for
+         if i > ¤tov0415 then exit for
       end if
       IF i > 16 THEN
          EXIT FOR
@@ -3091,11 +3008,11 @@ FUNCTION CHECKVERT(INT »x, INT »y) AS INT
       ELSE
          EXIT FOR
       END IF
-      ¤ite0417 += 1
-      if ¤iti0417 = 0 then
-         gosub .£FNini0417
+      ¤ite0415 += 1
+      if ¤iti0415 = 0 then
+         gosub .£FNini0415
       end if
-      goto .£FNst0417
+      goto .£FNst0415
    NEXT 
    IF e >= 4 THEN
       IF ¤ISFALSE(EXE.lng(@config, 39)) THEN
@@ -3103,19 +3020,19 @@ FUNCTION CHECKVERT(INT »x, INT »y) AS INT
          ¤MEM_MODV(config, (150), LONG, +, (hb), 4)
       END IF
       i = y
-      gosub .£FNini0422
-      goto .£FNind0422
-   ..£FNini0422 
-      int ¤ite0422
-      int ¤iti0422 = 1
-      INT ¤tov0422 = (y + 16)
+      gosub .£FNini0420
+      goto .£FNind0420
+   ..£FNini0420 
+      int ¤ite0420
+      int ¤iti0420 = 1
+      INT ¤tov0420 = (y + 16)
       RET
-   ..£FNind0422 
-      FOR ¤ite0422 = 0 TO 2 STEP 1 
-      ..£FNst0422 
-         if (¤ite0422 > 0) then
+   ..£FNind0420 
+      FOR ¤ite0420 = 0 TO 2 STEP 1 
+      ..£FNst0420 
+         if (¤ite0420 > 0) then
             i += 1
-            if i > ¤tov0422 then exit for
+            if i > ¤tov0420 then exit for
          end if
          IF i > 16 THEN
             EXIT FOR
@@ -3139,11 +3056,11 @@ FUNCTION CHECKVERT(INT »x, INT »y) AS INT
          ELSE
             EXIT FOR
          END IF
-         ¤ite0422 += 1
-         if ¤iti0422 = 0 then
-            gosub .£FNini0422
+         ¤ite0420 += 1
+         if ¤iti0420 = 0 then
+            gosub .£FNini0420
          end if
-         goto .£FNst0422
+         goto .£FNst0420
       NEXT 
       IF v THEN
          ¤RETVAL = 2
@@ -3163,97 +3080,97 @@ FUNCTION REMAININGVIRUS(INT »clr) AS INT
    INT nvirus
    IF clr=0 THEN
       x = 1
-      gosub .£FNini0431
-      goto .£FNind0431
-   ..£FNini0431 
-      int ¤ite0431
-      int ¤iti0431 = 1
-      INT ¤tov0431 = 8
+      gosub .£FNini0429
+      goto .£FNind0429
+   ..£FNini0429 
+      int ¤ite0429
+      int ¤iti0429 = 1
+      INT ¤tov0429 = 8
       RET
-   ..£FNind0431 
-      FOR ¤ite0431 = 0 TO 2 STEP 1 
-      ..£FNst0431 
-         if (¤ite0431 > 0) then
+   ..£FNind0429 
+      FOR ¤ite0429 = 0 TO 2 STEP 1 
+      ..£FNst0429 
+         if (¤ite0429 > 0) then
             x += 1
-            if x > ¤tov0431 then exit for
+            if x > ¤tov0429 then exit for
          end if
          y = 1
-         gosub .£FNini0432
-         goto .£FNind0432
-      ..£FNini0432 
-         int ¤ite0432
-         int ¤iti0432 = 1
-         INT ¤tov0432 = 16
+         gosub .£FNini0430
+         goto .£FNind0430
+      ..£FNini0430 
+         int ¤ite0430
+         int ¤iti0430 = 1
+         INT ¤tov0430 = 16
          RET
-      ..£FNind0432 
-         FOR ¤ite0432 = 0 TO 2 STEP 1 
-         ..£FNst0432 
-            if (¤ite0432 > 0) then
+      ..£FNind0430 
+         FOR ¤ite0430 = 0 TO 2 STEP 1 
+         ..£FNst0430 
+            if (¤ite0430 > 0) then
                y += 1
-               if y > ¤tov0432 then exit for
+               if y > ¤tov0430 then exit for
             end if
             IF area.lng(area.m(x,y), (4))=½AREA_VIRUS THEN
                nvirus = ((nvirus) + 1)
             END IF
-            ¤ite0432 += 1
-            if ¤iti0432 = 0 then
-               gosub .£FNini0432
+            ¤ite0430 += 1
+            if ¤iti0430 = 0 then
+               gosub .£FNini0430
             end if
-            goto .£FNst0432
+            goto .£FNst0430
          NEXT 
-         ¤ite0431 += 1
-         if ¤iti0431 = 0 then
-            gosub .£FNini0431
+         ¤ite0429 += 1
+         if ¤iti0429 = 0 then
+            gosub .£FNini0429
          end if
-         goto .£FNst0431
+         goto .£FNst0429
       NEXT 
    ELSE
       x = 1
-      gosub .£FNini0434
-      goto .£FNind0434
-   ..£FNini0434 
-      int ¤ite0434
-      int ¤iti0434 = 1
-      INT ¤tov0434 = 8
+      gosub .£FNini0432
+      goto .£FNind0432
+   ..£FNini0432 
+      int ¤ite0432
+      int ¤iti0432 = 1
+      INT ¤tov0432 = 8
       RET
-   ..£FNind0434 
-      FOR ¤ite0434 = 0 TO 2 STEP 1 
-      ..£FNst0434 
-         if (¤ite0434 > 0) then
+   ..£FNind0432 
+      FOR ¤ite0432 = 0 TO 2 STEP 1 
+      ..£FNst0432 
+         if (¤ite0432 > 0) then
             x += 1
-            if x > ¤tov0434 then exit for
+            if x > ¤tov0432 then exit for
          end if
          y = 1
-         gosub .£FNini0435
-         goto .£FNind0435
-      ..£FNini0435 
-         int ¤ite0435
-         int ¤iti0435 = 1
-         INT ¤tov0435 = 16
+         gosub .£FNini0433
+         goto .£FNind0433
+      ..£FNini0433 
+         int ¤ite0433
+         int ¤iti0433 = 1
+         INT ¤tov0433 = 16
          RET
-      ..£FNind0435 
-         FOR ¤ite0435 = 0 TO 2 STEP 1 
-         ..£FNst0435 
-            if (¤ite0435 > 0) then
+      ..£FNind0433 
+         FOR ¤ite0433 = 0 TO 2 STEP 1 
+         ..£FNst0433 
+            if (¤ite0433 > 0) then
                y += 1
-               if y > ¤tov0435 then exit for
+               if y > ¤tov0433 then exit for
             end if
             IF area.lng(area.m(x,y), (4))=½AREA_VIRUS THEN
                IF area.lng(area.m(x,y), (0))=clr THEN
                   nvirus = ((nvirus) + 1)
                END IF
             END IF
-            ¤ite0435 += 1
-            if ¤iti0435 = 0 then
-               gosub .£FNini0435
+            ¤ite0433 += 1
+            if ¤iti0433 = 0 then
+               gosub .£FNini0433
             end if
-            goto .£FNst0435
+            goto .£FNst0433
          NEXT 
-         ¤ite0434 += 1
-         if ¤iti0434 = 0 then
-            gosub .£FNini0434
+         ¤ite0432 += 1
+         if ¤iti0432 = 0 then
+            gosub .£FNini0432
          end if
-         goto .£FNst0434
+         goto .£FNst0432
       NEXT 
    END IF
    ¤RETVAL = nvirus
@@ -3274,19 +3191,19 @@ FUNCTION CHECKHORZ(INT »x, INT »y) AS INT
       RETURN ¤RETVAL
    END IF
    i = x
-   gosub .£FNini0440
-   goto .£FNind0440
-..£FNini0440 
-   int ¤ite0440
-   int ¤iti0440 = 1
-   INT ¤tov0440 = (x + 8)
+   gosub .£FNini0438
+   goto .£FNind0438
+..£FNini0438 
+   int ¤ite0438
+   int ¤iti0438 = 1
+   INT ¤tov0438 = (x + 8)
    RET
-..£FNind0440 
-   FOR ¤ite0440 = 0 TO 2 STEP 1 
-   ..£FNst0440 
-      if (¤ite0440 > 0) then
+..£FNind0438 
+   FOR ¤ite0438 = 0 TO 2 STEP 1 
+   ..£FNst0438 
+      if (¤ite0438 > 0) then
          i += 1
-         if i > ¤tov0440 then exit for
+         if i > ¤tov0438 then exit for
       end if
       IF i > 8 THEN
          EXIT FOR
@@ -3301,11 +3218,11 @@ FUNCTION CHECKHORZ(INT »x, INT »y) AS INT
       ELSE
          EXIT FOR
       END IF
-      ¤ite0440 += 1
-      if ¤iti0440 = 0 then
-         gosub .£FNini0440
+      ¤ite0438 += 1
+      if ¤iti0438 = 0 then
+         gosub .£FNini0438
       end if
-      goto .£FNst0440
+      goto .£FNst0438
    NEXT 
    IF e >= 4 THEN
       IF ¤ISFALSE(EXE.lng(@config, 39)) THEN
@@ -3313,19 +3230,19 @@ FUNCTION CHECKHORZ(INT »x, INT »y) AS INT
          ¤MEM_MODV(config, (150), LONG, +, (hb), 4)
       END IF
       i = x
-      gosub .£FNini0445
-      goto .£FNind0445
-   ..£FNini0445 
-      int ¤ite0445
-      int ¤iti0445 = 1
-      INT ¤tov0445 = (x + 8)
+      gosub .£FNini0443
+      goto .£FNind0443
+   ..£FNini0443 
+      int ¤ite0443
+      int ¤iti0443 = 1
+      INT ¤tov0443 = (x + 8)
       RET
-   ..£FNind0445 
-      FOR ¤ite0445 = 0 TO 2 STEP 1 
-      ..£FNst0445 
-         if (¤ite0445 > 0) then
+   ..£FNind0443 
+      FOR ¤ite0443 = 0 TO 2 STEP 1 
+      ..£FNst0443 
+         if (¤ite0443 > 0) then
             i += 1
-            if i > ¤tov0445 then exit for
+            if i > ¤tov0443 then exit for
          end if
          IF i > 8 THEN
             EXIT FOR
@@ -3349,11 +3266,11 @@ FUNCTION CHECKHORZ(INT »x, INT »y) AS INT
          ELSE
             EXIT FOR
          END IF
-         ¤ite0445 += 1
-         if ¤iti0445 = 0 then
-            gosub .£FNini0445
+         ¤ite0443 += 1
+         if ¤iti0443 = 0 then
+            gosub .£FNini0443
          end if
-         goto .£FNst0445
+         goto .£FNst0443
       NEXT 
       IF v THEN
          ¤RETVAL = 2
@@ -3370,62 +3287,62 @@ FUNCTION INDIVIDUALIZEBLOCKS() AS INT
    INT x
    INT y
    x = 1
-   gosub .£FNini0453
-   goto .£FNind0453
-..£FNini0453 
-   int ¤ite0453
-   int ¤iti0453 = 1
-   INT ¤tov0453 = 8
+   gosub .£FNini0451
+   goto .£FNind0451
+..£FNini0451 
+   int ¤ite0451
+   int ¤iti0451 = 1
+   INT ¤tov0451 = 8
    RET
-..£FNind0453 
-   FOR ¤ite0453 = 0 TO 2 STEP 1 
-   ..£FNst0453 
-      if (¤ite0453 > 0) then
+..£FNind0451 
+   FOR ¤ite0451 = 0 TO 2 STEP 1 
+   ..£FNst0451 
+      if (¤ite0451 > 0) then
          x += 1
-         if x > ¤tov0453 then exit for
+         if x > ¤tov0451 then exit for
       end if
       y = 1
-      gosub .£FNini0454
-      goto .£FNind0454
-   ..£FNini0454 
-      int ¤ite0454
-      int ¤iti0454 = 1
-      INT ¤tov0454 = 16
+      gosub .£FNini0452
+      goto .£FNind0452
+   ..£FNini0452 
+      int ¤ite0452
+      int ¤iti0452 = 1
+      INT ¤tov0452 = 16
       RET
-   ..£FNind0454 
-      FOR ¤ite0454 = 0 TO 2 STEP 1 
-      ..£FNst0454 
-         if (¤ite0454 > 0) then
+   ..£FNind0452 
+      FOR ¤ite0452 = 0 TO 2 STEP 1 
+      ..£FNst0452 
+         if (¤ite0452 > 0) then
             y += 1
-            if y > ¤tov0454 then exit for
+            if y > ¤tov0452 then exit for
          end if
          IF area.lng(area.m(x,y), (4))=½AREA_PILL THEN
             IF area.lng(area.m(x,y), (16))=area.lng(area.m(x - 1,y), (16)) THEN
-               goto .£FNst0454
+               goto .£FNst0452
             END IF
             IF area.lng(area.m(x,y), (16))=area.lng(area.m(x + 1,y), (16)) THEN
-               goto .£FNst0454
+               goto .£FNst0452
             END IF
             IF area.lng(area.m(x,y), (16))=area.lng(area.m(x,y - 1), (16)) THEN
-               goto .£FNst0454
+               goto .£FNst0452
             END IF
             IF area.lng(area.m(x,y), (16))=area.lng(area.m(x,y + 1), (16)) THEN
-               goto .£FNst0454
+               goto .£FNst0452
             END IF
             ¤UDT_SETV(area, area.m(x,y), (16), LONG, (0), 4)
             ¤UDT_SETV(area, area.m(x,y), (4), LONG, (½AREA_HALFPILL), 4)
          END IF
-         ¤ite0454 += 1
-         if ¤iti0454 = 0 then
-            gosub .£FNini0454
+         ¤ite0452 += 1
+         if ¤iti0452 = 0 then
+            gosub .£FNini0452
          end if
-         goto .£FNst0454
+         goto .£FNst0452
       NEXT 
-      ¤ite0453 += 1
-      if ¤iti0453 = 0 then
-         gosub .£FNini0453
+      ¤ite0451 += 1
+      if ¤iti0451 = 0 then
+         gosub .£FNini0451
       end if
-      goto .£FNst0453
+      goto .£FNst0451
    NEXT 
    RETURN ¤RETVAL
 END FUNCTION
@@ -3444,34 +3361,34 @@ FUNCTION DESTROYED() AS INT
    ¤MEM_SETV(config, (146), LONG, (0), 4)
    ¤MEM_SETV(config, (150), LONG, (0), 4)
    x = 1
-   gosub .£FNini0461
-   goto .£FNind0461
-..£FNini0461 
-   int ¤ite0461
-   int ¤iti0461 = 1
-   INT ¤tov0461 = 6
+   gosub .£FNini0459
+   goto .£FNind0459
+..£FNini0459 
+   int ¤ite0459
+   int ¤iti0459 = 1
+   INT ¤tov0459 = 6
    RET
-..£FNind0461 
-   FOR ¤ite0461 = 0 TO 2 STEP 1 
-   ..£FNst0461 
-      if (¤ite0461 > 0) then
+..£FNind0459 
+   FOR ¤ite0459 = 0 TO 2 STEP 1 
+   ..£FNst0459 
+      if (¤ite0459 > 0) then
          x += 1
-         if x > ¤tov0461 then exit for
+         if x > ¤tov0459 then exit for
       end if
       y = 1
-      gosub .£FNini0462
-      goto .£FNind0462
-   ..£FNini0462 
-      int ¤ite0462
-      int ¤iti0462 = 1
-      INT ¤tov0462 = 16
+      gosub .£FNini0460
+      goto .£FNind0460
+   ..£FNini0460 
+      int ¤ite0460
+      int ¤iti0460 = 1
+      INT ¤tov0460 = 16
       RET
-   ..£FNind0462 
-      FOR ¤ite0462 = 0 TO 2 STEP 1 
-      ..£FNst0462 
-         if (¤ite0462 > 0) then
+   ..£FNind0460 
+      FOR ¤ite0460 = 0 TO 2 STEP 1 
+      ..£FNst0460 
+         if (¤ite0460 > 0) then
             y += 1
-            if y > ¤tov0462 then exit for
+            if y > ¤tov0460 then exit for
          end if
          r = (CHECKHORZ(x, y))
          IF r THEN
@@ -3480,47 +3397,47 @@ FUNCTION DESTROYED() AS INT
             END IF
             boom = (-1)
          END IF
-         ¤ite0462 += 1
-         if ¤iti0462 = 0 then
-            gosub .£FNini0462
+         ¤ite0460 += 1
+         if ¤iti0460 = 0 then
+            gosub .£FNini0460
          end if
-         goto .£FNst0462
+         goto .£FNst0460
       NEXT 
-      ¤ite0461 += 1
-      if ¤iti0461 = 0 then
-         gosub .£FNini0461
+      ¤ite0459 += 1
+      if ¤iti0459 = 0 then
+         gosub .£FNini0459
       end if
-      goto .£FNst0461
+      goto .£FNst0459
    NEXT 
    x = 1
-   gosub .£FNini0464
-   goto .£FNind0464
-..£FNini0464 
-   int ¤ite0464
-   int ¤iti0464 = 1
-   INT ¤tov0464 = 8
+   gosub .£FNini0462
+   goto .£FNind0462
+..£FNini0462 
+   int ¤ite0462
+   int ¤iti0462 = 1
+   INT ¤tov0462 = 8
    RET
-..£FNind0464 
-   FOR ¤ite0464 = 0 TO 2 STEP 1 
-   ..£FNst0464 
-      if (¤ite0464 > 0) then
+..£FNind0462 
+   FOR ¤ite0462 = 0 TO 2 STEP 1 
+   ..£FNst0462 
+      if (¤ite0462 > 0) then
          x += 1
-         if x > ¤tov0464 then exit for
+         if x > ¤tov0462 then exit for
       end if
       y = 1
-      gosub .£FNini0465
-      goto .£FNind0465
-   ..£FNini0465 
-      int ¤ite0465
-      int ¤iti0465 = 1
-      INT ¤tov0465 = 13
+      gosub .£FNini0463
+      goto .£FNind0463
+   ..£FNini0463 
+      int ¤ite0463
+      int ¤iti0463 = 1
+      INT ¤tov0463 = 13
       RET
-   ..£FNind0465 
-      FOR ¤ite0465 = 0 TO 2 STEP 1 
-      ..£FNst0465 
-         if (¤ite0465 > 0) then
+   ..£FNind0463 
+      FOR ¤ite0463 = 0 TO 2 STEP 1 
+      ..£FNst0463 
+         if (¤ite0463 > 0) then
             y += 1
-            if y > ¤tov0465 then exit for
+            if y > ¤tov0463 then exit for
          end if
          r = (CHECKVERT(x, y))
          IF r THEN
@@ -3529,17 +3446,17 @@ FUNCTION DESTROYED() AS INT
             END IF
             boom = (-1)
          END IF
-         ¤ite0465 += 1
-         if ¤iti0465 = 0 then
-            gosub .£FNini0465
+         ¤ite0463 += 1
+         if ¤iti0463 = 0 then
+            gosub .£FNini0463
          end if
-         goto .£FNst0465
+         goto .£FNst0463
       NEXT 
-      ¤ite0464 += 1
-      if ¤iti0464 = 0 then
-         gosub .£FNini0464
+      ¤ite0462 += 1
+      if ¤iti0462 = 0 then
+         gosub .£FNini0462
       end if
-      goto .£FNst0464
+      goto .£FNst0462
    NEXT 
    IF boom THEN
       IF EXE.lng(@config, 39) THEN
@@ -3570,11 +3487,11 @@ FUNCTION DESTROYED() AS INT
          SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(8, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
          ¤RETVAL = 1
       END IF
-      INT ¤SCV266 = EXE.lng(@config, 215)
-      IF ¤SCV266 = 3 THEN
+      INT ¤SCV682 = EXE.lng(@config, 215)
+      IF ¤SCV682 = 3 THEN
          ¤MEM_SETV(config, (35), LONG, (1), 4)
          SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(12, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
-      ELSEIF ¤SCV266 = 4 THEN
+      ELSEIF ¤SCV682 = 4 THEN
          ¤MEM_SETV(config, (35), LONG, (1), 4)
          SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(15, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
       END IF
@@ -3589,53 +3506,53 @@ FUNCTION BLOCKFELL() AS INT
    INT y
    INT f
    y = 15
-   gosub .£FNini0475
-   goto .£FNind0475
-..£FNini0475 
-   int ¤ite0475
-   int ¤iti0475 = 1
-   INT ¤tov0475 = 1
-   INT ¤cnt0475 = -1
+   gosub .£FNini0473
+   goto .£FNind0473
+..£FNini0473 
+   int ¤ite0473
+   int ¤iti0473 = 1
+   INT ¤tov0473 = 1
+   INT ¤cnt0473 = -1
    RET
-..£FNind0475 
-   FOR ¤ite0475 = 0 TO 2 STEP 1 
-   ..£FNst0475 
-      if (¤ite0475 > 0) then
-         y += ¤cnt0475
-         if ¤cnt0475 > 0 then
-            if y > ¤tov0475 then exit for
+..£FNind0473 
+   FOR ¤ite0473 = 0 TO 2 STEP 1 
+   ..£FNst0473 
+      if (¤ite0473 > 0) then
+         y += ¤cnt0473
+         if ¤cnt0473 > 0 then
+            if y > ¤tov0473 then exit for
          else
-            if y < ¤tov0475 then exit for
+            if y < ¤tov0473 then exit for
          end if
       end if
       x = 8
-      gosub .£FNini0476
-      goto .£FNind0476
-   ..£FNini0476 
-      int ¤ite0476
-      int ¤iti0476 = 1
-      INT ¤tov0476 = 1
-      INT ¤cnt0476 = -1
+      gosub .£FNini0474
+      goto .£FNind0474
+   ..£FNini0474 
+      int ¤ite0474
+      int ¤iti0474 = 1
+      INT ¤tov0474 = 1
+      INT ¤cnt0474 = -1
       RET
-   ..£FNind0476 
-      FOR ¤ite0476 = 0 TO 2 STEP 1 
-      ..£FNst0476 
-         if (¤ite0476 > 0) then
-            x += ¤cnt0476
-            if ¤cnt0476 > 0 then
-               if x > ¤tov0476 then exit for
+   ..£FNind0474 
+      FOR ¤ite0474 = 0 TO 2 STEP 1 
+      ..£FNst0474 
+         if (¤ite0474 > 0) then
+            x += ¤cnt0474
+            if ¤cnt0474 > 0 then
+               if x > ¤tov0474 then exit for
             else
-               if x < ¤tov0476 then exit for
+               if x < ¤tov0474 then exit for
             end if
          end if
-         INT ¤SCV267 = area.lng(area.m(x,y), (4))
-         IF ¤SCV267 = ½AREA_HALFPILL THEN
+         INT ¤SCV683 = area.lng(area.m(x,y), (4))
+         IF ¤SCV683 = ½AREA_HALFPILL THEN
             IF area.lng(area.m(x,y + 1), (4))=0 THEN
                ¤UDT_COPY(20, area.udt(area.p(x,y + 1), (0)), area.udt(area.p(x,y), (0)))
                area.reset(area.m(x,y))
                f = (1)
             END IF
-         ELSEIF ¤SCV267 = ½AREA_PILL THEN
+         ELSEIF ¤SCV683 = ½AREA_PILL THEN
             IF area.lng(area.m(x,y), (16))=area.lng(area.m(x - 1,y), (16)) THEN
                IF ¤ISFALSE(area.lng(area.m(x - 1,y + 1), (4))) AND ¤ISFALSE(area.lng(area.m(x,y + 1), (4))) THEN
                   ¤UDT_COPY(20, area.udt(area.p(x,y + 1), (0)), area.udt(area.p(x,y), (0)))
@@ -3653,17 +3570,17 @@ FUNCTION BLOCKFELL() AS INT
                END IF
             END IF
          END IF
-         ¤ite0476 += 1
-         if ¤iti0476 = 0 then
-            gosub .£FNini0476
+         ¤ite0474 += 1
+         if ¤iti0474 = 0 then
+            gosub .£FNini0474
          end if
-         goto .£FNst0476
+         goto .£FNst0474
       NEXT 
-      ¤ite0475 += 1
-      if ¤iti0475 = 0 then
-         gosub .£FNini0475
+      ¤ite0473 += 1
+      if ¤iti0473 = 0 then
+         gosub .£FNini0473
       end if
-      goto .£FNst0475
+      goto .£FNst0473
    NEXT 
    ¤RETVAL = f
    RETURN ¤RETVAL
@@ -3676,14 +3593,14 @@ FUNCTION ROTATEPILL(INT »dir) AS INT
    IF ¤ISFALSE(EXE.lng(@config, 35)) THEN
       SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(4, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
    END IF
-   INT ¤SCV268 = dir
-   IF ¤SCV268 = ½DIR_LF THEN
+   INT ¤SCV684 = dir
+   IF ¤SCV684 = ½DIR_LF THEN
       ¤MEM_SETV(config, (179), LONG, (1), 4)
       ¤MEM_DECR(config, (102 + 40), LONG, 1)
       IF EXE.lng(@config, 102 + 40) < 1 THEN
          ¤MEM_SETV(config, (102 + 40), LONG, (4), 4)
       END IF
-   ELSEIF ¤SCV268 = ½DIR_RT THEN
+   ELSEIF ¤SCV684 = ½DIR_RT THEN
       ¤MEM_SETV(config, (179), LONG, (1), 4)
       ¤MEM_INCR(config, (102 + 40), LONG, 1)
       IF EXE.lng(@config, 102 + 40) > 4 THEN
@@ -3698,8 +3615,8 @@ FUNCTION EXECGAMEMECHANICS() AS INT
    ¤SYSERR Err
    INT r
    IF EXE.lng(@config, 19) THEN
-      BYTE ¤SCV269 = EXE.byt(@config, 0)
-      IF ¤SCV269 = ½SCREEN_TITLE THEN
+      BYTE ¤SCV685 = EXE.byt(@config, 0)
+      IF ¤SCV685 = ½SCREEN_TITLE THEN
          ¤MEM_INCR(config, (167), LONG, 1)
          IF GETASYNCKEYSTATE(½VK_RETURN) THEN
             DO WHILE GETASYNCKEYSTATE(½VK_RETURN)
@@ -3707,7 +3624,7 @@ FUNCTION EXECGAMEMECHANICS() AS INT
             LOOP
             CHANGEGAMESCREEN(½SCREEN_OPTIONS) 
          END IF
-      ELSEIF ¤SCV269 = ½SCREEN_OPTIONS THEN
+      ELSEIF ¤SCV685 = ½SCREEN_OPTIONS THEN
          ¤MEM_INCR(config, (167), LONG, 1)
          IF EXE.lng(@config, 183) THEN
             ¤MEM_INCR(config, (187), LONG, 1)
@@ -3733,8 +3650,8 @@ FUNCTION EXECGAMEMECHANICS() AS INT
                END IF
             END IF
          ELSEIF GETASYNCKEYSTATE(½VK_LEFT) THEN
-            INT ¤SCV270 = EXE.lng(@config, 219)
-            IF ¤SCV270 = 1 THEN
+            INT ¤SCV686 = EXE.lng(@config, 219)
+            IF ¤SCV686 = 1 THEN
                IF (EXE.lng(@config, 183)=0) OR (EXE.lng(@config, 187) > 3) THEN
                   IF EXE.byt(@config, 56) > 0 THEN
                      SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
@@ -3747,7 +3664,7 @@ FUNCTION EXECGAMEMECHANICS() AS INT
                      ¤MEM_SETV(config, (183), LONG, (1), 4)
                   END IF
                END IF
-            ELSEIF ¤SCV270 = 2 THEN
+            ELSEIF ¤SCV686 = 2 THEN
                IF (EXE.lng(@config, 183)=0) THEN
                   IF EXE.byt(@config, 57) > 1 THEN
                      SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
@@ -3755,7 +3672,7 @@ FUNCTION EXECGAMEMECHANICS() AS INT
                      ¤MEM_SETV(config, (183), LONG, (1), 4)
                   END IF
                END IF
-            ELSEIF ¤SCV270 = 3 THEN
+            ELSEIF ¤SCV686 = 3 THEN
                IF (EXE.lng(@config, 183)=0) THEN
                   IF EXE.byt(@config, 2) > 1 THEN
                      SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
@@ -3765,8 +3682,8 @@ FUNCTION EXECGAMEMECHANICS() AS INT
                END IF
             END IF
          ELSEIF GETASYNCKEYSTATE(½VK_RIGHT) THEN
-            INT ¤SCV271 = EXE.lng(@config, 219)
-            IF ¤SCV271 = 1 THEN
+            INT ¤SCV687 = EXE.lng(@config, 219)
+            IF ¤SCV687 = 1 THEN
                IF (EXE.lng(@config, 183)=0) OR (EXE.lng(@config, 187) > 3) THEN
                   IF EXE.byt(@config, 56) < 20 THEN
                      SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
@@ -3779,7 +3696,7 @@ FUNCTION EXECGAMEMECHANICS() AS INT
                      ¤MEM_SETV(config, (183), LONG, (1), 4)
                   END IF
                END IF
-            ELSEIF ¤SCV271 = 2 THEN
+            ELSEIF ¤SCV687 = 2 THEN
                IF (EXE.lng(@config, 183)=0) THEN
                   IF EXE.byt(@config, 57) < 3 THEN
                      SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
@@ -3787,7 +3704,7 @@ FUNCTION EXECGAMEMECHANICS() AS INT
                      ¤MEM_SETV(config, (183), LONG, (1), 4)
                   END IF
                END IF
-            ELSEIF ¤SCV271 = 3 THEN
+            ELSEIF ¤SCV687 = 3 THEN
                IF (EXE.lng(@config, 183)=0) THEN
                   IF EXE.byt(@config, 2) < 3 THEN
                      SNDPLAYSOUND(bycopy "sfx" & ¤FORMAT(0, byval 0), ½SND_RESOURCE OR ½SND_ASYNC) 
@@ -3806,7 +3723,7 @@ FUNCTION EXECGAMEMECHANICS() AS INT
          ELSE
             ¤MEM_SETV(config, (183), LONG, (0), 4)
          END IF
-      ELSEIF ¤SCV269 = ½SCREEN_GAME THEN
+      ELSEIF ¤SCV685 = ½SCREEN_GAME THEN
          ¤MEM_INCR(config, (167), LONG, 1)
          IF ¤ISFALSE(EXE.lng(@config, 31)) THEN
             IF ¤ISFALSE(EXE.lng(@config, 207)) THEN
@@ -3859,12 +3776,12 @@ FUNCTION EXECGAMEMECHANICS() AS INT
                         ¤MEM_SETV(config, (23), LONG, (0), 4)
                         ¤MEM_SETV(config, (31), LONG, (0), 4)
                         ¤MEM_SETV(config, (167), LONG, (0), 4)
-                        BYTE ¤SCV272 = EXE.byt(@config, 2)
-                        IF ¤SCV272 = 1 THEN
+                        BYTE ¤SCV688 = EXE.byt(@config, 2)
+                        IF ¤SCV688 = 1 THEN
                            PLAYBGM("SFX24", 64700, 2600, 1000) 
-                        ELSEIF ¤SCV272 = 2 THEN
+                        ELSEIF ¤SCV688 = 2 THEN
                            PLAYBGM("SFX22", 116000, 7523, -4000) 
-                        ELSEIF ¤SCV272 = 3 THEN
+                        ELSEIF ¤SCV688 = 3 THEN
                            PLAYBGM("none", 0, 0, 0) 
                         END IF
                         ¤UDT_SETV(bigv, bigv.m(1), (12), LONG, (½VIRUS_NORMAL), 4)
@@ -3901,12 +3818,12 @@ FUNCTION EXECGAMEMECHANICS() AS INT
                GETASYNCKEYSTATE(½VK_DOWN) 
                GETASYNCKEYSTATE(½VK_LEFT) 
                GETASYNCKEYSTATE(½VK_RIGHT) 
-               INT ¤SCV273 = EXE.lng(@config, 223)
-               IF ¤SCV273 = 4 THEN
+               INT ¤SCV689 = EXE.lng(@config, 223)
+               IF ¤SCV689 = 4 THEN
                   ¤MEM_SETV(config, (227), LONG, (4), 4)
-               ELSEIF ¤SCV273 = 8 THEN
+               ELSEIF ¤SCV689 = 8 THEN
                   ¤MEM_SETV(config, (227), LONG, (5), 4)
-               ELSEIF ¤SCV273 = 23 THEN
+               ELSEIF ¤SCV689 = 23 THEN
                   ¤MEM_SETV(config, (227), LONG, (3), 4)
                   ¤MEM_SETV(config, (231), LONG, (0), 4)
                   ¤MEM_SETV(config, (102 + 32), LONG, (0), 4)
@@ -3973,12 +3890,12 @@ FUNCTION EXECGAMEMECHANICS() AS INT
                                  Err.erp = "stageisclear"
                                  ¤MEM_SETV(config, (31), LONG, (1), 4)
                                  ¤MEM_SETV(config, (27), LONG, (0), 4)
-                                 BYTE ¤SCV274 = EXE.byt(@config, 2)
-                                 IF ¤SCV274 = 1 THEN
+                                 BYTE ¤SCV690 = EXE.byt(@config, 2)
+                                 IF ¤SCV690 = 1 THEN
                                     PLAYBGM("SFX26", 999999, 0, 0) 
-                                 ELSEIF ¤SCV274 = 2 THEN
+                                 ELSEIF ¤SCV690 = 2 THEN
                                     PLAYBGM("SFX25", 999999, 0, 0) 
-                                 ELSEIF ¤SCV274 = 3 THEN
+                                 ELSEIF ¤SCV690 = 3 THEN
                                     PLAYBGM("SFX27", 999999, 0, 0) 
                                  END IF
                               ELSE
@@ -4070,7 +3987,7 @@ FUNCTION EXECGAMEMECHANICS() AS INT
                END IF
             END IF
          END IF
-      ELSEIF ¤SCV269 = ½SCREEN_ENDING THEN
+      ELSEIF ¤SCV685 = ½SCREEN_ENDING THEN
          ¤MEM_INCR(config, (167), LONG, 1)
          IF EXE.lng(@config, 167) > 50 THEN
             IF GETASYNCKEYSTATE(½VK_RETURN) THEN
@@ -4098,10 +4015,6 @@ FUNCTION PBMAIN() AS INT
    ¤SYSERR Err
    DWORD hdlg
    INITGAME() 
-   IF ¤ISFALSE(TESTBGM("sfx21")) THEN
-      MSGBOX ("Music resources could not be extracted.", ½MB_ICONERROR, "The game cannot start") 
-      RETURN ¤RETVAL
-   END IF
    DialogNew(5, 0, "DrMario - " & "OxygenBASIC", byval 0, byval 0, 512, 448, ½WS_OVERLAPPEDWINDOW, 0, hdlg) 
    ¤MEM_SETV(config, (51), DWORD, (hdlg), 4)
    DialogSetIcon(hdlg, "DLGICON") 
@@ -4170,8 +4083,8 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
    INT in20
    INT tn21
    INT nxn22
-   INT ¤SCV275 = cbMsg
-   IF ¤SCV275 = ½WM_INITDIALOG THEN
+   INT ¤SCV691 = cbMsg
+   IF ¤SCV691 = ½WM_INITDIALOG THEN
       ¤MEM_SETV(config, (159), DWORD, (10000), 4)
       ¤MEM_SETV(config, (57), BYTE, ¤BytOvf(1), 1)
       ¤MEM_SETV(config, (56), BYTE, ¤BytOvf(0), 1)
@@ -4189,7 +4102,7 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
       htimer = (SETTIMER(cbhndl, ½TIMER_REFRESHSCREEN, 20, ½NULL))
       htimem = (SETTIMER(cbhndl, ½TIMER_MUSICCHECK, 500, ½NULL))
       CHANGEGAMESCREEN(½SCREEN_TITLE) 
-   ELSEIF ¤SCV275 = ½WM_DESTROY THEN
+   ELSEIF ¤SCV691 = ½WM_DESTROY THEN
       IF htimer THEN
          KILLTIMER cbhndl, htimer 
       END IF
@@ -4206,15 +4119,15 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
       DELETEOBJECT hselec 
       DELETEOBJECT hhighl 
       DELETEOBJECT hendin 
-   ELSEIF ¤SCV275 = ½WM_TIMER THEN
-      INT ¤SCV276 = wParam
-      IF ¤SCV276 = ½TIMER_MUSICCHECK THEN
-      ELSEIF ¤SCV276 = ½TIMER_REFRESHSCREEN THEN
+   ELSEIF ¤SCV691 = ½WM_TIMER THEN
+      INT ¤SCV692 = wParam
+      IF ¤SCV692 = ½TIMER_MUSICCHECK THEN
+      ELSEIF ¤SCV692 = ½TIMER_REFRESHSCREEN THEN
          EXECGAMEMECHANICS() 
          GETCLIENTRECT(cbhndl, rc) 
          hframe = (1)
          INVALIDATERECT cbhndl, rc, 0 
-      ELSEIF ¤SCV276 = ½TIMER_MUSICLOOP THEN
+      ELSEIF ¤SCV692 = ½TIMER_MUSICLOOP THEN
          MCISENDSTRING("seek mp3file to " & ¤FORMAT(EXE.dwd(@config, 7), byval 0), 0, 0, 0) 
          MCISENDSTRING("play mp3file", 0, 0, 0) 
          IF EXE.lng(@config, 11)=0 THEN
@@ -4226,12 +4139,12 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
          END IF
          ¤MEM_INCR(config, (11), LONG, 1)
       END IF
-   ControlFlow0276:
-   ELSEIF ¤SCV275 = ½WM_KILLFOCUS THEN
+   ControlFlow0692:
+   ELSEIF ¤SCV691 = ½WM_KILLFOCUS THEN
       ¤MEM_SETV(config, (19), LONG, (0), 4)
-   ELSEIF ¤SCV275 = ½WM_SETFOCUS THEN
+   ELSEIF ¤SCV691 = ½WM_SETFOCUS THEN
       ¤MEM_SETV(config, (19), LONG, (-1), 4)
-   ELSEIF ¤SCV275 = ½WM_PAINT THEN
+   ELSEIF ¤SCV691 = ½WM_PAINT THEN
       IF hframe THEN
          hframe = (0)
          hdc = (BEGINPAINT(cbhndl, ps))
@@ -4239,8 +4152,8 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
          hmemdb = (CREATECOMPATIBLEDC(hdc))
          hmembm = (CREATECOMPATIBLEBITMAP(hdc, ½GAME_W, ½GAME_H))
          holdbm = (SELECTOBJECT(hmemdc, hmembm))
-         BYTE ¤SCV277 = EXE.byt(@config, 0)
-         IF ¤SCV277 = ½SCREEN_TITLE THEN
+         BYTE ¤SCV693 = EXE.byt(@config, 0)
+         IF ¤SCV693 = ½SCREEN_TITLE THEN
             holdbb = (SELECTOBJECT(hmemdb, htitle))
             BITBLT hmemdc, 0, 0, ½GAME_W, ½GAME_H, hmemdb, 0, 0, ½SRCCOPY 
             holdbb = (SELECTOBJECT(hmemdb, holdbb))
@@ -4267,8 +4180,8 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                   y = ((24 * (4 - 1)))
                   BITBLT hmemdc, bigv.lng(bigv.m(4), (0)), bigv.lng(bigv.m(4), (4)) + bigv.lng(bigv.m(4), (8)), 24, 24, hmemdb, x, y, ½SRCCOPY 
                ELSE
-                  INT ¤SCV278 = bigv.lng(bigv.m(4), (12))
-                  IF ¤SCV278 = ½VIRUS_NORMAL THEN
+                  INT ¤SCV694 = bigv.lng(bigv.m(4), (12))
+                  IF ¤SCV694 = ½VIRUS_NORMAL THEN
                      IF (EXE.lng(@config, 167) MOD 8)=0 THEN
                         ¤UDT_INCR(bigv, bigv.m(4), (20), BYTE, 1)
                      END IF
@@ -4276,7 +4189,7 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                      sprframe = (CHOOSE(offframe + 1, INT {1, 2, 3, 2}, countof))
                      x = ((24 * (sprframe - 1)))
                      y = ((24 * (4 - 1)))
-                  ELSEIF ¤SCV278 = ½VIRUS_DEAD THEN
+                  ELSEIF ¤SCV694 = ½VIRUS_DEAD THEN
                      ¤UDT_INCR(bigv, bigv.m(4), (16), LONG, 1)
                      IF bigv.lng(bigv.m(4), (16)) < 20 THEN
                         x = ((24 * (7 - 1)))
@@ -4284,7 +4197,7 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                      ELSE
                         EXIT DO
                      END IF
-                  ELSEIF ¤SCV278 = ½VIRUS_FLOOR THEN
+                  ELSEIF ¤SCV694 = ½VIRUS_FLOOR THEN
                      IF (EXE.lng(@config, 167) MOD 3)=0 THEN
                         ¤UDT_INCR(bigv, bigv.m(4), (20), BYTE, 1)
                      END IF
@@ -4294,21 +4207,21 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                      x = ((24 * (sprframe - 1)))
                      y = ((24 * (4 - 1)))
                      IF bigv.lng(bigv.m(4), (16)) < 7 THEN
-                        INT ¤SCV279 = bigv.lng(bigv.m(4), (16))
-                        IF ¤SCV279 = 1 THEN
+                        INT ¤SCV695 = bigv.lng(bigv.m(4), (16))
+                        IF ¤SCV695 = 1 THEN
                            ¤UDT_SETV(bigv, bigv.m(4), (8), LONG, (-5), 4)
-                        ELSEIF ¤SCV279 = 2 THEN
+                        ELSEIF ¤SCV695 = 2 THEN
                            ¤UDT_SETV(bigv, bigv.m(4), (8), LONG, (-9), 4)
-                        ELSEIF ¤SCV279 = 3 THEN
+                        ELSEIF ¤SCV695 = 3 THEN
                            ¤UDT_SETV(bigv, bigv.m(4), (8), LONG, (-11), 4)
-                        ELSEIF ¤SCV279 = 4 THEN
+                        ELSEIF ¤SCV695 = 4 THEN
                            ¤UDT_SETV(bigv, bigv.m(4), (8), LONG, (-9), 4)
-                        ELSEIF ¤SCV279 = 5 THEN
+                        ELSEIF ¤SCV695 = 5 THEN
                            ¤UDT_SETV(bigv, bigv.m(4), (8), LONG, (-5), 4)
-                        ELSEIF ¤SCV279 = 6 THEN
+                        ELSEIF ¤SCV695 = 6 THEN
                            ¤UDT_SETV(bigv, bigv.m(4), (8), LONG, (0), 4)
                         END IF
-                     ControlFlow0279:
+                     ControlFlow0695:
                      END IF
                      IF bigv.lng(bigv.m(4), (16)) > 80 THEN
                         IF REMAININGVIRUS(bigv.lng(bigv.m(4), (21))) THEN
@@ -4321,26 +4234,26 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                         END IF
                      END IF
                   END IF
-               ControlFlow0278:
+               ControlFlow0694:
                   BITBLT hmemdc, bigv.lng(bigv.m(4), (0)), bigv.lng(bigv.m(4), (4)) + bigv.lng(bigv.m(4), (8)), 24, 24, hmemdb, x, y, ½SRCCOPY 
                END IF
                EXIT DO
             LOOP
             holdbb = (SELECTOBJECT(hmemdb, holdbb))
-         ELSEIF ¤SCV277 = ½SCREEN_OPTIONS THEN
+         ELSEIF ¤SCV693 = ½SCREEN_OPTIONS THEN
             holdbb = (SELECTOBJECT(hmemdb, hselec))
             BITBLT hmemdc, 0, 0, ½GAME_W, ½GAME_H, hmemdb, 0, 0, ½SRCCOPY 
             holdbb = (SELECTOBJECT(hmemdb, holdbb))
             holdbb = (SELECTOBJECT(hmemdb, hhighl))
-            INT ¤SCV280 = EXE.lng(@config, 219)
-            IF ¤SCV280 = 1 THEN
+            INT ¤SCV696 = EXE.lng(@config, 219)
+            IF ¤SCV696 = 1 THEN
                yn7 = (47)
-            ELSEIF ¤SCV280 = 2 THEN
+            ELSEIF ¤SCV696 = 2 THEN
                yn7 = (104)
-            ELSEIF ¤SCV280 = 3 THEN
+            ELSEIF ¤SCV696 = 3 THEN
                yn7 = (153)
             END IF
-         ControlFlow0280:
+         ControlFlow0696:
             BITBLT hmemdc, 39, yn7, 108, 23, hmemdb, 0, (EXE.lng(@config, 219) - 1) * 24, ½SRCCOPY 
             tn5 = EXE.byt(@config, 56) 
             sn3 = (¤FORMAT(tn5, REPEAT(2, "0")))
@@ -4348,35 +4261,35 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
             yn7 = (72)
             holdbb = (SELECTOBJECT(hmemdb, hnumbr))
             in4 = 1
-            gosub .£FNini0599
-            goto .£FNind0599
-         ..£FNini0599 
-            int ¤ite0599
-            int ¤iti0599 = 1
-            INT ¤tov0599 = 2
+            gosub .£FNini0596
+            goto .£FNind0596
+         ..£FNini0596 
+            int ¤ite0596
+            int ¤iti0596 = 1
+            INT ¤tov0596 = 2
             RET
-         ..£FNind0599 
-            FOR ¤ite0599 = 0 TO 2 STEP 1 
-            ..£FNst0599 
-               if (¤ite0599 > 0) then
+         ..£FNind0596 
+            FOR ¤ite0596 = 0 TO 2 STEP 1 
+            ..£FNst0596 
+               if (¤ite0596 > 0) then
                   in4 += 1
-                  if in4 > ¤tov0599 then exit for
+                  if in4 > ¤tov0596 then exit for
                end if
                nxn6 = (VAL(¤MID(sn3, in4, 1, byval 0)) * 7)
                BITBLT hmemdc, x, yn7, 7, 7, hmemdb, nxn6, ((2 - 1) * 7), ½SRCCOPY 
                x = ((x) + 8)
-               ¤ite0599 += 1
-               if ¤iti0599 = 0 then
-                  gosub .£FNini0599
+               ¤ite0596 += 1
+               if ¤iti0596 = 0 then
+                  gosub .£FNini0596
                end if
-               goto .£FNst0599
+               goto .£FNst0596
             NEXT 
             holdbb = (SELECTOBJECT(hmemdb, holdbb))
             BITBLT hmemdc, 87 + (EXE.byt(@config, 56) * 4), 74, 7, 7, hmemdb, 111, 0, ½SRCCOPY 
             BITBLT hmemdc, 50 + (EXE.byt(@config, 57) * 39), 128, 21, 7, hmemdb, 111, 8, ½SRCCOPY 
             BITBLT hmemdc, 4 + (EXE.byt(@config, 2) * 55), 179, 51, 18, hmemdb, 0 + ((EXE.byt(@config, 2) - 1) * 51), 71, ½SRCCOPY 
             holdbb = (SELECTOBJECT(hmemdb, holdbb))
-         ELSEIF ¤SCV277 = ½SCREEN_ENDING THEN
+         ELSEIF ¤SCV693 = ½SCREEN_ENDING THEN
             holdbb = (SELECTOBJECT(hmemdb, hendin))
             BITBLT hmemdc, 0, 0, ½GAME_W, ½GAME_H, hmemdb, 0, 0, ½SRCCOPY 
             holdbb = (SELECTOBJECT(hmemdb, holdbb))
@@ -4386,42 +4299,42 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
             y = (88)
             holdbb = (SELECTOBJECT(hmemdb, hnumbr))
             in9 = 1
-            gosub .£FNini0600
-            goto .£FNind0600
-         ..£FNini0600 
-            int ¤ite0600
-            int ¤iti0600 = 1
-            INT ¤tov0600 = 2
+            gosub .£FNini0597
+            goto .£FNind0597
+         ..£FNini0597 
+            int ¤ite0597
+            int ¤iti0597 = 1
+            INT ¤tov0597 = 2
             RET
-         ..£FNind0600 
-            FOR ¤ite0600 = 0 TO 2 STEP 1 
-            ..£FNst0600 
-               if (¤ite0600 > 0) then
+         ..£FNind0597 
+            FOR ¤ite0597 = 0 TO 2 STEP 1 
+            ..£FNst0597 
+               if (¤ite0597 > 0) then
                   in9 += 1
-                  if in9 > ¤tov0600 then exit for
+                  if in9 > ¤tov0597 then exit for
                end if
                nxnb = (VAL(¤MID(sn8, in9, 1, byval 0)) * 7)
                BITBLT hmemdc, x, y, 7, 7, hmemdb, nxnb, ((3 - 1) * 7), ½SRCCOPY 
                x = ((x) + 8)
-               ¤ite0600 += 1
-               if ¤iti0600 = 0 then
-                  gosub .£FNini0600
+               ¤ite0597 += 1
+               if ¤iti0597 = 0 then
+                  gosub .£FNini0597
                end if
-               goto .£FNst0600
+               goto .£FNst0597
             NEXT 
             holdbb = (SELECTOBJECT(hmemdb, holdbb))
             holdbb = (SELECTOBJECT(hmemdb, hhighl))
-            BYTE ¤SCV281 = EXE.byt(@config, 57)
-            IF ¤SCV281 = 1 THEN
+            BYTE ¤SCV697 = EXE.byt(@config, 57)
+            IF ¤SCV697 = 1 THEN
                BITBLT hmemdc, 169, 104, 25, 9, hmemdb, 139, 23, ½SRCCOPY 
-            ELSEIF ¤SCV281 = 2 THEN
+            ELSEIF ¤SCV697 = 2 THEN
                BITBLT hmemdc, 169, 104, 25, 9, hmemdb, 139, 32, ½SRCCOPY 
-            ELSEIF ¤SCV281 = 3 THEN
+            ELSEIF ¤SCV697 = 3 THEN
                BITBLT hmemdc, 169, 104, 25, 9, hmemdb, 139, 41, ½SRCCOPY 
             END IF
-         ControlFlow0281:
+         ControlFlow0697:
             holdbb = (SELECTOBJECT(hmemdb, holdbb))
-         ELSEIF ¤SCV277 = ½SCREEN_GAME THEN
+         ELSEIF ¤SCV693 = ½SCREEN_GAME THEN
             IF EXE.lng(@config, 207) THEN
                GETCLIENTRECT(cbhndl, rc) 
                hbrush = (CREATESOLIDBRUSH(RGB(0, 0, 0)))
@@ -4436,19 +4349,19 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                holdbb = (SELECTOBJECT(hmemdb, holdbb))
                holdbb = (SELECTOBJECT(hmemdb, hvirbg))
                index = 1
-               gosub .£FNini0603
-               goto .£FNind0603
-            ..£FNini0603 
-               int ¤ite0603
-               int ¤iti0603 = 1
-               INT ¤tov0603 = 3
+               gosub .£FNini0600
+               goto .£FNind0600
+            ..£FNini0600 
+               int ¤ite0600
+               int ¤iti0600 = 1
+               INT ¤tov0600 = 3
                RET
-            ..£FNind0603 
-               FOR ¤ite0603 = 0 TO 2 STEP 1 
-               ..£FNst0603 
-                  if (¤ite0603 > 0) then
+            ..£FNind0600 
+               FOR ¤ite0600 = 0 TO 2 STEP 1 
+               ..£FNst0600 
+                  if (¤ite0600 > 0) then
                      index += 1
-                     if index > ¤tov0603 then exit for
+                     if index > ¤tov0600 then exit for
                   end if
                   DO
                      IF EXE.lng(@config, 23) THEN
@@ -4460,8 +4373,8 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                         y = ((24 * (index - 1)))
                         BITBLT hmemdc, bigv.lng(bigv.m(index), (0)), bigv.lng(bigv.m(index), (4)) + bigv.lng(bigv.m(index), (8)), 24, 24, hmemdb, x, y, ½SRCCOPY 
                      ELSE
-                        INT ¤SCV282 = bigv.lng(bigv.m(index), (12))
-                        IF ¤SCV282 = ½VIRUS_NORMAL THEN
+                        INT ¤SCV698 = bigv.lng(bigv.m(index), (12))
+                        IF ¤SCV698 = ½VIRUS_NORMAL THEN
                            IF (EXE.lng(@config, 167) MOD 8)=0 THEN
                               ¤UDT_INCR(bigv, bigv.m(index), (20), BYTE, 1)
                            END IF
@@ -4469,7 +4382,7 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                            sprframe = (CHOOSE(offframe + 1, INT {1, 2, 3, 2}, countof))
                            x = ((24 * (sprframe - 1)))
                            y = ((24 * (index - 1)))
-                        ELSEIF ¤SCV282 = ½VIRUS_DEAD THEN
+                        ELSEIF ¤SCV698 = ½VIRUS_DEAD THEN
                            ¤UDT_INCR(bigv, bigv.m(index), (16), LONG, 1)
                            IF bigv.lng(bigv.m(index), (16)) < 20 THEN
                               x = ((24 * (7 - 1)))
@@ -4477,7 +4390,7 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                            ELSE
                               EXIT DO
                            END IF
-                        ELSEIF ¤SCV282 = ½VIRUS_FLOOR THEN
+                        ELSEIF ¤SCV698 = ½VIRUS_FLOOR THEN
                            IF (EXE.lng(@config, 167) MOD 3)=0 THEN
                               ¤UDT_INCR(bigv, bigv.m(index), (20), BYTE, 1)
                            END IF
@@ -4487,21 +4400,21 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                            x = ((24 * (sprframe - 1)))
                            y = ((24 * (index - 1)))
                            IF bigv.lng(bigv.m(index), (16)) < 7 THEN
-                              INT ¤SCV283 = bigv.lng(bigv.m(index), (16))
-                              IF ¤SCV283 = 1 THEN
+                              INT ¤SCV699 = bigv.lng(bigv.m(index), (16))
+                              IF ¤SCV699 = 1 THEN
                                  ¤UDT_SETV(bigv, bigv.m(index), (8), LONG, (-5), 4)
-                              ELSEIF ¤SCV283 = 2 THEN
+                              ELSEIF ¤SCV699 = 2 THEN
                                  ¤UDT_SETV(bigv, bigv.m(index), (8), LONG, (-9), 4)
-                              ELSEIF ¤SCV283 = 3 THEN
+                              ELSEIF ¤SCV699 = 3 THEN
                                  ¤UDT_SETV(bigv, bigv.m(index), (8), LONG, (-11), 4)
-                              ELSEIF ¤SCV283 = 4 THEN
+                              ELSEIF ¤SCV699 = 4 THEN
                                  ¤UDT_SETV(bigv, bigv.m(index), (8), LONG, (-9), 4)
-                              ELSEIF ¤SCV283 = 5 THEN
+                              ELSEIF ¤SCV699 = 5 THEN
                                  ¤UDT_SETV(bigv, bigv.m(index), (8), LONG, (-5), 4)
-                              ELSEIF ¤SCV283 = 6 THEN
+                              ELSEIF ¤SCV699 = 6 THEN
                                  ¤UDT_SETV(bigv, bigv.m(index), (8), LONG, (0), 4)
                               END IF
-                           ControlFlow0283:
+                           ControlFlow0699:
                            END IF
                            IF bigv.lng(bigv.m(index), (16)) > 80 THEN
                               IF REMAININGVIRUS(bigv.lng(bigv.m(index), (21))) THEN
@@ -4514,63 +4427,63 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                               END IF
                            END IF
                         END IF
-                     ControlFlow0282:
+                     ControlFlow0698:
                         BITBLT hmemdc, bigv.lng(bigv.m(index), (0)), bigv.lng(bigv.m(index), (4)) + bigv.lng(bigv.m(index), (8)), 24, 24, hmemdb, x, y, ½SRCCOPY 
                      END IF
                      EXIT DO
                   LOOP
-                  ¤ite0603 += 1
-                  if ¤iti0603 = 0 then
-                     gosub .£FNini0603
+                  ¤ite0600 += 1
+                  if ¤iti0600 = 0 then
+                     gosub .£FNini0600
                   end if
-                  goto .£FNst0603
+                  goto .£FNst0600
                NEXT 
                holdbb = (SELECTOBJECT(hmemdb, holdbb))
                holdbb = (SELECTOBJECT(hmemdb, hvirsm))
                xa = 0
-               gosub .£FNini0615
-               goto .£FNind0615
-            ..£FNini0615 
-               int ¤ite0615
-               int ¤iti0615 = 1
-               INT ¤tov0615 = 9
+               gosub .£FNini0612
+               goto .£FNind0612
+            ..£FNini0612 
+               int ¤ite0612
+               int ¤iti0612 = 1
+               INT ¤tov0612 = 9
                RET
-            ..£FNind0615 
-               FOR ¤ite0615 = 0 TO 2 STEP 1 
-               ..£FNst0615 
-                  if (¤ite0615 > 0) then
+            ..£FNind0612 
+               FOR ¤ite0612 = 0 TO 2 STEP 1 
+               ..£FNst0612 
+                  if (¤ite0612 > 0) then
                      xa += 1
-                     if xa > ¤tov0615 then exit for
+                     if xa > ¤tov0612 then exit for
                   end if
                   ya = 0
-                  gosub .£FNini0616
-                  goto .£FNind0616
-               ..£FNini0616 
-                  int ¤ite0616
-                  int ¤iti0616 = 1
-                  INT ¤tov0616 = 17
+                  gosub .£FNini0613
+                  goto .£FNind0613
+               ..£FNini0613 
+                  int ¤ite0613
+                  int ¤iti0613 = 1
+                  INT ¤tov0613 = 17
                   RET
-               ..£FNind0616 
-                  FOR ¤ite0616 = 0 TO 2 STEP 1 
-                  ..£FNst0616 
-                     if (¤ite0616 > 0) then
+               ..£FNind0613 
+                  FOR ¤ite0613 = 0 TO 2 STEP 1 
+                  ..£FNst0613 
+                     if (¤ite0613 > 0) then
                         ya += 1
-                        if ya > ¤tov0616 then exit for
+                        if ya > ¤tov0613 then exit for
                      end if
-                     INT ¤SCV284 = area.lng(area.m(xa,ya), (4))
-                     IF ¤SCV284 = ½AREA_VIRUS THEN
+                     INT ¤SCV700 = area.lng(area.m(xa,ya), (4))
+                     IF ¤SCV700 = ½AREA_VIRUS THEN
                         x = ((7 * EXE.byt(@config, 1)))
                         y = ((7 * (area.lng(area.m(xa,ya), (0)) - 1)))
                         BITBLT hmemdc, ½BOTTLE_X + ((xa * 8) - 8), ½BOTTLE_Y + ((ya * 8) - 8), 7, 7, hmemdb, x, y, ½SRCCOPY 
-                     ELSEIF ¤SCV284 = ½AREA_HALFPILL THEN
+                     ELSEIF ¤SCV700 = ½AREA_HALFPILL THEN
                         x = ((7 * 8))
                         y = ((7 * (area.lng(area.m(xa,ya), (0)) - 1)))
                         BITBLT hmemdc, ½BOTTLE_X + ((xa * 8) - 8), ½BOTTLE_Y + ((ya * 8) - 8), 7, 7, hmemdb, x, y, ½SRCCOPY 
-                     ELSEIF ¤SCV284 = ½AREA_PILL THEN
+                     ELSEIF ¤SCV700 = ½AREA_PILL THEN
                         x = ((7 * (area.lng(area.m(xa,ya), (8)) + 1)))
                         y = ((7 * (area.lng(area.m(xa,ya), (0)) - 1)))
                         BITBLT hmemdc, ½BOTTLE_X + ((xa * 8) - 8), ½BOTTLE_Y + ((ya * 8) - 8), 7, 7, hmemdb, x, y, ½SRCCOPY 
-                     ELSEIF ¤SCV284 = ½AREA_BLOCK THEN
+                     ELSEIF ¤SCV700 = ½AREA_BLOCK THEN
                         IF area.lng(area.m(xa,ya), (12)) THEN
                            IF ¤ISFALSE(EXE.lng(@config, 31)) THEN
                               ¤UDT_INCR(area, area.m(xa,ya), (12), LONG, 1)
@@ -4588,18 +4501,18 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                         END IF
                         BITBLT hmemdc, ½BOTTLE_X + ((xa * 8) - 8), ½BOTTLE_Y + ((ya * 8) - 8), 7, 7, hmemdb, x, y, ½SRCCOPY 
                      END IF
-                  ControlFlow0284:
-                     ¤ite0616 += 1
-                     if ¤iti0616 = 0 then
-                        gosub .£FNini0616
+                  ControlFlow0700:
+                     ¤ite0613 += 1
+                     if ¤iti0613 = 0 then
+                        gosub .£FNini0613
                      end if
-                     goto .£FNst0616
+                     goto .£FNst0613
                   NEXT 
-                  ¤ite0615 += 1
-                  if ¤iti0615 = 0 then
-                     gosub .£FNini0615
+                  ¤ite0612 += 1
+                  if ¤iti0612 = 0 then
+                     gosub .£FNini0612
                   end if
-                  goto .£FNst0615
+                  goto .£FNst0612
                NEXT 
                holdbb = (SELECTOBJECT(hmemdb, holdbb))
                IF EXE.lng(@config, 31) THEN
@@ -4629,38 +4542,38 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                   holdbb = (SELECTOBJECT(hmemdb, holdbb))
                ELSE
                   holdbb = (SELECTOBJECT(hmemdb, hmario))
-                  INT ¤SCV285 = EXE.lng(@config, 227)
-                  IF ¤SCV285 = 3 or  ¤SCV285 = 4 or  ¤SCV285 = 5 THEN
+                  INT ¤SCV701 = EXE.lng(@config, 227)
+                  IF ¤SCV701 = 3 or  ¤SCV701 = 4 or  ¤SCV701 = 5 THEN
                      xne = (((EXE.lng(@config, 227) - 1) * 34))
                      wnf = (30)
                   END IF
-               ControlFlow0285:
+               ControlFlow0701:
                   BITBLT hmemdc, 188, 68, wnf, 40, hmemdb, xne, 0, ½SRCCOPY 
                   holdbb = (SELECTOBJECT(hmemdb, holdbb))
                   holdbb = (SELECTOBJECT(hmemdb, hvirsm))
-                  INT ¤SCV286 = EXE.lng(@config, 58 + 40)
-                  IF ¤SCV286 = ½DIR_UP THEN
+                  INT ¤SCV702 = EXE.lng(@config, 58 + 40)
+                  IF ¤SCV702 = ½DIR_UP THEN
                      xne = ((7 * (½DIR_DN + 1)))
                      y = ((7 * (EXE.lng(@config, 58 + 4) - 1)))
                      BITBLT hmemdc, EXE.lng(@config, 58 + 20), EXE.lng(@config, 58 + 24), 7, 7, hmemdb, xne, y, ½SRCCOPY 
                      xne = ((7 * (½DIR_UP + 1)))
                      y = ((7 * (EXE.lng(@config, 58 + 8) - 1)))
                      BITBLT hmemdc, EXE.lng(@config, 58 + 20), EXE.lng(@config, 58 + 24) - 8, 7, 7, hmemdb, xne, y, ½SRCCOPY 
-                  ELSEIF ¤SCV286 = ½DIR_DN THEN
+                  ELSEIF ¤SCV702 = ½DIR_DN THEN
                      xne = ((7 * (½DIR_DN + 1)))
                      y = ((7 * (EXE.lng(@config, 58 + 8) - 1)))
                      BITBLT hmemdc, EXE.lng(@config, 58 + 20), EXE.lng(@config, 58 + 24), 7, 7, hmemdb, xne, y, ½SRCCOPY 
                      xne = ((7 * (½DIR_UP + 1)))
                      y = ((7 * (EXE.lng(@config, 58 + 4) - 1)))
                      BITBLT hmemdc, EXE.lng(@config, 58 + 20), EXE.lng(@config, 58 + 24) - 8, 7, 7, hmemdb, xne, y, ½SRCCOPY 
-                  ELSEIF ¤SCV286 = ½DIR_RT THEN
+                  ELSEIF ¤SCV702 = ½DIR_RT THEN
                      xne = ((7 * (½DIR_LF + 1)))
                      y = ((7 * (EXE.lng(@config, 58 + 4) - 1)))
                      BITBLT hmemdc, EXE.lng(@config, 58 + 20), EXE.lng(@config, 58 + 24), 7, 7, hmemdb, xne, y, ½SRCCOPY 
                      xne = (((7 * (½DIR_RT + 1))))
                      y = ((7 * (EXE.lng(@config, 58 + 8) - 1)))
                      BITBLT hmemdc, EXE.lng(@config, 58 + 20) + 8, EXE.lng(@config, 58 + 24), 7, 7, hmemdb, xne, y, ½SRCCOPY 
-                  ELSEIF ¤SCV286 = ½DIR_LF THEN
+                  ELSEIF ¤SCV702 = ½DIR_LF THEN
                      xne = ((7 * (½DIR_LF + 1)))
                      y = ((7 * (EXE.lng(@config, 58 + 8) - 1)))
                      BITBLT hmemdc, EXE.lng(@config, 58 + 20), EXE.lng(@config, 58 + 24), 7, 7, hmemdb, xne, y, ½SRCCOPY 
@@ -4668,35 +4581,35 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                      y = ((7 * (EXE.lng(@config, 58 + 4) - 1)))
                      BITBLT hmemdc, EXE.lng(@config, 58 + 20) + 8, EXE.lng(@config, 58 + 24), 7, 7, hmemdb, xne, y, ½SRCCOPY 
                   END IF
-               ControlFlow0286:
+               ControlFlow0702:
                END IF
                holdbb = (SELECTOBJECT(hmemdb, holdbb))
                IF EXE.lng(@config, 102 + 0) THEN
                   IF ¤ISFALSE(EXE.lng(@config, 235)) AND ¤ISFALSE(EXE.lng(@config, 231)) THEN
                      holdbb = (SELECTOBJECT(hmemdb, hvirsm))
-                     INT ¤SCV287 = EXE.lng(@config, 102 + 40)
-                     IF ¤SCV287 = ½DIR_UP THEN
+                     INT ¤SCV703 = EXE.lng(@config, 102 + 40)
+                     IF ¤SCV703 = ½DIR_UP THEN
                         x = ((7 * (½DIR_DN + 1)))
                         y = ((7 * (EXE.lng(@config, 102 + 4) - 1)))
                         BITBLT hmemdc, EXE.lng(@config, 102 + 20), EXE.lng(@config, 102 + 24), 7, 7, hmemdb, x, y, ½SRCCOPY 
                         x = ((7 * (½DIR_UP + 1)))
                         y = ((7 * (EXE.lng(@config, 102 + 8) - 1)))
                         BITBLT hmemdc, EXE.lng(@config, 102 + 20), EXE.lng(@config, 102 + 24) - 8, 7, 7, hmemdb, x, y, ½SRCCOPY 
-                     ELSEIF ¤SCV287 = ½DIR_DN THEN
+                     ELSEIF ¤SCV703 = ½DIR_DN THEN
                         x = ((7 * (½DIR_DN + 1)))
                         y = ((7 * (EXE.lng(@config, 102 + 8) - 1)))
                         BITBLT hmemdc, EXE.lng(@config, 102 + 20), EXE.lng(@config, 102 + 24), 7, 7, hmemdb, x, y, ½SRCCOPY 
                         x = ((7 * (½DIR_UP + 1)))
                         y = ((7 * (EXE.lng(@config, 102 + 4) - 1)))
                         BITBLT hmemdc, EXE.lng(@config, 102 + 20), EXE.lng(@config, 102 + 24) - 8, 7, 7, hmemdb, x, y, ½SRCCOPY 
-                     ELSEIF ¤SCV287 = ½DIR_RT THEN
+                     ELSEIF ¤SCV703 = ½DIR_RT THEN
                         x = ((7 * (½DIR_LF + 1)))
                         y = ((7 * (EXE.lng(@config, 102 + 4) - 1)))
                         BITBLT hmemdc, EXE.lng(@config, 102 + 20), EXE.lng(@config, 102 + 24), 7, 7, hmemdb, x, y, ½SRCCOPY 
                         x = (((7 * (½DIR_RT + 1))))
                         y = ((7 * (EXE.lng(@config, 102 + 8) - 1)))
                         BITBLT hmemdc, EXE.lng(@config, 102 + 20) + 8, EXE.lng(@config, 102 + 24), 7, 7, hmemdb, x, y, ½SRCCOPY 
-                     ELSEIF ¤SCV287 = ½DIR_LF THEN
+                     ELSEIF ¤SCV703 = ½DIR_LF THEN
                         x = ((7 * (½DIR_LF + 1)))
                         y = ((7 * (EXE.lng(@config, 102 + 8) - 1)))
                         BITBLT hmemdc, EXE.lng(@config, 102 + 20), EXE.lng(@config, 102 + 24), 7, 7, hmemdb, x, y, ½SRCCOPY 
@@ -4704,7 +4617,7 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                         y = ((7 * (EXE.lng(@config, 102 + 4) - 1)))
                         BITBLT hmemdc, EXE.lng(@config, 102 + 20) + 8, EXE.lng(@config, 102 + 24), 7, 7, hmemdb, x, y, ½SRCCOPY 
                      END IF
-                  ControlFlow0287:
+                  ControlFlow0703:
                      holdbb = (SELECTOBJECT(hmemdb, holdbb))
                   END IF
                END IF
@@ -4738,28 +4651,28 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                y = (56)
                holdbb = (SELECTOBJECT(hmemdb, hnumbr))
                in14 = 1
-               gosub .£FNini0633
-               goto .£FNind0633
-            ..£FNini0633 
-               int ¤ite0633
-               int ¤iti0633 = 1
-               INT ¤tov0633 = 7
+               gosub .£FNini0630
+               goto .£FNind0630
+            ..£FNini0630 
+               int ¤ite0630
+               int ¤iti0630 = 1
+               INT ¤tov0630 = 7
                RET
-            ..£FNind0633 
-               FOR ¤ite0633 = 0 TO 2 STEP 1 
-               ..£FNst0633 
-                  if (¤ite0633 > 0) then
+            ..£FNind0630 
+               FOR ¤ite0630 = 0 TO 2 STEP 1 
+               ..£FNst0630 
+                  if (¤ite0630 > 0) then
                      in14 += 1
-                     if in14 > ¤tov0633 then exit for
+                     if in14 > ¤tov0630 then exit for
                   end if
                   nxn16 = (VAL(¤MID(sn13, in14, 1, byval 0)) * 7)
                   BITBLT hmemdc, x, y, 7, 7, hmemdb, nxn16, ((1 - 1) * 7), ½SRCCOPY 
                   x = ((x) + 8)
-                  ¤ite0633 += 1
-                  if ¤iti0633 = 0 then
-                     gosub .£FNini0633
+                  ¤ite0630 += 1
+                  if ¤iti0630 = 0 then
+                     gosub .£FNini0630
                   end if
-                  goto .£FNst0633
+                  goto .£FNst0630
                NEXT 
                holdbb = (SELECTOBJECT(hmemdb, holdbb))
                tn19 = EXE.dwd(@config, 163) 
@@ -4768,28 +4681,28 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                y = (80)
                holdbb = (SELECTOBJECT(hmemdb, hnumbr))
                in18 = 1
-               gosub .£FNini0634
-               goto .£FNind0634
-            ..£FNini0634 
-               int ¤ite0634
-               int ¤iti0634 = 1
-               INT ¤tov0634 = 7
+               gosub .£FNini0631
+               goto .£FNind0631
+            ..£FNini0631 
+               int ¤ite0631
+               int ¤iti0631 = 1
+               INT ¤tov0631 = 7
                RET
-            ..£FNind0634 
-               FOR ¤ite0634 = 0 TO 2 STEP 1 
-               ..£FNst0634 
-                  if (¤ite0634 > 0) then
+            ..£FNind0631 
+               FOR ¤ite0631 = 0 TO 2 STEP 1 
+               ..£FNst0631 
+                  if (¤ite0631 > 0) then
                      in18 += 1
-                     if in18 > ¤tov0634 then exit for
+                     if in18 > ¤tov0631 then exit for
                   end if
                   nxn1a = (VAL(¤MID(sn17, in18, 1, byval 0)) * 7)
                   BITBLT hmemdc, x, y, 7, 7, hmemdb, nxn1a, ((1 - 1) * 7), ½SRCCOPY 
                   x = ((x) + 8)
-                  ¤ite0634 += 1
-                  if ¤iti0634 = 0 then
-                     gosub .£FNini0634
+                  ¤ite0631 += 1
+                  if ¤iti0631 = 0 then
+                     gosub .£FNini0631
                   end if
-                  goto .£FNst0634
+                  goto .£FNst0631
                NEXT 
                holdbb = (SELECTOBJECT(hmemdb, holdbb))
                tn1d = EXE.byt(@config, 55) 
@@ -4798,40 +4711,40 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                y = (145)
                holdbb = (SELECTOBJECT(hmemdb, hnumbr))
                in1c = 1
-               gosub .£FNini0635
-               goto .£FNind0635
-            ..£FNini0635 
-               int ¤ite0635
-               int ¤iti0635 = 1
-               INT ¤tov0635 = 2
+               gosub .£FNini0632
+               goto .£FNind0632
+            ..£FNini0632 
+               int ¤ite0632
+               int ¤iti0632 = 1
+               INT ¤tov0632 = 2
                RET
-            ..£FNind0635 
-               FOR ¤ite0635 = 0 TO 2 STEP 1 
-               ..£FNst0635 
-                  if (¤ite0635 > 0) then
+            ..£FNind0632 
+               FOR ¤ite0632 = 0 TO 2 STEP 1 
+               ..£FNst0632 
+                  if (¤ite0632 > 0) then
                      in1c += 1
-                     if in1c > ¤tov0635 then exit for
+                     if in1c > ¤tov0632 then exit for
                   end if
                   nxn1e = (VAL(¤MID(sn1b, in1c, 1, byval 0)) * 7)
                   BITBLT hmemdc, x, y, 7, 7, hmemdb, nxn1e, ((1 - 1) * 7), ½SRCCOPY 
                   x = ((x) + 8)
-                  ¤ite0635 += 1
-                  if ¤iti0635 = 0 then
-                     gosub .£FNini0635
+                  ¤ite0632 += 1
+                  if ¤iti0632 = 0 then
+                     gosub .£FNini0632
                   end if
-                  goto .£FNst0635
+                  goto .£FNst0632
                NEXT 
                holdbb = (SELECTOBJECT(hmemdb, holdbb))
                holdbb = (SELECTOBJECT(hmemdb, hhighl))
-               BYTE ¤SCV288 = EXE.byt(@config, 57)
-               IF ¤SCV288 = 1 THEN
+               BYTE ¤SCV704 = EXE.byt(@config, 57)
+               IF ¤SCV704 = 1 THEN
                   BITBLT hmemdc, 207, 169, 25, 9, hmemdb, 109, 23, ½SRCCOPY 
-               ELSEIF ¤SCV288 = 2 THEN
+               ELSEIF ¤SCV704 = 2 THEN
                   BITBLT hmemdc, 207, 169, 25, 9, hmemdb, 109, 32, ½SRCCOPY 
-               ELSEIF ¤SCV288 = 3 THEN
+               ELSEIF ¤SCV704 = 3 THEN
                   BITBLT hmemdc, 207, 169, 25, 9, hmemdb, 109, 41, ½SRCCOPY 
                END IF
-            ControlFlow0288:
+            ControlFlow0704:
                holdbb = (SELECTOBJECT(hmemdb, holdbb))
                tn21 = EXE.byt(@config, 158) 
                sn1f = (¤FORMAT(tn21, REPEAT(2, "0")))
@@ -4839,33 +4752,33 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
                y = (194)
                holdbb = (SELECTOBJECT(hmemdb, hnumbr))
                in20 = 1
-               gosub .£FNini0637
-               goto .£FNind0637
-            ..£FNini0637 
-               int ¤ite0637
-               int ¤iti0637 = 1
-               INT ¤tov0637 = 2
+               gosub .£FNini0634
+               goto .£FNind0634
+            ..£FNini0634 
+               int ¤ite0634
+               int ¤iti0634 = 1
+               INT ¤tov0634 = 2
                RET
-            ..£FNind0637 
-               FOR ¤ite0637 = 0 TO 2 STEP 1 
-               ..£FNst0637 
-                  if (¤ite0637 > 0) then
+            ..£FNind0634 
+               FOR ¤ite0634 = 0 TO 2 STEP 1 
+               ..£FNst0634 
+                  if (¤ite0634 > 0) then
                      in20 += 1
-                     if in20 > ¤tov0637 then exit for
+                     if in20 > ¤tov0634 then exit for
                   end if
                   nxn22 = (VAL(¤MID(sn1f, in20, 1, byval 0)) * 7)
                   BITBLT hmemdc, x, y, 7, 7, hmemdb, nxn22, ((1 - 1) * 7), ½SRCCOPY 
                   x = ((x) + 8)
-                  ¤ite0637 += 1
-                  if ¤iti0637 = 0 then
-                     gosub .£FNini0637
+                  ¤ite0634 += 1
+                  if ¤iti0634 = 0 then
+                     gosub .£FNini0634
                   end if
-                  goto .£FNst0637
+                  goto .£FNst0634
                NEXT 
                holdbb = (SELECTOBJECT(hmemdb, holdbb))
             END IF
          END IF
-      ControlFlow0277:
+      ControlFlow0693:
          GETCLIENTRECT(cbhndl, rc) 
          STRETCHBLT hdc, 0, 0, EXE.lng(@rc, 8) - EXE.lng(@rc, 0), EXE.lng(@rc, 12) - EXE.lng(@rc, 4), hmemdc, 0, 0, ½GAME_W, ½GAME_H, ½SRCCOPY 
          DELETEOBJECT(SELECTOBJECT(hmemdc, holdbm)) 
@@ -4874,7 +4787,7 @@ FUNCTION DLGPROC(sys cbhndl, uint cbMsg, sys wParam, sys lParam) as int callback
          ENDPAINT(cbhndl, ps) 
       END IF
    END IF
-ControlFlow0275:
+ControlFlow0691:
    RETURN ¤RETVAL
 END FUNCTION
 END EXTERN
